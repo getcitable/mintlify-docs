@@ -3,7 +3,7 @@ title: "list_content"
 description: "Lists content rows for the brand with optional filters."
 ---
 
-Lists content rows for the brand with optional filters. Returns the deep link for each row (editor or detail page depending on platform/status). Read-only — no allowlist entry required.
+Lists content rows for the brand with optional filters. Returns the deep link for each row (editor or detail page depending on platform/status). Read-only.
 
 Filters compose with AND. Pass nothing for "everything for the brand," newest first.
 
@@ -13,10 +13,10 @@ Filters compose with AND. Pass nothing for "everything for the brand," newest fi
 - You want to confirm an action ticket has no draft yet before calling `create_content_draft`.
 - The user wants a list of content assigned to a specific reviewer.
 
-## When NOT to use
+## When not to use
 
-- The user wants attribution data (use `get_attribution_report`).
-- The user wants the action↔content tree for a specific ticket (use `get_action_with_children`).
+- The user wants attribution data — use [`get_attribution_report`](/mcp/reads/get-attribution-report).
+- The user wants the action-and-content tree for a specific ticket — use [`get_action_with_children`](/mcp/reads/get-action-with-children).
 
 ## Pagination
 
@@ -24,5 +24,4 @@ Passing the last item's id back as `cursor` returns the next page. `nextCursor=n
 
 ## See also
 
-- [MCP overview](/mcp/overview)
-- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission
+- [Overview](/mcp/overview)

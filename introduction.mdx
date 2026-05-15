@@ -1,67 +1,65 @@
 ---
-title: "Citable — build trust for AI agents"
-description: "Help brands be cited by AI agents during due diligence."
+title: "Citable"
+description: "Get cited by ChatGPT, Perplexity, Gemini, Copilot, and Grok when your buyers ask AI which company to choose."
 ---
 
-# What Citable does
+Citable is the AEO/GEO platform for B2B brands. When a prospect asks an AI assistant "what's the best tool for X" or "which company should I use for Y," the assistant answers from a small set of trusted sources. Citable measures whether your brand is in that set, recommends what to do about it, and helps you ship the work.
 
-When somebody asks ChatGPT, Perplexity, Gemini, or Copilot which company solves their problem, the answer comes from a small set of trusted sources the model has decided to cite. Citable is the platform that gets your brand into that set.
+It's built for founders, marketing leaders, and content teams who already know SEO is changing — and who want to be cited by the next generation of search before competitors are.
 
-Five levers, each measurable:
-
-1. **Understand the product's real value** — beyond marketing language.
-2. **Map the competitor landscape** — who else is in the consideration set.
-3. **Find unique positioning** — what you say that no competitor says.
-4. **Be omnipresent across channels** — content, outreach, technical, operational, paid.
-5. **Multiply** — more brand accounts × more channels × better content = more cited.
-
-Everything in the platform serves one of those five.
-
-## How Citable works
-
-Citable is a **Data Layer → MCP toolkit → Executors** architecture:
-
-- **Data Layer** — the Brand Knowledge Graph, the Citation Observatory, and the Action↔Outcome Ledger. The Ledger is the moat: every Citable-emitted action gets a row, and 30 days later the system measures the citation/visibility/SoV lift attributable to that action.
-
-- **MCP toolkit** — typed contracts that expose the data layer to any agent: Claude Desktop, Cursor, ChatGPT, our own agent runner, or humans in the UI. The same 5 `emit_*` write tools and ~15 read tools serve all of them.
-
-- **Executors** — agents (ours or yours) that pick tools, call them, and produce real-world artifacts (drafts, recommendations, scheduled posts, paid placements).
-
-This architecture is the bet: the **planner is rented** (frontier LLMs improve quarterly without changes from us), the **moat is what we own** (the data flywheel + the typed tool surface).
-
-## What this docs site covers
+## What you get
 
 <CardGroup cols={2}>
-  <Card title="Platform" icon="cube" href="/platform/architecture">
-    How the data moat works, the hard rules every emit must obey, the slices we shipped.
+  <Card title="AI visibility scans" icon="radar">
+    Run real prompts on ChatGPT, Perplexity, Gemini, Claude, and Grok. See which questions cite you, which mention you, and where competitors are winning.
   </Card>
-  <Card title="MCP Reference" icon="terminal" href="/mcp/overview">
-    Every tool, every input, every output. The contract external agents code against.
+  <Card title="Recommendations" icon="list-check">
+    The Action Engine turns scan results into a prioritized to-do list: write this blog, fix this page, reply to this thread, run this ad.
+  </Card>
+  <Card title="Content tools" icon="pen-nib">
+    Brand Studio drafts hub content. Broadcast fans it out into LinkedIn, Reddit, X, and blog spokes — each tuned for the platform.
+  </Card>
+  <Card title="Outcome measurement" icon="chart-line">
+    Thirty days after you publish, Citable measures whether citation rate and share of voice actually moved. The loop closes.
   </Card>
 </CardGroup>
 
-## The iteration loop
+## Why it matters
 
-The flywheel closes within 30 days of any emitted action:
+AI assistants are becoming the new front door to B2B research. The buyer who used to type a query into Google and click through ten blue links now asks ChatGPT to compare three vendors and recommend one. If you're not cited, you're not in the consideration set.
 
-```
-Brand Studio (insight + hub)
-    → Broadcast (channel spokes)
-        → Citation tracker (measure lift)
-            → Action↔Outcome Ledger (record cause + effect)
-                → Cohort aggregator (k-anonymous benchmarks)
-                    → Next Brand Studio recommendation (learned)
-```
+The brands that win this surface are the brands that:
 
-Per-channel playbooks emerge from the ledger over time. They are **not** hand-coded.
+- Show up across multiple AI engines, not just one
+- Have content that AI assistants actually trust enough to quote
+- Get mentioned alongside category leaders, not below them
+- Move citation rate up over time, not just hold steady
 
-## Hard rules
+Citable is built around those four outcomes.
 
-Six invariants every part of the platform respects. See [Hard rules](/platform/hard-rules) for the full list.
+## How a typical week looks
 
-- `intent` enum is only `engagement` | `commercial`
-- Every `emit_*` validates persona-intent before emission
-- `is_branded=false` is the default scope on every read
-- Share of Voice on non-branded prompts is the North Star
-- Branded competitor comparison is Grow-tier only
-- Cross-brand aggregator outputs enforce k-anonymity ≥5
+1. Your scan runs in the background and updates your dashboard.
+2. The Action Engine shows you the three highest-impact things to do this week.
+3. You approve them. Citable drafts the content, lines up the spokes, and queues the work.
+4. You ship — post the LinkedIn, publish the blog, file the technical fix.
+5. Thirty days later, you see what moved.
+
+## Explore the docs
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Connect your domain, run your first scan, and review your first set of recommendations — three minutes of setup.
+  </Card>
+  <Card title="Concepts" icon="book-open" href="/concepts/how-ai-citations-work">
+    How AI citations work, what Citable measures, the persona model, and the five action types we recommend.
+  </Card>
+  <Card title="Features" icon="cubes" href="/features/brand-studio">
+    Brand Studio, Broadcast, the Action Engine, the content audit, and paid campaigns.
+  </Card>
+  <Card title="Integrations" icon="plug" href="/integrations/google-analytics">
+    Connect Google Analytics, Google Ads, and Reddit to close the loop on attribution and inputs.
+  </Card>
+</CardGroup>
+
+For developers building on Citable's data, see the [API Reference](/mcp/overview).

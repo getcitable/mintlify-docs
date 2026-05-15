@@ -1,26 +1,26 @@
 ---
-title: "get_topical_authority — Stage × Persona × Competitor coverage matrix"
-description: "The 4-card funnel — Citation Rate, Mention Rate, Avg Rank, Sentiment — broken down per competitor and filterable by stage, persona, and AI model."
+title: "get_topical_authority"
+description: "The four-metric funnel — Citation Rate, Mention Rate, Average Rank, Sentiment — broken down per competitor and filterable by stage, persona, and AI model."
 ---
 
 ## What it does
 
-Returns the brand's topical authority matrix — **Citation Rate**, **Mention Rate**, **Average Rank**, and **Sentiment** broken down per competitor — filterable by journey stage, persona, and AI model. Wraps the canonical comparative-metrics service (CIT-777 P2) and threads filter params through without reinventing the math.
+Returns the brand's topical authority matrix — **Citation Rate**, **Mention Rate**, **Average Rank**, and **Sentiment** broken down per competitor — filterable by journey stage, persona, and AI model.
 
-Defaults to non-branded prompts only (hard rule #3: `is_branded=false` is the default scope for recommendation queries). Branded comparisons gate to Grow tier and require explicit opt-in via `isBranded: true`.
+Defaults to non-branded prompts only (the canonical scope for recommendation work). Branded comparisons are available on the Grow tier and require explicit opt-in via `isBranded: true`.
 
 ## When to use
 
 - "Where am I weakest on purchase-stage prompts?"
 - "Who's beating me on comparison queries for the founder persona?"
-- "How does my Sentiment look across stages?"
+- "How does my sentiment look across stages?"
 - "What's my Citation Rate against [Competitor X]?"
 
-## When NOT to use
+## When not to use
 
-- The user wants a paid-ads-specific funnel → use [`get_paid_ads_insights`](/mcp/reads/get-paid-ads-insights).
-- The user wants a recommended to-do list → use [`get_geo_priorities`](/mcp/reads/get-geo-priorities).
-- The user wants past actions and outcome deltas → use [`get_action_outcome_history`](/mcp/reads/get-action-outcome-history).
+- The user wants a paid-ads-specific view — use [`get_paid_ads_insights`](/mcp/reads/get-paid-ads-insights).
+- The user wants a recommended to-do list — use [`get_geo_priorities`](/mcp/reads/get-geo-priorities).
+- The user wants past actions and outcome deltas — use [`get_action_outcome_history`](/mcp/reads/get-action-outcome-history).
 
 ## Inputs
 
@@ -31,13 +31,11 @@ Defaults to non-branded prompts only (hard rule #3: `is_branded=false` is the de
 | `personaNames` | `string[]` | all | Filter to personas by display name. |
 | `modelCodes` | `string[]` | all configured | AI models, e.g. `["chatgpt", "perplexity"]`. |
 | `competitorNames` | `string[]` | all tracked | Limit comparison set. |
-| `isBranded` | `boolean \| null` | `false` | `false` = non-branded only (default), `true` = branded only (Grow-tier-gated), `null` = both. |
+| `isBranded` | `boolean \| null` | `false` | `false` = non-branded only (default), `true` = branded only (Grow-tier gated), `null` = both. |
 
-`brand_id` is resolved from auth — never passed as input.
+Brand id is resolved from auth.
 
 ## Response
-
-`structuredContent` shape:
 
 ```json
 {
@@ -46,8 +44,7 @@ Defaults to non-branded prompts only (hard rule #3: `is_branded=false` is the de
     { "isYou": false, "brand": "Profound", "value": 0.31 }
   ],
   "mentionRate": [
-    { "isYou": true, "brand": "Citable", "value": 0.58 },
-    { "isYou": false, "brand": "Profound", "value": 0.47 }
+    { "isYou": true, "brand": "Citable", "value": 0.58 }
   ],
   "averageRank": [
     { "isYou": true, "brand": "Citable", "value": 2.3 }
@@ -68,11 +65,9 @@ Defaults to non-branded prompts only (hard rule #3: `is_branded=false` is the de
 }
 ```
 
-Each metric array has one row per brand (yours + competitors) with `isYou`, `brand` name, and either a numeric `value` (citation/mention/rank) or a `{ score, sampleSize, confidence }` object (sentiment).
+Each metric array has one row per brand (yours + competitors) with `isYou`, `brand` name, and either a numeric `value` or a `{ score, sampleSize, confidence }` object for sentiment.
 
 ## Notes
 
-- **`isBranded` default is `false`** — non-branded prompts only — to honor hard rule #3. Passing `true` on a non-Grow brand returns the own-brand row with `tierGated: true` and no competitor rows.
-- **Phase 1 limitation:** per-competitor `averageRank` and `sentiment` rows are own-brand-only until CIT-777 P2 fully lands. `citationRate` and `mentionRate` already have full competitor breakdowns.
-- The underlying `comparative-metrics-service` is the single source of truth for the 4-card funnel math. This tool never reinvents it — it threads filter params through and returns the service's result.
-- Brand-scoped by `auth.brand_id` at the query layer.
+- **`isBranded` default is `false`** — non-branded prompts only — because non-branded is the recommendation-relevant scope. Passing `true` on a non-Grow brand returns the own-brand row with `tierGated: true` and no competitor rows.
+- Per-competitor `averageRank` and `sentiment` rows may be own-brand-only in some windows depending on sample size; `citationRate` and `mentionRate` always have full competitor breakdowns.

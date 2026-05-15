@@ -3,23 +3,22 @@ title: "mark_reply_posted"
 description: "Marks a social reply as posted with the live URL."
 ---
 
-Marks a social reply as posted with the live URL. Sets `status='published'`, stamps `posted_url` + `posted_at`. Brand resolved from MCP auth context.
+Marks a social reply as posted with the live URL. Sets `status='published'`, stamps `posted_url` and `posted_at`. Brand resolved from auth context.
 
 ## When to use
 
-- The user has just posted the reply on Reddit/Hacker News/etc. and wants it tracked.
+- The user has just posted the reply on Reddit, Hacker News, or another platform and wants it tracked.
 - A user pastes a comment URL after replying manually.
 
-## When NOT to use
+## When not to use
 
-- The reply hasn't been posted yet — use `update_reply` for status changes that don't carry a URL.
-- The user wants to undo "posted" status — call `update_reply` with `status='scheduled'` or `'draft'`.
+- The reply hasn't been posted yet — use [`update_reply`](/mcp/writes/update-reply) for status changes that don't carry a URL.
+- The user wants to undo a "posted" status — call [`update_reply`](/mcp/writes/update-reply) with `status='scheduled'` or `'draft'`.
 
 ## Inputs
 
-The `posted_url` should be the canonical URL of the live comment, not the source thread URL. Future attribution work joins on this column.
+The `posted_url` should be the canonical URL of the live comment, not the source thread URL. Attribution joins on this column.
 
 ## See also
 
-- [MCP overview](/mcp/overview)
-- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission
+- [Overview](/mcp/overview)

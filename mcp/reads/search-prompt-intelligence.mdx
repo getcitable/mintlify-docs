@@ -1,24 +1,27 @@
 ---
 title: "search_prompt_intelligence"
-description: "Semantic search over the brand's tracked prompts in Citable's Prompt Intelligence system."
+description: "Semantic search over the brand's tracked prompts."
 ---
 
-Semantic search over the brand's tracked prompts in Citable's Prompt Intelligence system. Returns matching prompts with funnel stage (TOFU/MOFU/BOFU), strategic value, topic cluster, brand scope, persona match, platforms tracked (ChatGPT/Gemini/Claude/Perplexity/Grok), and latest visibility/citation/sentiment scores.
+Semantic search over the brand's tracked prompts. Returns matching prompts with funnel stage (TOFU/MOFU/BOFU), strategic value, topic cluster, brand scope, persona match, platforms tracked (ChatGPT/Gemini/Claude/Perplexity/Grok), and latest visibility, citation, and sentiment scores.
 
 ## When to use
-
-Use this when the user asks:
 
 - "Do I track prompts about topic X?"
 - "What MOFU prompts am I losing visibility on?"
 - "Show me prompts tied to persona Y."
 - "Which prompts mention competitor Z?"
 
-Skip when the user wants a summary (use `get_brand_visibility`) or action items (use `get_geo_priorities`).
+Skip when the user wants a summary (use [`get_brand_visibility`](/mcp/reads/get-brand-visibility)) or action items (use [`get_geo_priorities`](/mcp/reads/get-geo-priorities)).
 
-## Response shape
+## Response
 
-`{ query, total, results: [{ id, promptText, funnelStage, strategicValue, topicCluster, brandScope, personaMatch, platforms[], visibilityScore, citationScore, brandSentimentScore, isNew }] }`.
+```
+{ query, total,
+  results: [{ id, promptText, funnelStage, strategicValue, topicCluster,
+              brandScope, personaMatch, platforms[],
+              visibilityScore, citationScore, brandSentimentScore, isNew }] }
+```
 
 ## Example
 
@@ -26,5 +29,4 @@ Calling with `{ query: "AI marketing automation", funnelStage: "MOFU", limit: 10
 
 ## See also
 
-- [MCP overview](/mcp/overview)
-- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission
+- [Overview](/mcp/overview)

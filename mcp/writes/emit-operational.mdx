@@ -1,65 +1,61 @@
 ---
-title: "emit_operational — recommend a brand-config change"
-description: "Coarse operational emit: inserts an action_engine_tasks row for a config / setup change and writes the Action↔Outcome Ledger row."
+title: "emit_operational"
+description: "Recommend a brand-config change — inserts an Action Engine card and records the action for 30-day measurement."
 ---
 
 ## What it does
 
-Emits an operational recommendation — a config or setup change the brand should make to improve their Citable footprint: enable an additional AI model, add a journey stage, register a new `brand_account`, calibrate a persona, raise `scan_questions_per_stage`. v1 inserts an `action_engine_tasks` row and writes the Action↔Outcome Ledger row; the user reviews and accepts in the UI, which flips the underlying brand setting. Auto-apply is a follow-up once recommendation precision is proven.
+Emits an operational recommendation — a configuration or setup change the brand should make to improve their AI visibility footprint: enable an additional AI engine, add a journey stage, register a new channel account, calibrate a persona, raise the prompts-per-stage budget. The user reviews and accepts in the web UI; the accepted change flips the underlying brand setting.
 
-Operational actions are persona-agnostic, so the persona-intent matrix is skipped — but the emit still routes through the same `validateAndRecordEmission` helper for ledger uniformity.
+Operational actions are persona-agnostic, so the persona-intent matrix is skipped.
 
 ## When to use
 
-- `get_brand_context` shows a coverage gap — e.g. only ChatGPT is enabled when competitors are also winning on Perplexity.
+- A scan shows a coverage gap — e.g., only ChatGPT is enabled when competitors are also winning on Perplexity.
 - The user asks "what should I set up next?"
 
 ## When not to use
 
-- The fix is structural / on-page — use `emit_technical`.
-- The fix is content creation — use `emit_content`.
+- The fix is structural / on-page — use [`emit_technical`](/mcp/writes/emit-technical).
+- The fix is content creation — use [`emit_content`](/mcp/writes/emit-content).
 
 ## Inputs
 
-- `subtype` (string, 1–40 chars, required) — free-form category. Common values:
-  - `'enable_model'` — recommend enabling an additional AI model in `scan_models_enabled`
-  - `'add_persona'` — recommend adding a new persona (audience subtype) to the matrix
-  - `'add_competitor'` — recommend a competitor to track in `s_brand_competitors`
+- `subtype` (string, 1–40 chars, required) — category of change. Common values:
+  - `'enable_model'` — recommend enabling an additional AI engine in scans
+  - `'add_persona'` — recommend adding a new audience persona
+  - `'add_competitor'` — recommend a competitor to track
   - `'calibrate_persona'` — recommend a persona-calibration tune
-  - `'expand_journey'` — recommend adding a stage to `scan_stages_enabled`
-  - `'add_brand_account'` — recommend a `brand_account` / channel account to connect
+  - `'expand_journey'` — recommend adding a journey stage to scans
+  - `'add_brand_account'` — recommend a channel account to connect
 - `title` (string, 1–200 chars, required) — one-line summary.
 - `description` (string[], 1–20 items, each ≤500 chars, required) — step-by-step instructions.
-- `effort_minutes` (number, 1–120, default 15) — estimated effort.
+- `effort_minutes` (number, 1–120, default 15).
 - `priority` (`'low'` | `'medium'` | `'high'` | `'critical'`, default `'medium'`).
-- `config_target` (object, optional) — JSON describing the proposed setting change, recorded on the ledger row for later auto-apply. Example:
+- `config_target` (object, optional) — JSON describing the proposed setting change, useful for future auto-apply. Example:
   ```json
-  { "table": "brands", "column": "scan_models_enabled", "value_add": ["perplexity"] }
+  { "setting": "scan_models", "value_add": ["perplexity"] }
   ```
 
 ## Response
 
 ```json
 {
-  "ledgerId": 8720,
+  "actionId": 8720,
   "taskId": 4485,
-  "deepLinkUrl": "https://getcitable.com/actions/4485",
+  "deepLinkUrl": "https://app.getcitable.com/actions/4485",
   "validation": { "status": "allowed" }
 }
 ```
 
-## Persona-intent validation
-
-**Persona-agnostic.** Operational edits don't speak as a persona, so `persona_id` and `intent` are not accepted and the matrix is skipped. The emit still flows through `validateAndRecordEmission` for ledger uniformity (one consistent contract per Hard rule #2) — the helper short-circuits when `personaId: null`. See [Hard rules #2](/platform/hard-rules#2-every-emit-validates-persona-intent-before-emission).
-
-## Examples
+## Example
 
 Recommend enabling Perplexity because competitors are winning citations there:
 
 ```json
 {
   "subtype": "enable_model",
-  "title": "Enable Perplexity in scan_models_enabled",
+  "title": "Enable Perplexity in scan models",
   "description": [
     "Go to Settings → Scan Config.",
     "Check the Perplexity box in 'Models scanned'.",
@@ -69,8 +65,7 @@ Recommend enabling Perplexity because competitors are winning citations there:
   "effort_minutes": 5,
   "priority": "high",
   "config_target": {
-    "table": "brands",
-    "column": "scan_models_enabled",
+    "setting": "scan_models",
     "value_add": ["perplexity"]
   }
 }

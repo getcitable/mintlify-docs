@@ -3,11 +3,11 @@ title: "suggest_broadcast"
 description: "Suggests other platforms where the brand could broadcast a piece of existing content."
 ---
 
-Suggests other platforms where the brand could broadcast a piece of existing content. Read-only — never creates drafts. Pair with `create_content_draft` to actually write the cross-post.
+Suggests other platforms where the brand could broadcast a piece of existing content. Read-only — never creates drafts. Pair with [`create_content_draft`](/mcp/writes/create-content-draft) to actually write the cross-post.
 
 ## Inputs
 
-`source_content_id` (a `generated_content` row id, must belong to the authenticated brand). Returns ranked platform suggestions with rationale strings.
+`source_content_id` — id of an existing content row that belongs to the authenticated brand. Returns ranked platform suggestions with rationale strings.
 
 ## When to use
 
@@ -15,20 +15,24 @@ Suggests other platforms where the brand could broadcast a piece of existing con
 - You're about to call `create_content_draft` and want to pick the highest-headroom platform.
 - The user wants to cross-post but doesn't know which channels are underused.
 
-## When NOT to use
+## When not to use
 
-- The user wants attribution data (use `get_attribution_report`).
-- The user wants overall AI visibility (use `get_brand_visibility`).
+- The user wants attribution data — use [`get_attribution_report`](/mcp/reads/get-attribution-report).
+- The user wants overall AI visibility — use [`get_brand_visibility`](/mcp/reads/get-brand-visibility).
 
-## Ranking heuristic
+## Ranking
 
-Ranking heuristic v1: `score = 1 / (recent_post_count + 1)`. Higher score = more cross-post headroom on that platform. Excludes the source platform. Window defaults to 30 days.
+Higher score = more cross-post headroom on that platform. Excludes the source platform. Window defaults to 30 days.
 
-## Response shape
+## Response
 
-`{ source: { contentId, platform, title, postedUrl, postedAt }, windowDays, suggestions: [{ platform, recentPostCount, score, rationale }] }`.
+```
+{ source: { contentId, platform, title, postedUrl, postedAt },
+  windowDays,
+  suggestions: [{ platform, recentPostCount, score, rationale }] }
+```
 
 ## See also
 
-- [MCP overview](/mcp/overview)
-- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission
+- [Overview](/mcp/overview)
+- [Broadcast](/features/broadcast)

@@ -1,41 +1,41 @@
 ---
-title: "emit_paid — launch a paid placement on an AI surface"
-description: "Coarse paid emit: validates persona-intent, calls the engine adapter, persists paid_ad_objects, writes the Action↔Outcome Ledger row."
+title: "emit_paid"
+description: "Launch a paid placement on an AI surface — validates persona-intent, calls the engine adapter, records the action for 30-day measurement."
 ---
 
 ## What it does
 
-Emits a paid ad on an AI surface — ChatGPT Ads today; Perplexity / Gemini / Grok / Copilot as adapters land. Engine-agnostic by design: the `engine` column on `paid_ad_objects` plus the per-engine adapter file is the whole abstraction.
+Emits a paid ad on an AI surface — ChatGPT Ads today, with adapters for Perplexity, Gemini, Grok, and Copilot landing as each engine opens advertising. Engine-agnostic by design: pick the engine, pass the engine-shaped payload, and Citable routes to the right adapter.
 
 Under the hood:
 
-1. Persona-intent matrix validates the creative content (block-severity halts; warn-severity logs).
-2. Calls the engine adapter to create the campaign / ad_group / ad on the external system.
-3. Persists to `paid_ad_objects` and writes the Action↔Outcome Ledger row via Track A's bridge.
+1. The persona-intent matrix validates the creative content.
+2. Citable calls the engine adapter to create the campaign, ad group, or ad on the external system.
+3. The action is recorded so its 30-day citation impact can be measured.
 
-Intent is **always `'commercial'`** for `emit_paid` — paid placements exist to drive conversions, never just engagement. The caller cannot override this.
+Intent is always `'commercial'` for `emit_paid` — paid placements exist to drive conversions, not just engagement. The caller cannot override this.
 
 ## When to use
 
 - The user (or upstream agent) has decided to launch a paid placement against a specific prompt cluster.
-- `recommend_paid_ad_strategy` returned a proposal the user approved.
+- [`recommend_paid_ad_strategy`](/mcp/writes/recommend-paid-ad-strategy) returned a proposal the user approved.
 
 ## When not to use
 
-- The user wants to pause / activate / archive an existing object — use `manage_paid_ad`.
-- The user wants strategy proposals, not creation — use `recommend_paid_ad_strategy`.
-- The user wants reporting — use `get_paid_ads_insights`.
+- The user wants to pause / activate / archive an existing object — use [`manage_paid_ad`](/mcp/writes/manage-paid-ad).
+- The user wants strategy proposals, not creation — use [`recommend_paid_ad_strategy`](/mcp/writes/recommend-paid-ad-strategy).
+- The user wants reporting — use [`get_paid_ads_insights`](/mcp/reads/get-paid-ads-insights).
 
 ## Inputs
 
 - `object_type` (`'campaign'` | `'ad_group'` | `'ad'`, required).
-- `engine` (`'chatgpt'` | `'perplexity'` | `'gemini'` | `'grok'` | `'copilot'`, default `'chatgpt'`) — future engines drop in via adapter files.
+- `engine` (`'chatgpt'` | `'perplexity'` | `'gemini'` | `'grok'` | `'copilot'`, default `'chatgpt'`).
 - `payload` (object, required) — engine-shaped payload for the create API call (e.g. ChatGPT Ads campaign body).
 - `persona_id` (number, required) — persona this placement targets; drives matrix validation.
 - `content` (string, optional) — creative body to validate. Strongly recommended for `'ad'` object_type.
 - `parent_external_id` (string, optional) — required for `'ad_group'` / `'ad'`; the parent campaign or ad_group external id.
-- `citable_prompt_ids` (number[], optional) — `s_prompts` ids this placement is meant to win.
-- `citable_hub_id` (number, optional) — `generated_content` id of the hub this ad amplifies (links spoke → hub in the ledger).
+- `citable_prompt_ids` (number[], optional) — tracked prompts this placement is meant to win.
+- `citable_hub_id` (number, optional) — content id of the hub this ad amplifies (links spoke → hub for measurement).
 
 ## Response
 
@@ -52,13 +52,13 @@ Intent is **always `'commercial'`** for `emit_paid` — paid placements exist to
 }
 ```
 
-On block: `isError: true` with `structuredContent: { status: 'blocked' | 'no_connector' | 'error', ... }`. For `'blocked'`, call `POST /api/persona-intent/:brandId/override` first and retry. For `'no_connector'`, connect the engine in `/connectors` first. The ledger row is written internally by Track A's bridge; inspect via `get_action_outcome_history` if needed.
+On block: `isError: true` with `structuredContent: { status: 'blocked' | 'no_connector' | 'error', ... }`. For `'blocked'`, fix the creative or record an override out-of-band and retry. For `'no_connector'`, connect the engine under Connectors first.
 
 ## Persona-intent validation
 
-**Required.** Track A's `createPaidObject` runs the matrix before the external adapter is called — no external system gets a side effect for content the matrix blocks. Intent is hard-coded to `'commercial'`. Block-severity violations halt the emit unless an override is recorded out-of-band on the brand. See [Hard rules #2](/platform/hard-rules#2-every-emit-validates-persona-intent-before-emission).
+The matrix runs before the external adapter is called — no external system gets a side effect for content the matrix blocks. Intent is hard-coded to `'commercial'`.
 
-## Examples
+## Example
 
 Launch a ChatGPT Ads campaign targeting a buyer-stage prompt cluster, linked to a content hub:
 

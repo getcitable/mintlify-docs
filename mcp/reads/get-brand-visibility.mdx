@@ -3,28 +3,36 @@ title: "get_brand_visibility"
 description: "Returns the brand's AI visibility summary across ChatGPT, Gemini, Claude, Perplexity, and Grok."
 ---
 
-Returns the brand's AI visibility summary across ChatGPT, Gemini, Claude, Perplexity, and Grok. Includes brand visibility %, citation share, sentiment score, top 5 competitors with visibility deltas, top 5 cited sources, and per-persona citation rates. Optionally filter `personaCitationRates` to a single persona.
+Returns the brand's AI visibility summary across ChatGPT, Gemini, Claude, Perplexity, and Grok. Includes brand visibility, citation share, sentiment score, top 5 competitors with visibility deltas, top 5 cited sources, and per-persona citation rates. Optionally filter `personaCitationRates` to a single persona.
 
 ## When to use
 
-Use this when the user asks:
-
-- "How visible am I across AI systems?"
-- "Am I winning the GEO war?"
-- "What competitors are beating me?"
+- "How visible am I across AI engines?"
+- "Am I winning the AI search war?"
+- "Which competitors are beating me?"
 - "How does persona X see my brand?"
 
 Skip when the user wants the to-do list (use `get_geo_priorities`) or full brand identity (use `get_brand_context`).
 
-## Response shape
+## Inputs
 
-`{ windowDays, brandVisibility, citationShare, avgBrandRank, totalPrompts, completedPrompts, sentiment, topCompetitors[], topSources[], personaCitationRates[], lastAnalysisAt }`.
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `windowDays` | `int` | `7` | Rolling window for the summary. |
+| `persona` | `string` | none | Filter `personaCitationRates` to a single persona name (case-insensitive). |
+
+## Response
+
+```
+{ windowDays, brandVisibility, citationShare, avgBrandRank, totalPrompts,
+  completedPrompts, sentiment, topCompetitors[], topSources[],
+  personaCitationRates[], lastAnalysisAt }
+```
 
 ## Example
 
-Calling with `{ windowDays: 7, persona: "SMB founder" }` narrows the persona section to matches of "SMB founder" (case-insensitive).
+Calling with `{ windowDays: 7, persona: "SMB founder" }` narrows the persona section to matches of "SMB founder".
 
 ## See also
 
-- [MCP overview](/mcp/overview)
-- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission
+- [Overview](/mcp/overview)

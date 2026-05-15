@@ -1,27 +1,26 @@
 ---
 title: "manage_paid_ad"
-description: "Create or update a paid ad on an AI surface (ChatGPT Ads today; Perplexity / Gemini / Grok / Copilot when they ship)."
+description: "Create, update, pause, or archive a paid ad on an AI surface."
 ---
 
-Create or update a paid ad on an AI surface (ChatGPT Ads today; Perplexity / Gemini / Grok / Copilot when they ship).
+Create or update a paid ad on an AI surface (ChatGPT Ads today; Perplexity / Gemini / Grok / Copilot when those engines open advertising).
 
 ## When to use
 
-Use this when the user asks:
+- "Launch a ChatGPT Ads campaign for prompt cluster X."
+- "Pause ad group Y."
+- "Archive that under-performing ad."
 
-- "Launch a ChatGPT Ads campaign for prompt cluster X"
-- "Pause ad group Y"
-- "Archive that underperforming ad"
+## When not to use
+
+- The user wants reporting only — use [`get_paid_ads_insights`](/mcp/reads/get-paid-ads-insights).
+- The user wants strategy proposals — use [`recommend_paid_ad_strategy`](/mcp/writes/recommend-paid-ad-strategy).
 
 ## Inputs
 
-The `engine` input defaults to `'chatgpt'`. Every successful write is gated by the persona-intent matrix before the engine API write (block-severity violations halt; warn-severity logs an auto-override; allowed proceeds). After write, the action is emitted to the Action↔Outcome Ledger (Track B Hook 1).
-
-## When NOT to use
-
-Skip when the user wants reporting only (use `get_paid_ads_insights`) or strategy proposals (use `recommend_paid_ad_strategy`).
+The `engine` input defaults to `'chatgpt'`. Every successful write is gated by the persona-intent matrix before the engine API write (block-severity violations halt; warn-severity logs; allowed proceeds). After the external write succeeds, the action is recorded so its 30-day impact can be measured.
 
 ## See also
 
-- [MCP overview](/mcp/overview)
-- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission
+- [Overview](/mcp/overview)
+- [Paid campaigns](/features/paid-campaigns)

@@ -1,24 +1,23 @@
 ---
 title: "schedule_reply"
-description: "Schedules a social reply onto the content calendar by setting scheduled_for, OR clears the schedule."
+description: "Schedules a social reply onto the content calendar, or clears the schedule."
 ---
 
-Schedules a social reply onto the content calendar by setting `scheduled_for`, OR clears the schedule (when `scheduled_for` is null) to take it off the calendar. Status auto-advances to "scheduled" when a date is set; reverts to "draft" when cleared. Brand resolved from MCP auth context.
+Schedules a social reply onto the content calendar by setting `scheduled_for`, OR clears the schedule (when `scheduled_for` is null) to take it off the calendar. Status auto-advances to `scheduled` when a date is set, and reverts to `draft` when cleared. Brand resolved from auth context.
 
 ## When to use
 
 - The user wants the reply to surface on a specific calendar day.
 - The user wants to take a reply off the calendar back to draft state.
 
-## When NOT to use
+## When not to use
 
 - The reply has already been posted (`status='published'`) — schedule changes for posted replies are no-ops.
 
 ## Inputs
 
-`scheduled_for` must be a YYYY-MM-DD date string, or null to clear.
+`scheduled_for` must be a `YYYY-MM-DD` date string, or null to clear.
 
 ## See also
 
-- [MCP overview](/mcp/overview)
-- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission
+- [Overview](/mcp/overview)

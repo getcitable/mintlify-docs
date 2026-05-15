@@ -1,20 +1,18 @@
 ---
 title: "get_attribution_report"
-description: "Returns AI-citation attribution for posted content, computed from nightly per-(content, prompt, day) snapshots."
+description: "Returns AI-citation attribution for posted content — lifetime, recent-window, and weekly trajectory."
 ---
 
-Returns AI-citation attribution for posted content. Computed from nightly per-(content, prompt, day) snapshots so prompt-run frequency cannot drown out actual signal. Three signals per post: lifetime sums (`citing_runs` / `prompt_runs` since posted), recent rate within the window (default 14d), and a weekly trajectory series for sparklines. Also returns per-platform breakdowns and the top prompts driving citations.
+Returns AI-citation attribution for posted content. Computed from nightly per-(content, prompt, day) snapshots so prompt-run frequency cannot drown out actual signal. Three signals per post: lifetime sums (citing runs / prompt runs since posted), recent rate within the window (default 14d), and a weekly trajectory series for sparklines. Also returns per-platform breakdowns and the top prompts driving citations.
 
 ## When to use
-
-Use this when the user asks:
 
 - "What's working — which posts drive AI citations?"
 - "Is my citation rate trending up?"
 - "Which prompts is this LinkedIn post showing up on?"
 - "How does this blog compare to that one for AI visibility?"
 
-Skip when the user wants generic web traffic (use `get_content_performance`) or AI visibility across the brand at large (use `get_brand_visibility`).
+Skip when the user wants generic web traffic (use [`get_content_performance`](/mcp/reads/get-content-performance)) or AI visibility across the brand at large (use [`get_brand_visibility`](/mcp/reads/get-brand-visibility)).
 
 ## Inputs
 
@@ -22,5 +20,4 @@ Pass `content_id` to narrow to a single posted content row. Omit for the brand-w
 
 ## See also
 
-- [MCP overview](/mcp/overview)
-- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission
+- [Overview](/mcp/overview)

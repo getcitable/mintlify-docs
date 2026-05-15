@@ -1,0 +1,36 @@
+---
+title: "Content audit"
+description: "Citable scans the pages you've already published and surfaces the structural fixes that would unlock more AI citations."
+---
+
+Most brands have more content than they realize, and most of it is leaving citations on the table. Pages that AI engines almost cite — but skip because of a missing FAQ block, a hollow opening, or no author byline. The content audit finds those pages and tells you the exact fix.
+
+## What it checks
+
+The audit walks through your site looking for four specific gaps that hurt AI citation rate:
+
+- **Missing FAQ schema.** A page with a clear Q&A structure but no `FAQPage` JSON-LD. AI engines often grab FAQ-shaped content for direct-answer queries; without the schema, they can't tell it's an FAQ.
+- **No TL;DR.** A long page (1500+ characters) with no 2–3 sentence summary near the top. AI assistants reach for summaries first; pages without one get skipped for pages with one.
+- **Missing E-E-A-T signals.** No author byline, no credentials, no last-updated date. AI engines use these as trust signals when deciding whether to cite the page.
+- **Missing comparison blocks.** A page covering "X vs Y" that doesn't actually have a side-by-side comparison table. Comparison queries are some of the highest-intent prompts in B2B; without the table, you're hard to extract.
+
+## How it works
+
+1. Citable reads your sitemap (or the pages it's already indexed for you) and queues the audit.
+2. Each page is scanned in seconds.
+3. For every gap it finds, a recommendation card lands in the [Action Engine](/features/action-engine) — one card per page per gap.
+4. The card describes the fix in plain English, including the JSON-LD or layout change to make.
+
+The audit is content-aware: a 200-word page won't be flagged for missing a TL;DR. A page already running the right schema won't be flagged twice.
+
+## When to run it
+
+Once per quarter is plenty for most brands. The audit is also a natural step the first week you onboard — you'll usually surface a backlog of 5–20 quick fixes that compound over the next few weeks.
+
+You can also re-run the audit after a sitemap refresh or a major content launch — anything that adds a meaningful number of pages.
+
+## Why structural fixes matter so much
+
+Brand Studio writes new content. The audit unlocks the content you already have. Both work, but the audit is faster — a 20-minute FAQ schema fix on a popular page often moves citation rate within two weeks. New content takes longer to compound.
+
+Both feed the same Action Engine, so you don't have to choose between them. The audit just makes sure you're not over-investing in new pages while old ones quietly leak citations.

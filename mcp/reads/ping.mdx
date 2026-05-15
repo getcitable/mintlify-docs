@@ -1,11 +1,19 @@
 ---
 title: "ping"
-description: "Health check — returns the Citable MCP server identity and the resolved brand/user context."
+description: "Health check — returns the MCP server identity and the resolved brand/user context."
 ---
 
-Health check — returns the Citable MCP server identity and the resolved brand/user context. Use this to verify your connection before calling real tools.
+Returns the MCP server identity and the resolved brand/user context. Use this to verify your connection and confirm the right brand is wired up before calling real tools.
+
+## Inputs
+
+None — brand and user come from the auth context.
+
+## Response
+
+A short greeting plus the resolved server version, brand id, and user id. Format is intentionally simple so you can eyeball it without parsing.
 
 ## See also
 
-- [MCP overview](/mcp/overview)
-- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission
+- [Overview](/mcp/overview)
+- [Authentication](/mcp/auth)

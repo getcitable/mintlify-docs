@@ -7,21 +7,24 @@ Returns every brand the authenticated user is a member of.
 
 ## When to use
 
-- An agent has called `get_brand_context` and the resolved brand doesn't match what the user expected (different `planTier`, wrong workspace).
+- An agent has called `get_brand_context` and the resolved brand doesn't match what the user expected (different plan tier, wrong workspace).
 - The user references a brand by name and you need its id to retarget a write.
-- The user has multiple brands with the same name (e.g. two "Acme Inc" entries — one trial, one paid) and disambiguation is required.
+- The user has multiple brands with the same name (e.g. two "Acme Inc" entries, one trial and one paid) and disambiguation is required.
 
 ## Read-only behavior
 
-Read-only. Does not change the active brand — the MCP auth context is fixed for the session at connection time. To actually retarget writes to a different brand, the user needs to update their MCP config (`CITABLE_BRAND_ID` env var for stdio, or regenerate the API key under the target brand for HTTP) and reconnect.
+Read-only. Does not change the active brand — the auth context is fixed for the session at connection time. To actually retarget writes to a different brand, update your MCP config (`CITABLE_BRAND_ID` env var for stdio, or regenerate the API key under the target brand for HTTP) and reconnect.
 
-## Response shape
+## Response
 
-`{ brands: [{ id, name, slug, planTier, role, websiteUrl }], activeBrandId }`. `activeBrandId` echoes the brand currently resolved by the auth context, so the caller can spot the active row.
+```
+{ brands: [{ id, name, slug, planTier, role, websiteUrl }], activeBrandId }
+```
+
+`activeBrandId` echoes the brand currently resolved by the auth context, so the caller can spot the active row.
 
 Takes no arguments — user resolved from the auth context.
 
 ## See also
 
-- [MCP overview](/mcp/overview)
-- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission
+- [Overview](/mcp/overview)

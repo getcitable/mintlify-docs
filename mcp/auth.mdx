@@ -1,70 +1,68 @@
 ---
-title: "MCP authentication"
-description: "How the MCP server resolves brand and user context from an API call."
+title: "Authentication"
+description: "How Citable's MCP server resolves your brand and user context — and how to set it up over stdio or HTTP."
 ---
 
-## Auth contexts
+Every MCP session is scoped to one brand and one user. The brand controls what data the session sees and what writes it can make; the user is recorded on every action for audit. Neither is ever passed as a tool input — both are resolved from the transport layer.
 
-The MCP server only operates with a resolved `McpAuthContext`:
+## Auth context shape
+
+When the server accepts your connection, it resolves a context that looks like:
 
 ```typescript
-interface McpAuthContext {
-  brandId: number;     // the brand this session reads + writes for
-  userId: number;      // the human/system user behind the call (audit trail)
-  apiKeyId: number | null;  // when present, the API key that authenticated
-  source: string;      // 'stdio:env' | 'http:api_key' | 'internal:agent_runner' | ...
+interface AuthContext {
+  brandId: number;     // brand this session reads + writes for
+  userId: number;      // user behind the call (audit trail)
+  apiKeyId: number | null;  // the API key id, if HTTP-authenticated
+  source: string;      // 'stdio:env' | 'http:api_key'
 }
 ```
 
-`brandId` is the most important field — it scopes EVERY read and EVERY write. Tools cannot accept `brand_id` from their arguments.
+The `brandId` is the most important field — every read filters by it, every write rejects cross-brand IDs against it.
 
-## Transports + how each resolves auth
+## Transport options
 
-### stdio (local agents)
+### stdio (local clients)
 
-Used by Claude Desktop, Cursor, and other local MCP clients. Auth comes from environment variables:
+Used by Claude Desktop, Cursor, and other local MCP clients. Brand and user come from environment variables you set in your client config:
 
 ```bash
 CITABLE_BRAND_ID=123
 CITABLE_USER_ID=456
 ```
 
-The user must be a member of the brand (`brand_members.status='active'`) — verified at connection time. Source resolves to `'stdio:env'`.
+The user must be an active member of the brand. The check runs at connection time, so a misconfigured env throws immediately rather than failing later on a tool call.
 
 ### Streamable HTTP (remote agents)
 
-Used by hosted agents that talk to Citable over HTTP/SSE. Auth comes from an API key:
+Used by hosted agents and remote integrations. Auth is an API key in the `Authorization` header:
 
 ```
 Authorization: Bearer <api_key>
 ```
 
-The key resolves to a stored `(brand_id, user_id, api_key_id)` tuple at the auth middleware layer. Source resolves to `'http:api_key'` and `apiKeyId` is populated for audit.
+The key maps to a stored `(brand, user, api_key)` tuple. The resolved API key id is recorded on the auth context so every write is traceable back to a specific key.
 
-### Internal (agent runner)
+## Brand scoping
 
-Slice 2c's agent runner connects to an in-memory MCP server. Source resolves to `'internal:agent_runner'`. No external API key; the runner is trusted because it's part of the platform.
+Every read query filters by your auth context's `brandId` at the database layer. Every write tool that accepts an ID looks up that ID and rejects with a 403 if it belongs to a different brand. There's no MCP-side workaround — the same guard applies whether the client is Claude Desktop, a hosted agent, or any other caller.
 
-## Brand scoping — universal guard
-
-Every read query filters by `authCtx.brandId`. Every write tool resolves its args to a target brand via a [`WriteGuardResolver`](https://github.com/getcitable/platform/blob/main/backend/server/mcp/write-guard.ts). Cross-brand writes throw `McpAuthError` with status 403; audit log records `'auth_failed'`.
-
-Example: `approve_ticket({ ticket_code: "OTHER-001" })` looks up the task, sees `task.brand_id !== authCtx.brandId`, and rejects.
+Example: `approve_ticket({ ticket_code: "OTHER-001" })` resolves the ticket, sees it belongs to a different brand, and rejects with a 403. The audit log records the failed attempt.
 
 ## API key lifecycle
 
-API keys are created in the Citable web app under Settings → API Keys. Each key:
+Create API keys in the Citable web app under **Settings → API Keys**. Each key:
 
-- Belongs to one user (creator)
-- Is scoped to one brand (cannot impersonate other brands)
-- Has a `revoked_at` timestamp; revoked keys fail auth immediately
+- Belongs to one user (the creator) and one brand
+- Cannot be used to act on any other brand
+- Can be revoked anytime — revoked keys fail auth immediately
 - Records `last_used_at` on every successful call
 
-Rotate by creating a new key and revoking the old one. Keys are shown ONCE at creation; we never reveal them again.
+Rotate by creating a new key, updating your integration, and revoking the old one. Keys are shown once at creation time and never displayed again. Treat them like any other secret.
 
 ## Rate limits
 
-Per-brand rate limit (default 100 calls/hr for free tier). Limit headers returned on every response:
+Each brand gets a per-hour rate limit. Response headers tell you where you stand:
 
 ```
 X-RateLimit-Limit: 100
@@ -72,4 +70,4 @@ X-RateLimit-Remaining: 47
 X-RateLimit-Reset: 1715731200
 ```
 
-Paid tiers get higher limits; Grow tier removes the read rate limit entirely. Write rate limits stay in place regardless of tier — they're cost protection on the platform side.
+The default tier gets 100 calls/hour. Higher tiers raise the read limit; write limits stay in place across all tiers as cost protection on the platform side. If you need a higher limit for a specific integration, get in touch from your account.

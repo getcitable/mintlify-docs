@@ -1,28 +1,27 @@
 ---
 title: "dismiss_ticket"
-description: "Cancels a Citable GEO ticket with a required written reason."
+description: "Cancels a Citable recommendation ticket with a required written reason."
 ---
 
-Cancels a Citable GEO ticket with a required written reason. Use when the user has decided NOT to act on a recommendation and wants to clear it from their backlog — or when you are confident the recommendation is wrong for the brand and want to record why.
+Cancels a Citable recommendation ticket with a required written reason. Use when the user has decided NOT to act on a recommendation and wants to clear it from their backlog — or when you're confident the recommendation is wrong for the brand and want to record why.
 
 ## Inputs
 
-- `ticket_code` (required, e.g. `"CIT-052"`) — the Linear-style code from `get_geo_priorities` or the web UI.
+- `ticket_code` (required, e.g. `"ABC-052"`) — the code from [`get_geo_priorities`](/mcp/reads/get-geo-priorities) or the web app. The prefix matches your brand.
 - `reason` (required, 10–280 chars) — the "why." Examples: "Already handled manually last week", "Not aligned with Q2 focus on enterprise", "User decided to skip this channel entirely."
 
 ## Behavior
 
-The reason is stored on the ticket row (visible on the web detail page) and in the MCP tool-call audit log. Cannot be changed via this tool afterwards — re-dismissing an already-canceled ticket returns the existing reason and does not overwrite.
+The reason is stored on the ticket row (visible on the web detail page) and in the audit log. Cannot be changed via this tool afterwards — re-dismissing an already-canceled ticket returns the existing reason and does not overwrite.
 
-Cannot dismiss a ticket that was already marked done — if the user wants to undo a completion, they do it in the web UI.
+Cannot dismiss a ticket that was already marked done. If the user wants to undo a completion, they do it in the web app.
 
 Returns the canonical deep link so you can cite the page.
 
-## When NOT to use
+## When not to use
 
-Skip when: the user has actually completed the action (use `approve_ticket` instead).
+- The user has actually completed the action — use [`approve_ticket`](/mcp/writes/approve-ticket).
 
 ## See also
 
-- [MCP overview](/mcp/overview)
-- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission
+- [Overview](/mcp/overview)

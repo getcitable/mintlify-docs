@@ -1,26 +1,26 @@
 ---
 title: "approve_ticket"
-description: "Marks a Citable GEO ticket as done."
+description: "Marks a Citable recommendation ticket as done."
 ---
 
-Marks a Citable GEO ticket as done. Use after the user has completed the recommended action (published a piece of content, fixed a technical issue, etc.) or has explicitly asked you to approve the recommendation.
+Marks a Citable recommendation ticket as done. Use after the user has completed the recommended action (published a piece of content, fixed a technical issue, and so on) or has explicitly asked you to approve the recommendation.
 
 ## Inputs
 
-- `ticket_code` (required, e.g. `"CIT-051"` or `"GEO-124"`) — the Linear-style code visible in the web UI and returned by `get_geo_priorities`.
-- `note` (optional, max 500 chars) — free-text reason for approval; stored in the tool-call audit log.
+- `ticket_code` (required, e.g. `"ABC-051"`) — the code visible in the web app and returned by [`get_geo_priorities`](/mcp/reads/get-geo-priorities). The prefix matches your brand.
+- `note` (optional, max 500 chars) — free-text reason for approval; stored in the audit log.
 
 ## Behavior
 
-The tool is idempotent: approving an already-done ticket returns the current state without re-writing. A dismissed ticket cannot be approved via this tool — it must be reopened in the web UI first.
+Idempotent: approving an already-done ticket returns the current state without re-writing. A dismissed ticket cannot be approved via this tool — it must be reopened in the web app first.
 
 Returns the canonical deep link for the ticket so you can cite the page back to the user.
 
-## When NOT to use
+## When not to use
 
-Skip when: the user wants to cancel/reject a ticket (use `dismiss_ticket`), or wants details on a ticket they haven't identified yet (use `get_geo_priorities` first).
+- The user wants to cancel or reject a ticket — use [`dismiss_ticket`](/mcp/writes/dismiss-ticket).
+- The user wants details on a ticket they haven't identified yet — use [`get_geo_priorities`](/mcp/reads/get-geo-priorities) first.
 
 ## See also
 
-- [MCP overview](/mcp/overview)
-- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission
+- [Overview](/mcp/overview)

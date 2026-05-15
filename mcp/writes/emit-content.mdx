@@ -1,29 +1,29 @@
 ---
-title: "emit_content — draft content for a brand persona"
-description: "Coarse content emit: validates persona-intent, drafts to status='queued', writes the Action↔Outcome Ledger row."
+title: "emit_content"
+description: "Draft content for a brand persona in one atomic call — validates persona-intent, drafts to queued status, records the action for 30-day measurement."
 ---
 
 ## What it does
 
-Emits a single piece of content for the brand: validates persona-intent, drafts to `status='queued'`, and records the action to the Action↔Outcome Ledger so its 30-day citation / SoV impact can be measured. One atomic emit bundles what `create_content_draft` + `schedule_content` + `mark_content_posted` do separately — the fine-grained tools stay in tree for human-UI flows.
+Emits a single piece of content for the brand: validates persona-intent, drafts to `status='queued'`, and records the action so its 30-day citation and share-of-voice impact can be measured. One atomic emit bundles what `create_content_draft`, `schedule_content`, and `mark_content_posted` do separately — the fine-grained tools remain available for step-by-step human-UI flows.
 
-Hub vs spoke is built in: set `fan_out_role='hub'` on the long-form canonical piece, then call `emit_content` again with `fan_out_role='spoke'` + `parent_action_id=<hub ledger id>` for each channel adaptation. The delta worker rolls spoke outcomes up to the hub so "this hub's Reddit spoke delivered 3.2× LinkedIn spoke" becomes a queryable fact.
+Hub vs spoke is built in: set `fan_out_role='hub'` on the long-form canonical piece, then call `emit_content` again with `fan_out_role='spoke'` and `parent_action_id=<hub action id>` for each channel adaptation. Spoke outcomes roll up to the hub so you can see "this hub's Reddit spoke delivered 3× the LinkedIn spoke" as a queryable fact.
 
 ## When to use
 
 - The user (or upstream agent) has decided WHAT to post and on WHICH channel.
-- You want one atomic emit that produces a ledger row to learn from later.
-- You're building a hub-spoke fan-out — one hub call, N spoke calls referencing the hub's ledger id.
+- You want one atomic emit that produces a measurable action record.
+- You're building a hub-spoke fan-out — one hub call, N spoke calls referencing the hub.
 
 ## When not to use
 
-- The user is brainstorming (no decision yet) — use `ingest_conversation` instead.
-- The content is a paid ad — use `emit_paid`.
-- The action is an outreach DM / thread reply — use `emit_outreach`.
+- The user is brainstorming (no decision yet) — use [`ingest_conversation`](/mcp/writes/ingest-conversation) instead.
+- The content is a paid ad — use [`emit_paid`](/mcp/writes/emit-paid).
+- The action is an outreach reply on a social thread — use [`emit_outreach`](/mcp/writes/emit-outreach).
 
 ## Inputs
 
-- `persona_id` (number, required) — persona this content targets (brand / insider / audience).
+- `persona_id` (number, required) — the persona this content targets.
 - `intent` (`'engagement'` | `'commercial'`, required) — `engagement` builds relationships; `commercial` drives a buy decision.
 - `platform` (`'linkedin'` | `'twitter'` | `'reddit'` | `'blog'` | `'instagram'` | `'youtube'`, required).
 - `body` (string, 1–8000 chars, required) — the draft. Long-form for blogs; short-form for socials.
@@ -32,15 +32,15 @@ Hub vs spoke is built in: set `fan_out_role='hub'` on the long-form canonical pi
 - `from_conversation_id` (number, optional) — anchor: ingested conversation. Either this OR `source_task_id`.
 - `action_subtype` (string, ≤40 chars, optional) — e.g. `'long_form_hub'`, `'reddit_spoke'`, `'linkedin_spoke'`.
 - `fan_out_role` (`'hub'` | `'spoke'`, optional) — set `'hub'` on the canonical piece, `'spoke'` on adaptations.
-- `parent_action_id` (number, optional) — required when `fan_out_role='spoke'`; the hub's ledger id.
-- `target_prompt_ids` (number[], optional) — `s_prompts` ids this content targets. Scopes 30-day outcome measurement.
-- `override_reason` (string, ≥8 chars, optional) — bypass block-severity persona-intent violations with an audit row.
+- `parent_action_id` (number, optional) — required when `fan_out_role='spoke'`; the hub action's id.
+- `target_prompt_ids` (number[], optional) — tracked prompts this content targets. Scopes 30-day outcome measurement.
+- `override_reason` (string, ≥8 chars, optional) — bypass block-severity persona-intent violations with an audit record.
 
 ## Response
 
 ```json
 {
-  "ledgerId": 8421,
+  "actionId": 8421,
   "contentId": 17203,
   "deepLinkUrl": "https://app.getcitable.com/content/17203",
   "geoScore": 72,
@@ -58,9 +58,9 @@ On block: `isError: true` with `structuredContent: { status: 'blocked', violatio
 
 ## Persona-intent validation
 
-**Required.** Every content emit is persona-scoped by design — `persona_id` + `intent` must be supplied so the matrix can fire. Block-severity rules halt the emit unless `override_reason ≥ 8 chars` is passed (writes one `persona_intent_overrides` audit row per blocked rule and tags the ledger `validation_status='overridden'`). See [Hard rules #2](/platform/hard-rules#2-every-emit-validates-persona-intent-before-emission).
+Every content emit is persona-scoped — `persona_id` and `intent` must be supplied so the validation matrix can fire. Block-severity rules halt the emit unless `override_reason ≥ 8 chars` is passed (one audit record per blocked rule, with the action tagged `validation_status='overridden'`).
 
-## Examples
+## Example
 
 Draft a LinkedIn engagement post for an insider persona, anchored to an action ticket, targeting two prompts:
 

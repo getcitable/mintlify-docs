@@ -1,33 +1,41 @@
 ---
 title: "get_geo_priorities"
-description: "Returns the brand's top-priority GEO tickets from the Citable Action Engine, ordered by time_group."
+description: "Returns the brand's top-priority recommendations from the Action Engine, ordered by time group."
 ---
 
-Returns the brand's top-priority GEO (Generative Engine Optimization) tickets from the Citable Action Engine, ordered by time_group (today → this-week → next-week → backlog). Each ticket includes a deep link back to Citable web where the user can approve, edit, or dismiss the action.
+Returns the brand's top-priority recommendations from the Citable Action Engine, ordered by time group (today → this-week → next-week → backlog). Each ticket includes a deep link back to the web app where the user can approve, edit, or dismiss the action.
 
 ## When to use
 
-Use this when the user asks:
-
-- "What should I do for GEO this week?"
+- "What should I do for AI visibility this week?"
 - "What's the top priority for my brand?"
 - "Give me my marketing to-do list."
 
 Skip when the user wants visibility metrics (use `get_brand_visibility`) or posted-content performance (use `get_content_performance`).
 
-## Response shape
+## Inputs
 
-`{ tickets: [...], totalRemaining, completed, effortRemainingMinutes, lastGeneratedAt }`. Each ticket has `id`, `title`, `description[]`, `status`, `priority`, `effortMinutes`, `templateKey`, `deepLinkUrl`, `taskCategory`, `taskType`.
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `window` | `'today' \| 'week' \| 'next_week' \| 'all'` | `'all'` | Time horizon for the queue. |
+| `limit` | `int` | `20` | Page size. |
+
+## Response
+
+```
+{ tickets: [...], totalRemaining, completed, effortRemainingMinutes, lastGeneratedAt }
+```
+
+Each ticket has `id`, `title`, `description[]`, `status`, `priority`, `effortMinutes`, `templateKey`, `deepLinkUrl`, `taskCategory`, `taskType`.
 
 ## Category taxonomy
 
-Use these to group / filter: `technical`, `content_creation`, `media_placement`, `content_optimization`, `opportunity`, `report`, `operational`, `generic`.
+`technical`, `content_creation`, `media_placement`, `content_optimization`, `opportunity`, `report`, `operational`, `generic`.
 
 ## Example
 
-Calling with `{ window: "week", limit: 5 }` returns the five most urgent tickets for this week across today + this-week groups.
+Calling with `{ window: "week", limit: 5 }` returns the five most urgent recommendations across today + this-week.
 
 ## See also
 
-- [MCP overview](/mcp/overview)
-- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission
+- [Overview](/mcp/overview)

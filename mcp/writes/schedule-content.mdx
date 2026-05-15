@@ -1,25 +1,24 @@
 ---
 title: "schedule_content"
-description: "Schedules a content draft onto the content calendar by setting scheduled_for, OR clears the schedule."
+description: "Schedules a content draft onto the content calendar, or clears the schedule."
 ---
 
-Schedules a content draft onto the content calendar by setting `scheduled_for`, OR clears the schedule (when `scheduled_for` is null) to take it off the calendar. Status auto-advances to "scheduled" when a date is set; reverts to "queued" when cleared. Brand resolved from MCP auth context.
+Schedules a content draft onto the content calendar by setting `scheduled_for`, OR clears the schedule (when `scheduled_for` is null) to take it off the calendar. Status auto-advances to `scheduled` when a date is set, and reverts to `queued` when cleared. Brand resolved from auth context.
 
 ## When to use
 
 - The user wants the draft to surface on a specific calendar day.
 - The user wants to take a scheduled draft off the calendar back to queued state.
 
-## When NOT to use
+## When not to use
 
 - The content has already been posted (`status='published'`) — schedule changes for posted rows are no-ops.
-- The user wants to mark a published row's posted URL — use `mark_content_posted` instead.
+- The user wants to mark a published row's posted URL — use [`mark_content_posted`](/mcp/writes/mark-content-posted).
 
 ## Inputs
 
-`scheduled_for` must be a YYYY-MM-DD date string, or null to clear.
+`scheduled_for` must be a `YYYY-MM-DD` date string, or null to clear.
 
 ## See also
 
-- [MCP overview](/mcp/overview)
-- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission
+- [Overview](/mcp/overview)

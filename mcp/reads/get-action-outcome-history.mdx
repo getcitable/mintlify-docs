@@ -1,11 +1,11 @@
 ---
-title: "get_action_outcome_history — past actions and their measured deltas"
-description: "Canonical 'what did Citable do, and what happened next' history from the Action↔Outcome Ledger — the foundation of the data moat."
+title: "get_action_outcome_history"
+description: "Returns recent actions recorded for the brand with their measured 30-day outcome deltas where the measurement window has resolved."
 ---
 
 ## What it does
 
-Returns recent Citable-emitted actions for the brand, with their measured 30-day outcome deltas where the measurement window has resolved. The **Action↔Outcome Ledger** is the canonical history of "what did Citable do, and what happened next" — the foundation of the data moat. Every `emit_*` MCP call, every implicit signal (`approve_ticket` / `dismiss_ticket`), and every Track A `paid_ad_objects` insert writes a row through the bridge.
+Returns recent actions Citable has recorded for the brand, with their measured 30-day outcome deltas. This is the canonical "what did we do, and what happened next" history — the foundation for measuring whether actions actually move citation rate and share of voice over time.
 
 ## When to use
 
@@ -14,25 +14,23 @@ Returns recent Citable-emitted actions for the brand, with their measured 30-day
 - "Show me the best-performing content actions."
 - "What's still measuring (pending outcomes)?"
 
-## When NOT to use
+## When not to use
 
-- The user wants live recommendations / a next-action queue → use [`get_geo_priorities`](/mcp/reads/get-geo-priorities).
-- The user wants current visibility metrics → use [`get_topical_authority`](/mcp/reads/get-topical-authority) or [`get_paid_ads_insights`](/mcp/reads/get-paid-ads-insights).
-- The user wants a single action's tree of child artifacts → use [`get_action_with_children`](/mcp/reads/get-action-with-children).
+- The user wants live recommendations — use [`get_geo_priorities`](/mcp/reads/get-geo-priorities).
+- The user wants current visibility metrics — use [`get_topical_authority`](/mcp/reads/get-topical-authority) or [`get_paid_ads_insights`](/mcp/reads/get-paid-ads-insights).
+- The user wants a single action's tree of child artifacts — use [`get_action_with_children`](/mcp/reads/get-action-with-children).
 
 ## Inputs
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
-| `actionType` | `'content' \| 'outreach' \| 'technical' \| 'operational' \| 'paid'` | none | Filter by the coarse emit category. |
+| `actionType` | `'content' \| 'outreach' \| 'technical' \| 'operational' \| 'paid'` | none | Filter by action category. |
 | `outcomeStatus` | `'pending' \| 'measured' \| 'inconclusive' \| 'failed'` | none | `pending` = still inside the 30-day window. `measured` = delta computed. |
 | `limit` | `int` (1–100) | `20` | Page size. |
 
-`brand_id` is resolved from auth — never passed as input.
+Brand id is resolved from auth.
 
 ## Response
-
-`structuredContent` shape on the happy path:
 
 ```json
 {
@@ -60,23 +58,8 @@ Returns recent Citable-emitted actions for the brand, with their measured 30-day
 }
 ```
 
-When the ledger hasn't been migrated to this DB yet (Slice 1 / PR #176 still pending merge):
-
-```json
-{
-  "rows": [],
-  "totalReturned": 0,
-  "status": "pending_slice_1",
-  "meta": {
-    "reason": "action_outcome_ledger table not present on this DB",
-    "fix": "Merge PR #176 (Slice 1) — ledger writes start populating immediately on deploy"
-  }
-}
-```
-
 ## Notes
 
-- **Graceful degradation.** If the `action_outcome_ledger` table doesn't exist yet on this database (Postgres `42P01` / undefined_table), the tool returns `status: 'pending_slice_1'` with an empty `rows` array and a `meta` explanation. **It never throws** — read tools shouldn't block on infra rollout state. Surface the `meta.reason` to the user so they know the moat is rolling out.
-- **Outcome window is 30 days.** A row with `outcome_status: 'pending'` means the 30-day delta worker hasn't run yet for that action. `outcome_resolved_at` is null until then.
+- **Outcome window is 30 days.** A row with `outcome_status: 'pending'` means the measurement window hasn't completed yet for that action. `outcome_resolved_at` is null until then.
 - `delta_metrics` is only populated when `outcome_status === 'measured'`. For `'inconclusive'` or `'failed'` outcomes, inspect `measurement_metrics` and `baseline_metrics` directly.
-- Brand-scoped by `auth.brand_id` at the query layer. No cross-brand reads possible from this tool.
+- Brand-scoped at the query layer. No cross-brand reads possible from any API key.
