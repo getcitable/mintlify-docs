@@ -1,0 +1,72 @@
+---
+title: "emit_technical — recommend a site-shape fix"
+description: "Coarse technical emit: inserts an action_engine_tasks row and writes the Action↔Outcome Ledger row for a structural fix."
+---
+
+## What it does
+
+Emits a technical recommendation against a specific URL: inserts an `action_engine_tasks` row and records the Action↔Outcome Ledger row for 30-day measurement. v1 produces a recommendation only — no CMS auto-apply. The user copies the suggestion and applies it in their own CMS. Auto-apply via Composio CMS connectors (WordPress / Webflow / Framer) lands in Slice 6 + V2.
+
+Technical actions are persona-agnostic, so the persona-intent matrix is skipped — but the emit still routes through the same `validateAndRecordEmission` helper for ledger uniformity.
+
+## When to use
+
+- `get_topical_authority` shows a specific URL is losing on prompts where competitors win, AND a structural fix would help.
+- The user asks "what should I change on /page-x to get cited more?"
+
+## When not to use
+
+- The fix needs net-new content — use `emit_content`.
+- The fix needs a paid push — use `emit_paid`.
+
+## Inputs
+
+- `subtype` (string, 1–40 chars, required) — free-form category. Common values:
+  - `'schema_markup'` — add JSON-LD (Product / FAQ / Article / Organization)
+  - `'faq_block'` — add an FAQ section to capture the FAQPage rich result
+  - `'tldr_summary'` — add a 2–3 sentence summary at the top of the page
+  - `'canonical_fix'` — set `rel=canonical` / consolidate duplicate URLs
+  - `'eeat_signal'` — author byline, credentials, last-updated date
+  - `'comparison_block'` — side-by-side comparison table vs cited competitors
+- `target_url` (URL, required) — the page the recommendation applies to.
+- `title` (string, 1–200 chars, required) — one-line summary of the change.
+- `description` (string[], 1–20 items, each ≤500 chars, required) — step-by-step instructions.
+- `effort_minutes` (number, 5–480, default 30) — estimated implementer effort.
+- `priority` (`'low'` | `'medium'` | `'high'` | `'critical'`, default `'medium'`).
+- `target_prompt_ids` (number[], optional) — `s_prompts` ids this recommendation expects to win.
+
+## Response
+
+```json
+{
+  "ledgerId": 8620,
+  "taskId": 4412,
+  "deepLinkUrl": "https://getcitable.com/actions/4412",
+  "validation": { "status": "allowed" }
+}
+```
+
+## Persona-intent validation
+
+**Persona-agnostic.** Technical edits don't speak as a persona, so `persona_id` and `intent` are not accepted and the matrix is skipped. The emit still flows through `validateAndRecordEmission` for ledger uniformity (one consistent contract per Hard rule #2) — the helper short-circuits when `personaId: null`. See [Hard rules #2](/platform/hard-rules#2-every-emit-validates-persona-intent-before-emission).
+
+## Examples
+
+Recommend adding FAQ JSON-LD to a comparison landing page that's losing on three buyer-stage prompts:
+
+```json
+{
+  "subtype": "schema_markup",
+  "target_url": "https://example.com/vs/competitor-x",
+  "title": "Add FAQPage JSON-LD to /vs/competitor-x",
+  "description": [
+    "Open the page template in your CMS.",
+    "Paste the JSON-LD block (provided below) into the <head>.",
+    "Confirm in Google's Rich Results Test that FAQPage is detected.",
+    "Republish the page."
+  ],
+  "effort_minutes": 25,
+  "priority": "high",
+  "target_prompt_ids": [1902, 1908, 1911]
+}
+```

@@ -1,0 +1,71 @@
+---
+title: "get_brand_context — brand identity snapshot"
+description: "The first call before any write. Returns the brand's identity, personas, distribution accounts, recent knowledge, and active competitors."
+---
+
+## What it does
+
+Returns the resolved brand's identity snapshot — id, slug, plan tier, name, mission/description, industry, differentiators, personas (up to 10), distribution accounts per channel (up to 20) with voice/tone, recent brand-knowledge entries, and active competitors (up to 10). Use this to brief an AI on who the brand is before drafting content, reviewing positioning, or evaluating a competitor mention.
+
+**Call this first.** Before any write (`ingest_conversation`, `create_content_draft`, `mark_content_posted`, etc.), call `get_brand_context` to verify the resolved brand matches what the user expects. When a user has multiple brands of the same name, `brand.planTier` is the disambiguator. If the resolved brand looks wrong, call `list_brands` to see all brands the user has access to and surface the mismatch instead of writing.
+
+## When to use
+
+- "Tell me about this brand."
+- "What's my voice on LinkedIn?"
+- "Who are my personas?"
+- "What are my differentiators?"
+- Sanity-checking the resolved brand before any `emit_*` or fine-grained write.
+
+## When NOT to use
+
+- The user wants metrics → use [`get_brand_visibility`](/mcp/reads/get-brand-visibility) or [`get_topical_authority`](/mcp/reads/get-topical-authority).
+- The user wants a to-do list of recommended actions → use [`get_geo_priorities`](/mcp/reads/get-geo-priorities).
+- The user wants past actions and their outcomes → use [`get_action_outcome_history`](/mcp/reads/get-action-outcome-history).
+
+## Inputs
+
+Takes no arguments. `brand_id` and `user_id` are resolved from the auth context — tools NEVER accept `brand_id` from args.
+
+## Response
+
+`structuredContent` shape:
+
+```json
+{
+  "brand": {
+    "id": 123,
+    "name": "Citable",
+    "slug": "citable",
+    "planTier": "grow",
+    "websiteUrl": "https://getcitable.com",
+    "description": "Help brands be cited by AI agents during due diligence.",
+    "industry": "GTM software",
+    "differentiators": [
+      "Action↔Outcome Ledger as moat",
+      "Engine-agnostic MCP toolkit"
+    ]
+  },
+  "personas": [
+    { "name": "Founder-led GTM", "role": "Solo founder", "quote": "I want to know which actions actually moved citations." }
+  ],
+  "accounts": [
+    { "platform": "linkedin", "displayName": "Cole Leng", "tone": "Direct, technical, no hype", "voiceDescription": "..." }
+  ],
+  "recentKnowledge": [
+    { "entryType": "positioning", "summary": "...", "createdAt": "2026-05-10T..." }
+  ],
+  "activeCompetitors": [
+    { "name": "Profound", "websiteUrl": "https://tryprofound.com" }
+  ]
+}
+```
+
+The `content` text block renders a markdown-ish brief — brand header, differentiators, personas list, distribution accounts with voice, and active competitors — suitable for pasting straight into a system prompt.
+
+## Notes
+
+- **Always call before writes.** This is the canonical "is the right brand resolved?" check. Pay attention to `brand.planTier` and `brand.name`.
+- Lists are capped: personas to 10, distribution accounts to 20, competitors to 10. If a brand has more, the most recently active entries win.
+- The same data backs the React Brand Studio UI — no UI-only fields, no MCP-only fields. One model, two surfaces.
+- Brand-scoped by `auth.brand_id` at the query layer. No cross-brand reads possible from any API key.

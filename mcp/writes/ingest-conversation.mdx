@@ -1,0 +1,26 @@
+---
+title: "ingest_conversation"
+description: "Pushes a conversation summary + extracted facts into the user's Citable brand knowledge base."
+---
+
+Pushes a conversation summary + extracted facts into the user's Citable brand knowledge base. Use when the user and you have been discussing their brand, positioning, ICP, differentiators, or recent launches — anything Citable's recommendations should know about going forward. The ingest becomes durable context for future `get_brand_context` / `get_geo_priorities` calls.
+
+## Inputs
+
+- `summary` (required, 50–2000 chars) — a clear paragraph describing what the conversation revealed. Write it so another person could read it without the original chat.
+- `extracted_facts` (optional array, 0–20 items, each 5–200 chars) — concrete claims extracted from the conversation ("ICP: Series B SaaS CMOs", "Unique differentiator: in-house GEO agent", etc.).
+- `source_url` (optional) — e.g., a Claude share URL or blog post URL. Must be a full absolute URL if provided.
+- `spawn_draft` (optional) — if the user has agreed on what to post next, also create a queued content draft tied to this conversation in the same call. Single audit row, single review surface. The draft is anchored to the new `knowledge_base` row via `from_conversation_id` and lands at `status='queued'` — never published. Pass `{ platform, body_draft, title? }` to spawn it.
+
+## Review queue
+
+Ingested content is NOT immediately visible to read tools. It lands in a human-review queue. Tell the user the review URL (returned in the response) so they can verify or dismiss. This is a guardrail against prompt injection.
+
+## When NOT to use
+
+Skip when: the user is discussing something unrelated to their brand, or when they haven't given you enough to write a 50+ char summary. Skip `spawn_draft` when the user hasn't explicitly asked for content yet.
+
+## See also
+
+- [MCP overview](/mcp/overview)
+- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission

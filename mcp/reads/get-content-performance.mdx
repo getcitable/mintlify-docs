@@ -1,0 +1,29 @@
+---
+title: "get_content_performance"
+description: "Joins the brand's posted content against GA4 traffic — sessions, page views, unique users."
+---
+
+Joins the brand's posted content (anything generated in Citable with a `posted_url`) against GA4 traffic. Returns each posted URL with its sessions, page views, and unique users over the selected window. If the brand has no Google Analytics connection, returns `hasGaConnection=false` plus a guidance note pointing to `/connectors`.
+
+## When to use
+
+Use this when the user asks:
+
+- "Which of my blogs is actually driving traffic?"
+- "What content has worked in the last 30 days?"
+- "Which LinkedIn posts drove the most clicks?"
+
+Skip when the user wants AI visibility (use `get_brand_visibility`) or the to-do list (use `get_geo_priorities`).
+
+## Response shape
+
+`{ windowDays, items: [{ contentId, title, platform, postedUrl, postedAt, pagePath, sessions, pageViews, users }], totals, hasGaConnection, note? }`.
+
+## Example
+
+Calling with `{ windowDays: 30, limit: 10 }` returns the 10 most recently posted URLs with traffic joined where available.
+
+## See also
+
+- [MCP overview](/mcp/overview)
+- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission

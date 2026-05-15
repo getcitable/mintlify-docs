@@ -1,0 +1,67 @@
+---
+title: "Citable — build trust for AI agents"
+description: "Help brands be cited by AI agents during due diligence."
+---
+
+# What Citable does
+
+When somebody asks ChatGPT, Perplexity, Gemini, or Copilot which company solves their problem, the answer comes from a small set of trusted sources the model has decided to cite. Citable is the platform that gets your brand into that set.
+
+Five levers, each measurable:
+
+1. **Understand the product's real value** — beyond marketing language.
+2. **Map the competitor landscape** — who else is in the consideration set.
+3. **Find unique positioning** — what you say that no competitor says.
+4. **Be omnipresent across channels** — content, outreach, technical, operational, paid.
+5. **Multiply** — more brand accounts × more channels × better content = more cited.
+
+Everything in the platform serves one of those five.
+
+## How Citable works
+
+Citable is a **Data Layer → MCP toolkit → Executors** architecture:
+
+- **Data Layer** — the Brand Knowledge Graph, the Citation Observatory, and the Action↔Outcome Ledger. The Ledger is the moat: every Citable-emitted action gets a row, and 30 days later the system measures the citation/visibility/SoV lift attributable to that action.
+
+- **MCP toolkit** — typed contracts that expose the data layer to any agent: Claude Desktop, Cursor, ChatGPT, our own agent runner, or humans in the UI. The same 5 `emit_*` write tools and ~15 read tools serve all of them.
+
+- **Executors** — agents (ours or yours) that pick tools, call them, and produce real-world artifacts (drafts, recommendations, scheduled posts, paid placements).
+
+This architecture is the bet: the **planner is rented** (frontier LLMs improve quarterly without changes from us), the **moat is what we own** (the data flywheel + the typed tool surface).
+
+## What this docs site covers
+
+<CardGroup cols={2}>
+  <Card title="Platform" icon="cube" href="/platform/architecture">
+    How the data moat works, the hard rules every emit must obey, the slices we shipped.
+  </Card>
+  <Card title="MCP Reference" icon="terminal" href="/mcp/overview">
+    Every tool, every input, every output. The contract external agents code against.
+  </Card>
+</CardGroup>
+
+## The iteration loop
+
+The flywheel closes within 30 days of any emitted action:
+
+```
+Brand Studio (insight + hub)
+    → Broadcast (channel spokes)
+        → Citation tracker (measure lift)
+            → Action↔Outcome Ledger (record cause + effect)
+                → Cohort aggregator (k-anonymous benchmarks)
+                    → Next Brand Studio recommendation (learned)
+```
+
+Per-channel playbooks emerge from the ledger over time. They are **not** hand-coded.
+
+## Hard rules
+
+Six invariants every part of the platform respects. See [Hard rules](/platform/hard-rules) for the full list.
+
+- `intent` enum is only `engagement` | `commercial`
+- Every `emit_*` validates persona-intent before emission
+- `is_branded=false` is the default scope on every read
+- Share of Voice on non-branded prompts is the North Star
+- Branded competitor comparison is Grow-tier only
+- Cross-brand aggregator outputs enforce k-anonymity ≥5

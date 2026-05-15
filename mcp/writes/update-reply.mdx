@@ -1,0 +1,28 @@
+---
+title: "update_reply"
+description: "Updates a draft social-listening reply (Reddit, Hacker News, future Twitter/LinkedIn)."
+---
+
+Updates a draft social-listening reply (Reddit, Hacker News, future Twitter/LinkedIn). Patches `reply_text` and/or `status`; the brand is resolved from the MCP auth context.
+
+## When to use
+
+- The user has reviewed the auto-generated reply text and wants Claude to revise it.
+- A draft needs to move to "queued" or "cancelled" without posting.
+
+## When NOT to use
+
+- The user wants to mark the reply as posted with a live URL — use `mark_reply_posted` instead.
+- The user wants to schedule it for a specific date — use `schedule_reply`.
+- The reply doesn't exist yet — replies are created via the Reddit/HN UI's Generate Reply button.
+
+## Status values
+
+Allowed: `draft`, `queued`, `scheduled`, `published`, `cancelled`. Note that flipping to published without supplying `posted_url` leaves the URL blank — prefer `mark_reply_posted` for that transition.
+
+Returns the updated reply on success, or an error message if the reply doesn't exist or doesn't belong to this brand.
+
+## See also
+
+- [MCP overview](/mcp/overview)
+- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission

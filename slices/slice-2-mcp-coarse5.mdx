@@ -1,0 +1,62 @@
+---
+title: "Slice 2 — MCP coarse-5 + agent runner"
+description: "Five emit_* write tools, the read surface, and the agent runner that drives them."
+---
+
+The platform's agent surface ships in three sub-slices:
+
+## Slice 2a — Read surface (15 tools)
+
+The reads that ground any agent decision. Highest-value:
+
+- [`get_brand_context`](/mcp/reads/get-brand-context) — brand identity, personas, competitors, scan config
+- [`get_topical_authority`](/mcp/reads/get-topical-authority) — Stage × Persona × Competitor matrix (4-card funnel)
+- [`get_action_outcome_history`](/mcp/reads/get-action-outcome-history) — past emitted actions with 30-day deltas
+- [`get_geo_priorities`](/mcp/reads/get-geo-priorities) — what to do next
+
+All reads default to `is_branded=false`. Branded comparisons are tier-gated at the service layer.
+
+## Slice 2b — Coarse-5 emit (5 tools)
+
+One semantic action per class. Every emit funnels through `validateAndRecordEmission`:
+
+| Tool | Action class | What it does |
+|---|---|---|
+| [`emit_content`](/mcp/writes/emit-content) | content | Draft long-form / spoke content for a brand persona |
+| [`emit_outreach`](/mcp/writes/emit-outreach) | outreach | Reply on a social thread (Reddit / HN / Twitter / LinkedIn) |
+| [`emit_technical`](/mcp/writes/emit-technical) | technical | Recommend a site-shape fix (schema, FAQ, TLDR, EEAT) |
+| [`emit_operational`](/mcp/writes/emit-operational) | operational | Recommend a brand-config change (enable model, add persona) |
+| [`emit_paid`](/mcp/writes/emit-paid) | paid | Launch a paid placement on ChatGPT Ads (engine-agnostic) |
+
+Two guarantees on every emit:
+
+1. **Persona-intent matrix** validates `(persona_type, intent, content?, platform?)` before any side effect.
+2. **Ledger row** written to `action_outcome_ledger` so the 30-day delta worker can measure outcome.
+
+Failed ledger writes log + return null. The user-facing emit always completes.
+
+## Slice 2c — Agent runner (~240 LOC)
+
+A thin loop:
+
+```
+runAgent({ brandId, userId, goal })
+  ↓ connect to in-memory MCP server
+  ↓ list tools → translate to Anthropic tool schema
+  ↓
+  while iterations < maxIterations:
+    response = anthropic.messages.create({ system, tools, messages })
+    if stop_reason == 'end_turn': break
+    if stop_reason == 'tool_use':
+      for block in tool_use_blocks:
+        result = mcpClient.callTool(block.name, block.input)
+        push tool_result into messages
+      continue
+```
+
+Cost guards:
+- `maxIterations` defaults to 12, hard-capped at 30
+- `max_tokens` per call defaults to 4096
+- Every run logs token counts + USD cost estimate
+
+The runner is **service-only** today. HTTP exposure (`POST /api/agent/run`) lands as a separate PR with cost guards (tier gate, per-brand budget, kill switch).

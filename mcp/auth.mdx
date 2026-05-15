@@ -1,0 +1,75 @@
+---
+title: "MCP authentication"
+description: "How the MCP server resolves brand and user context from an API call."
+---
+
+## Auth contexts
+
+The MCP server only operates with a resolved `McpAuthContext`:
+
+```typescript
+interface McpAuthContext {
+  brandId: number;     // the brand this session reads + writes for
+  userId: number;      // the human/system user behind the call (audit trail)
+  apiKeyId: number | null;  // when present, the API key that authenticated
+  source: string;      // 'stdio:env' | 'http:api_key' | 'internal:agent_runner' | ...
+}
+```
+
+`brandId` is the most important field — it scopes EVERY read and EVERY write. Tools cannot accept `brand_id` from their arguments.
+
+## Transports + how each resolves auth
+
+### stdio (local agents)
+
+Used by Claude Desktop, Cursor, and other local MCP clients. Auth comes from environment variables:
+
+```bash
+CITABLE_BRAND_ID=123
+CITABLE_USER_ID=456
+```
+
+The user must be a member of the brand (`brand_members.status='active'`) — verified at connection time. Source resolves to `'stdio:env'`.
+
+### Streamable HTTP (remote agents)
+
+Used by hosted agents that talk to Citable over HTTP/SSE. Auth comes from an API key:
+
+```
+Authorization: Bearer <api_key>
+```
+
+The key resolves to a stored `(brand_id, user_id, api_key_id)` tuple at the auth middleware layer. Source resolves to `'http:api_key'` and `apiKeyId` is populated for audit.
+
+### Internal (agent runner)
+
+Slice 2c's agent runner connects to an in-memory MCP server. Source resolves to `'internal:agent_runner'`. No external API key; the runner is trusted because it's part of the platform.
+
+## Brand scoping — universal guard
+
+Every read query filters by `authCtx.brandId`. Every write tool resolves its args to a target brand via a [`WriteGuardResolver`](https://github.com/getcitable/platform/blob/main/backend/server/mcp/write-guard.ts). Cross-brand writes throw `McpAuthError` with status 403; audit log records `'auth_failed'`.
+
+Example: `approve_ticket({ ticket_code: "OTHER-001" })` looks up the task, sees `task.brand_id !== authCtx.brandId`, and rejects.
+
+## API key lifecycle
+
+API keys are created in the Citable web app under Settings → API Keys. Each key:
+
+- Belongs to one user (creator)
+- Is scoped to one brand (cannot impersonate other brands)
+- Has a `revoked_at` timestamp; revoked keys fail auth immediately
+- Records `last_used_at` on every successful call
+
+Rotate by creating a new key and revoking the old one. Keys are shown ONCE at creation; we never reveal them again.
+
+## Rate limits
+
+Per-brand rate limit (default 100 calls/hr for free tier). Limit headers returned on every response:
+
+```
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 47
+X-RateLimit-Reset: 1715731200
+```
+
+Paid tiers get higher limits; Grow tier removes the read rate limit entirely. Write rate limits stay in place regardless of tier — they're cost protection on the platform side.

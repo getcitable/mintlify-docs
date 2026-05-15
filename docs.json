@@ -1,126 +1,102 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "Citable",
+  "description": "Build trust for AI agents. The data + tool layer that helps brands get cited by ChatGPT, Perplexity, Gemini, and Copilot.",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#0f172a",
+    "light": "#3b82f6",
+    "dark": "#0b1220"
   },
   "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Platform",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Get started",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "introduction",
+              "platform/architecture",
+              "platform/hard-rules"
             ]
           },
           {
-            "group": "Customization",
+            "group": "The data moat",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "platform/data-moat",
+              "slices/slice-1-ledger",
+              "slices/slice-4-cohort-aggregator",
+              "slices/slice-6-content-optimizer"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Agent surface",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/components",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "Agent ready",
-            "pages": [
-              "agent-ready/prompt",
-              "agent-ready/visibility",
-              "agent-ready/contextual",
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "slices/slice-2-mcp-coarse5"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "MCP Reference",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Overview",
             "pages": [
-              "api-reference/introduction"
+              "mcp/overview",
+              "mcp/auth"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Read tools",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "mcp/reads/ping",
+              "mcp/reads/get-brand-context",
+              "mcp/reads/get-brand-visibility",
+              "mcp/reads/get-geo-priorities",
+              "mcp/reads/get-topical-authority",
+              "mcp/reads/get-action-outcome-history",
+              "mcp/reads/get-action-with-children",
+              "mcp/reads/get-attribution-report",
+              "mcp/reads/get-content-performance",
+              "mcp/reads/get-paid-ads-insights",
+              "mcp/reads/search-prompt-intelligence",
+              "mcp/reads/list-brands",
+              "mcp/reads/list-content",
+              "mcp/reads/list-replies",
+              "mcp/reads/suggest-broadcast"
+            ]
+          },
+          {
+            "group": "Write tools",
+            "pages": [
+              "mcp/writes/emit-content",
+              "mcp/writes/emit-outreach",
+              "mcp/writes/emit-technical",
+              "mcp/writes/emit-operational",
+              "mcp/writes/emit-paid",
+              "mcp/writes/manage-paid-ad",
+              "mcp/writes/recommend-paid-ad-strategy",
+              "mcp/writes/create-content-draft",
+              "mcp/writes/schedule-content",
+              "mcp/writes/mark-content-posted",
+              "mcp/writes/update-reply",
+              "mcp/writes/schedule-reply",
+              "mcp/writes/mark-reply-posted",
+              "mcp/writes/approve-ticket",
+              "mcp/writes/dismiss-ticket",
+              "mcp/writes/ingest-conversation"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "website": "https://getcitable.com"
     }
   }
 }

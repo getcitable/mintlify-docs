@@ -1,0 +1,34 @@
+---
+title: "suggest_broadcast"
+description: "Suggests other platforms where the brand could broadcast a piece of existing content."
+---
+
+Suggests other platforms where the brand could broadcast a piece of existing content. Read-only — never creates drafts. Pair with `create_content_draft` to actually write the cross-post.
+
+## Inputs
+
+`source_content_id` (a `generated_content` row id, must belong to the authenticated brand). Returns ranked platform suggestions with rationale strings.
+
+## When to use
+
+- The user has a successful post on one platform and asks "where should I post this next?"
+- You're about to call `create_content_draft` and want to pick the highest-headroom platform.
+- The user wants to cross-post but doesn't know which channels are underused.
+
+## When NOT to use
+
+- The user wants attribution data (use `get_attribution_report`).
+- The user wants overall AI visibility (use `get_brand_visibility`).
+
+## Ranking heuristic
+
+Ranking heuristic v1: `score = 1 / (recent_post_count + 1)`. Higher score = more cross-post headroom on that platform. Excludes the source platform. Window defaults to 30 days.
+
+## Response shape
+
+`{ source: { contentId, platform, title, postedUrl, postedAt }, windowDays, suggestions: [{ platform, recentPostCount, score, rationale }] }`.
+
+## See also
+
+- [MCP overview](/mcp/overview)
+- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission

@@ -1,0 +1,76 @@
+---
+title: "Slice 1 — Action↔Outcome Ledger"
+description: "The foundation of the data moat. One row per Citable-emitted action."
+---
+
+## What it is
+
+A single Postgres table — `action_outcome_ledger` — that captures every action Citable emits on behalf of a brand, alongside the measured outcome 30 days later.
+
+The ledger is what makes the [data moat](/platform/data-moat) physical. Without it, there's nothing for the iteration loop to learn from.
+
+## Schema
+
+```sql
+CREATE TABLE action_outcome_ledger (
+  id BIGSERIAL PRIMARY KEY,
+  brand_id INTEGER NOT NULL REFERENCES brands(id) ON DELETE CASCADE,
+
+  -- ACTION (the cause)
+  action_type VARCHAR(20) NOT NULL
+    CHECK (action_type IN ('content','outreach','technical','operational','paid')),
+  action_subtype VARCHAR(40),
+  emitted_by VARCHAR(20) NOT NULL
+    CHECK (emitted_by IN ('citable_agent','external_agent','human','citable_internal_runner')),
+  executor VARCHAR(20),
+  related_content_id INTEGER REFERENCES generated_content(id),
+  related_task_id INTEGER REFERENCES action_engine_tasks(id),
+  external_action_system VARCHAR(40),  -- 'paid_ads:chatgpt' | 'gmail_outreach' | NULL
+  external_action_id TEXT,
+  parent_action_id BIGINT REFERENCES action_outcome_ledger(id),
+  fan_out_role VARCHAR(10) CHECK (fan_out_role IN ('hub','spoke') OR fan_out_role IS NULL),
+  target_persona_id INTEGER REFERENCES s_personas(id),
+  intent VARCHAR(20) CHECK (intent IN ('engagement','commercial')),
+  validation_status VARCHAR(20) CHECK (validation_status IN ('allowed','warned','blocked','overridden')),
+  validation_violations JSONB,
+  override_id INTEGER REFERENCES persona_intent_overrides(id),
+  target_prompt_ids INTEGER[],
+  action_payload JSONB NOT NULL,
+  emitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  executed_at TIMESTAMPTZ,
+  posted_url TEXT,
+
+  -- OUTCOME (the effect — populated by the nightly delta worker)
+  baseline_metrics JSONB,
+  measurement_metrics JSONB,
+  delta_metrics JSONB,
+  outcome_resolved_at TIMESTAMPTZ,
+  outcome_status VARCHAR(20) DEFAULT 'pending'
+    CHECK (outcome_status IN ('pending','measured','inconclusive','failed')),
+
+  emitting_model VARCHAR(60),
+  emission_provenance JSONB,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+## Writes
+
+1. Every `emit_*` MCP tool inserts a row with `outcome_status='pending'`, `executed_at=NULL`.
+2. Track A's paid-ads bridge calls `recordPaidActionEmission()` after every `paid_ad_objects` insert.
+3. `mark_content_posted` calls `recordExecution()` to update `executed_at` + `posted_url`.
+4. Hub↔spoke parent/child linked via `parent_action_id` + `fan_out_role`.
+
+## Outcome delta job (nightly cron)
+
+1. Selects pending rows where `executed_at <= NOW() - 30 days`.
+2. Calls `comparative-metrics-service.computeFor()` twice (28-day baseline + 30-day measurement).
+3. Diffs into `delta_metrics`, sets `outcome_status='measured'`.
+4. Defaults to `is_branded=false`, weights by per-brand scan config.
+
+## What it enables
+
+- [Cohort aggregator](/slices/slice-4-cohort-aggregator) — groups measured rows by competitor cohort.
+- [Content optimizer](/slices/slice-6-content-optimizer) — emits structured recommendations + measures them.
+- [`get_action_outcome_history`](/mcp/reads/get-action-outcome-history) — agents query what worked.
+- Per-brand recommender — the planning loop knows what's already been tried.

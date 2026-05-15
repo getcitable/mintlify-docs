@@ -1,0 +1,51 @@
+---
+title: "Slice 4 — Competitor-cohort aggregator"
+description: "Cross-brand benchmarks computed k-anonymously across competitor cohorts. Internal-only v1."
+---
+
+## What it does
+
+A privileged batch job that reads measured rows from `action_outcome_ledger`, groups them by competitor cohort, computes percentiles, and UPSERTs into `cross_brand_benchmarks`.
+
+## Cohort model
+
+For each canonical competitor name **C** (lowercased + trimmed):
+
+```
+cohort(C) = { brands B : B has C in s_brand_competitors with is_selected=TRUE }
+```
+
+For each `(C, action_type, action_subtype)` tuple, collect every MEASURED ledger row from cohort brands and compute:
+
+- `median_sov_lift_pct`, `p25_sov_lift_pct`, `p75_sov_lift_pct` — percentiles of `delta_metrics->>'share_of_voice_pct_relative'`
+- `median_citation_delta` — median of `delta_metrics->>'citation_rate_delta'`
+- `cohort_size` — distinct brand count in the cohort that emitted ≥1 action of this shape
+- `measured_action_count` — total ledger rows feeding this tuple
+
+## Privacy invariants
+
+| Guard | Mechanism |
+|---|---|
+| **k-anonymity ≥5** | `CHECK (cohort_size >= 5)` on the table + service-layer filter pre-insert |
+| **No brand_id columns** | The output table contains zero brand identifiers |
+| **Measured-only** | Only `outcome_status='measured'` rows feed the aggregator. Pending/inconclusive/failed never count. |
+| **Contributor-health filter** | A brand only contributes if it has ≥1 measured row in the last 90 days. Stops abandoned brands + data poisoning. |
+
+## Schedule
+
+- Cron: 25-min boot stagger, 24h cadence (runs after the delta worker so today's measurements are visible same day)
+- Manual trigger: `POST /api/admin/cross-brand/aggregate` (admin-only)
+
+## Internal-only v1
+
+The MCP tool `get_cross_brand_benchmarks` was **unregistered** from the public surface on 2026-05-14. Cohort benchmarks are competitive intelligence by aggregate; even with k-anonymity, exposing the aggregates to external agents (Claude Desktop, brand-level API keys) is the wrong default for v1.
+
+What stays running:
+- ✅ The aggregator + cron
+- ✅ The `cross_brand_benchmarks` table
+- ✅ `POST /api/admin/cross-brand/aggregate` admin endpoint
+
+What's off:
+- ❌ External MCP exposure via `get_cross_brand_benchmarks`
+
+Reversal is a 1-line change in `mcp/tools/index.ts` when we want to surface cohort data externally (likely as a Grow-tier upsell).

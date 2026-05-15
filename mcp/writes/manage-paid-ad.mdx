@@ -1,0 +1,27 @@
+---
+title: "manage_paid_ad"
+description: "Create or update a paid ad on an AI surface (ChatGPT Ads today; Perplexity / Gemini / Grok / Copilot when they ship)."
+---
+
+Create or update a paid ad on an AI surface (ChatGPT Ads today; Perplexity / Gemini / Grok / Copilot when they ship).
+
+## When to use
+
+Use this when the user asks:
+
+- "Launch a ChatGPT Ads campaign for prompt cluster X"
+- "Pause ad group Y"
+- "Archive that underperforming ad"
+
+## Inputs
+
+The `engine` input defaults to `'chatgpt'`. Every successful write is gated by the persona-intent matrix before the engine API write (block-severity violations halt; warn-severity logs an auto-override; allowed proceeds). After write, the action is emitted to the Action↔Outcome Ledger (Track B Hook 1).
+
+## When NOT to use
+
+Skip when the user wants reporting only (use `get_paid_ads_insights`) or strategy proposals (use `recommend_paid_ad_strategy`).
+
+## See also
+
+- [MCP overview](/mcp/overview)
+- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission

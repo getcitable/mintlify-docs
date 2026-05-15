@@ -1,0 +1,95 @@
+---
+title: "MCP toolkit — overview"
+description: "Typed tool contracts that expose Citable's data layer to any agent — Claude Desktop, Cursor, ChatGPT, our own runner."
+---
+
+## Model Context Protocol
+
+Citable runs an [MCP](https://modelcontextprotocol.io) server that any compatible AI agent can connect to. The same surface serves:
+
+- **External agents** — Claude Desktop, Cursor, ChatGPT MCP integrations, or a brand's own AI tooling
+- **Citable's internal agent runner** — uses the same in-memory transport (Slice 2c)
+- **Track A's paid-ads operating layer** — speaks MCP for cross-engine ad management
+- **Humans in the React frontend** — every UI action has an MCP equivalent
+
+## Two transports
+
+| Transport | When |
+|---|---|
+| **stdio** | Local Claude Desktop / Cursor users. `CITABLE_BRAND_ID` + `CITABLE_USER_ID` from env. |
+| **Streamable HTTP** | Remote agents. Auth via API key in `Authorization: Bearer <key>` header (see [auth](/mcp/auth)). |
+
+Both wire through the same `createMcpServer(authCtx)` factory. Same `registerAllTools(server, authCtx)` registers the full toolkit.
+
+## Tool categories
+
+```
+Read (15)               Write — coarse 5 emit_*
+├ ping                  ├ emit_content
+├ get_brand_context     ├ emit_outreach
+├ get_brand_visibility  ├ emit_technical
+├ get_geo_priorities    ├ emit_operational
+├ get_topical_authority └ emit_paid
+├ get_action_outcome_history
+├ get_action_with_children            Write — fine-grained lifecycle
+├ get_attribution_report              ├ create_content_draft
+├ get_content_performance             ├ schedule_content
+├ get_paid_ads_insights               ├ mark_content_posted
+├ search_prompt_intelligence          ├ update_reply
+├ list_brands                         ├ schedule_reply
+├ list_content                        ├ mark_reply_posted
+├ list_replies                        ├ approve_ticket
+└ suggest_broadcast                   ├ dismiss_ticket
+                                      ├ ingest_conversation
+                                      ├ manage_paid_ad
+                                      └ recommend_paid_ad_strategy
+```
+
+Agents should prefer **coarse `emit_*`** for new writes — they bundle persona-intent validation + ledger emission. The fine-grained tools exist for human-UI flows where each step (draft → schedule → mark posted) is a discrete user action.
+
+## Universal guarantees
+
+Every tool call goes through:
+
+1. **Auth resolution** — `(brand_id, user_id)` resolved from the API key. Tools NEVER accept `brand_id` from args.
+2. **Write-guard** — write tools resolve their args to a target brand via a registered resolver. Cross-brand writes throw 403 `McpAuthError`.
+3. **Persona-intent matrix** — every `emit_*` validates `(persona_type, intent, content?)` before any side effect. Block-severity violations halt unless `override_reason ≥ 8 chars` is supplied (writes a `persona_intent_overrides` audit row).
+4. **Ledger emission** — every emit writes a row to `action_outcome_ledger` so the 30-day delta worker can measure outcome.
+5. **Brand-scoped reads** — every read filters by `auth.brand_id` at the query layer. No cross-brand reads possible from any API key.
+
+## Versioning
+
+`v1` namespace from day one. Schema additions only; no breaking changes within v1. New tools add to the registry; old tools never disappear within a major version.
+
+## Quick start
+
+Once you have an API key:
+
+```bash
+# Set the transport URL + API key
+export CITABLE_MCP_URL="https://api.getcitable.com/mcp"
+export CITABLE_API_KEY="..."
+
+# Or for stdio (local Claude Desktop config):
+{
+  "mcpServers": {
+    "citable": {
+      "command": "node",
+      "args": ["/path/to/citable-mcp.js"],
+      "env": {
+        "CITABLE_BRAND_ID": "123",
+        "CITABLE_USER_ID": "456"
+      }
+    }
+  }
+}
+```
+
+Then call `ping` to verify the handshake worked:
+
+```
+> ping()
+< pong — citable-mcp v1, brand 123, user 456, authSource: stdio:env
+```
+
+You're connected. See the per-tool pages for what each tool does.

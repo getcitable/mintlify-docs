@@ -1,0 +1,26 @@
+---
+title: "get_action_with_children"
+description: "Returns a parent action ticket and all its child content tickets (drafts, scheduled, posted) in one call."
+---
+
+Returns a parent action ticket and all its child content tickets (drafts, scheduled, posted) in one call. Children are content rows whose `source_task_id` points to this action — the reverse FK landed in the Apr 27 content unification. Each child includes status, `scheduled_for`, `posted_url`, assignee fields, and the canonical `deepLinkUrl` to its editor or detail page.
+
+## When to use
+
+- The user asks about a specific action by ticket code ("Show me CIT-051 and its content").
+- The user wants to know what content already exists against an action before drafting more.
+- Claude is about to call `create_content_draft` and wants to confirm an action doesn't already have a queued draft.
+
+## When NOT to use
+
+- The user wants the brand-wide priority list (use `get_geo_priorities`).
+- The user wants attribution for a specific posted URL (use `get_attribution_report`).
+
+## Inputs
+
+Input is a ticket code like `"CIT-051"`. Brand resolved from MCP auth context — a ticket from another brand returns null even if the `display_seq` exists in this brand.
+
+## See also
+
+- [MCP overview](/mcp/overview)
+- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission

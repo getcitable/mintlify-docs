@@ -1,0 +1,83 @@
+---
+title: "emit_outreach — reply on a social thread"
+description: "Coarse outreach emit: validates persona-intent, creates/updates the outreach row, writes the Action↔Outcome Ledger row."
+---
+
+## What it does
+
+Emits an outreach action: validates persona-intent, creates or updates the `social_replies` row for the target thread, and records to the Action↔Outcome Ledger for 30-day measurement. v1 fully wires the social-listening channels (Reddit / HN / Twitter / LinkedIn listening). Cold-email and LinkedIn DM channels return `status: 'pending_connector'` until Slice 3's Composio Gmail + LinkedIn connectors land — the ledger row is still written so the intent shows in history.
+
+## When to use
+
+- The user wants to reply to a Reddit / HN / Twitter / LinkedIn thread that's been queued for response.
+- An ingested conversation is ripe for a follow-up reply (pair with the `source_ref_id` of the thread).
+
+## When not to use
+
+- The outreach is broad content publishing — use `emit_content`.
+- The outreach is paid surfacing — use `emit_paid`.
+
+## Inputs
+
+- `persona_id` (number, required) — persona the reply speaks as.
+- `intent` (`'engagement'` | `'commercial'`, required) — `engagement` builds relationships; `commercial` pitches / converts.
+- `channel` (`'reddit'` | `'hn'` | `'twitter'` | `'linkedin_listening'` | `'gmail'` | `'linkedin_dm'`, required) — first four are fully wired; last two return `pending_connector`.
+- `reply_text` (string, 1–4000 chars, required) — body of the reply.
+- `source_ref_id` (number, required for social channels) — the Reddit/HN/Twitter/LinkedIn thread id this responds to.
+- `source_url` (string URL, optional) — source thread URL for audit.
+- `brand_account_id` (number, optional) — the `brand_account` this reply posts as.
+- `scheduled_for` (`YYYY-MM-DD`, optional) — lands on the calendar at a specific date instead of `'queued'`.
+- `target_prompt_ids` (number[], optional) — `s_prompts` ids the reply is meant to win citations on.
+- `override_reason` (string, ≥8 chars, optional) — bypass block-severity violations with audit.
+
+## Response
+
+```json
+{
+  "ledgerId": 8512,
+  "replyId": 6041,
+  "channel": "reddit",
+  "status": "queued",
+  "scheduledFor": null,
+  "validation": {
+    "status": "allowed",
+    "violations": [],
+    "overrideIds": []
+  }
+}
+```
+
+For gated channels (`gmail`, `linkedin_dm`):
+
+```json
+{
+  "ledgerId": 8513,
+  "channel": "gmail",
+  "status": "pending_connector",
+  "meta": {
+    "eta": "Slice 3 — Composio Gmail + LinkedIn connectors",
+    "validation": "allowed"
+  }
+}
+```
+
+## Persona-intent validation
+
+**Required.** Outreach almost always touches a persona (your insider account, an audience persona, etc.), so the matrix fires on every emit. Block-severity rules halt unless `override_reason ≥ 8 chars` is supplied. For `pending_connector` channels the matrix still runs, but a validation failure doesn't suppress the `pending_connector` response — the caller needs to know which connector is missing more than they need a ledger row. See [Hard rules #2](/platform/hard-rules#2-every-emit-validates-persona-intent-before-emission).
+
+## Examples
+
+Reply to a Reddit thread as the brand's insider persona, engagement intent:
+
+```json
+{
+  "persona_id": 412,
+  "intent": "engagement",
+  "channel": "reddit",
+  "reply_text": "We ran into this exact problem last quarter. The fix that worked for us was...",
+  "source_ref_id": 88412,
+  "source_url": "https://reddit.com/r/saas/comments/abc123/...",
+  "brand_account_id": 17,
+  "target_prompt_ids": [1834]
+}
+```

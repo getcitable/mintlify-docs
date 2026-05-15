@@ -1,0 +1,84 @@
+---
+title: "The data moat — 30-day delta loop"
+description: "Why the Action↔Outcome Ledger is the platform's defensibility."
+---
+
+## The thesis
+
+A frontier LLM is the same for every company. Anyone with an API key can call Claude or GPT. Reasoning is a commodity.
+
+What's not a commodity:
+
+- The structured history of **which actions a specific brand took**
+- The measured **outcomes 30 days later** (citation rate / SoV / sentiment delta)
+- The cross-brand **cohort-level patterns** that emerge when you aggregate that history k-anonymously across hundreds of brands
+
+This is the data moat. The Action↔Outcome Ledger is its physical instantiation.
+
+## The loop
+
+```
+emit_content / emit_outreach / emit_paid / etc.
+    ↓ writes a row to action_outcome_ledger (status='pending')
+    ↓
+    [executor publishes — manual or automated]
+    ↓ updates executed_at + posted_url
+    ↓
+    [wait 30 days]
+    ↓
+delta worker (nightly cron)
+    ↓ calls comparative-metrics-service twice (baseline + measurement windows)
+    ↓ diffs to delta_metrics, sets status='measured'
+    ↓
+cohort aggregator (nightly cron)
+    ↓ groups measured rows by competitor cohort
+    ↓ computes percentiles, filters cohort_size >= 5
+    ↓ UPSERTs cross_brand_benchmarks
+    ↓
+next planning cycle
+    ↓ Brand Studio recommender reads aggregator output
+    ↓ "for brands with your competitor cohort, action X delivered 22% median SoV lift"
+    ↓ proposes the next emit
+```
+
+The loop closes within 30 days of any emitted action. No model retraining required.
+
+## What's measured
+
+Every measured ledger row carries:
+
+```json
+{
+  "citation_rate": 18.5,
+  "mention_rate": 24.1,
+  "avg_rank": 2.3,
+  "sentiment_score": 42,
+  "share_of_voice_pct": 8.7,
+  "per_competitor_sentiment": {
+    "competitor_a": 15,
+    "competitor_b": -8
+  },
+  "non_branded_only": true
+}
+```
+
+`baseline_metrics` (28-day window before execution) + `measurement_metrics` (30-day window after) + `delta_metrics` (the diff). All three populated by the delta worker.
+
+## Privacy invariants
+
+- **Brand-scoped** — every row has `brand_id`. Cross-brand reads are impossible from any brand's MCP API key.
+- **K-anonymity ≥5** — the cohort aggregator drops any (competitor × action_type × action_subtype) bucket with fewer than 5 contributing brands. Output table has zero `brand_id` columns.
+- **Contributor-health filter** — a brand only contributes to cohort benchmarks if it has ≥1 measured ledger row in the last 90 days AND active subscription or completed trial. Abandoned brands don't skew the moat.
+- **Outlier rejection** — top/bottom 5% delta values dropped before percentile math (Risk R3 mitigation: data poisoning).
+
+## Why it compounds
+
+Three flywheels stack:
+
+1. **Per-brand learning** — Citable knows what's worked for THIS brand specifically. Each emit gets a measurable outcome.
+2. **Per-cohort learning** — when 5+ brands sharing a competitor have emitted action X, the cohort benchmark tells the next brand what to expect.
+3. **Cross-channel learning** — hub-spoke parent/child rows let the system know "this hub × Reddit spoke delivered 3.2× the lift of LinkedIn spoke." Per-channel playbooks emerge from data.
+
+None of these need ML training. All of them need the ledger to exist + the brands to keep emitting + 30 days to pass.
+
+That's the moat.

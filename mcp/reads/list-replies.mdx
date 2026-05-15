@@ -1,0 +1,20 @@
+---
+title: "list_replies"
+description: "Lists social-listening replies for the current brand."
+---
+
+Lists social-listening replies for the current brand. Filters by source platform (reddit, hn, twitter, linkedin_listening) and lifecycle status. Brand resolved from MCP auth context.
+
+## When to use
+
+- The user asks "what Reddit replies are in draft?"
+- Claude needs to find a reply to update before calling `update_reply` / `mark_reply_posted`.
+
+## Response
+
+Returns up to 50 most-recent rows (calendar surfaces the rest). Each row has `id`, `source_type`, `source_ref_id`, `status`, `scheduled_for`, `posted_url`, `reply_text`, `brand_account_id`.
+
+## See also
+
+- [MCP overview](/mcp/overview)
+- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission

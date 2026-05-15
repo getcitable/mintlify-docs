@@ -1,0 +1,33 @@
+---
+title: "get_geo_priorities"
+description: "Returns the brand's top-priority GEO tickets from the Citable Action Engine, ordered by time_group."
+---
+
+Returns the brand's top-priority GEO (Generative Engine Optimization) tickets from the Citable Action Engine, ordered by time_group (today → this-week → next-week → backlog). Each ticket includes a deep link back to Citable web where the user can approve, edit, or dismiss the action.
+
+## When to use
+
+Use this when the user asks:
+
+- "What should I do for GEO this week?"
+- "What's the top priority for my brand?"
+- "Give me my marketing to-do list."
+
+Skip when the user wants visibility metrics (use `get_brand_visibility`) or posted-content performance (use `get_content_performance`).
+
+## Response shape
+
+`{ tickets: [...], totalRemaining, completed, effortRemainingMinutes, lastGeneratedAt }`. Each ticket has `id`, `title`, `description[]`, `status`, `priority`, `effortMinutes`, `templateKey`, `deepLinkUrl`, `taskCategory`, `taskType`.
+
+## Category taxonomy
+
+Use these to group / filter: `technical`, `content_creation`, `media_placement`, `content_optimization`, `opportunity`, `report`, `operational`, `generic`.
+
+## Example
+
+Calling with `{ window: "week", limit: 5 }` returns the five most urgent tickets for this week across today + this-week groups.
+
+## See also
+
+- [MCP overview](/mcp/overview)
+- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission

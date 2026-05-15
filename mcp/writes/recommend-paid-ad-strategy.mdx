@@ -1,0 +1,26 @@
+---
+title: "recommend_paid_ad_strategy"
+description: "Returns ranked coverage-gap recommendations for paid placement on AI engines (ChatGPT Ads today)."
+---
+
+Returns ranked coverage-gap recommendations for paid placement on AI engines (ChatGPT Ads today).
+
+## Algorithm (Coverage-Gap v1)
+
+- **Step A** — competitor Google-Ads keyword spend (optional input)
+- **Step B** — non-branded prompts where the brand's SoV < 30% (`is_branded=false` filter)
+- **Step C** — double-signal: prompts that have BOTH competitor spend AND Citable visibility gap surface first
+- **Step D** — LLM-ready ad-group seeds with recommended `context_hints`
+
+## When to use
+
+Use this when the user asks:
+
+- "Where should I spend on ChatGPT Ads?"
+- "Recommend a paid-ads strategy"
+- "What prompts am I losing to competitors that they're paying for?"
+
+## See also
+
+- [MCP overview](/mcp/overview)
+- [Hard rules](/platform/hard-rules) — persona-intent validation + ledger emission
