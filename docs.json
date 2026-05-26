@@ -109,5 +109,14 @@
     "socials": {
       "website": "https://getcitable.com"
     }
+  },
+  "integrations": {
+    "ga4": {
+      "measurementId": ""
+    },
+    "posthog": {
+      "apiKey": "",
+      "apiHost": "https://us.i.posthog.com"
+    }
   }
 }
