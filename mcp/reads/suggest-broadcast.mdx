@@ -1,38 +1,34 @@
 ---
 title: "suggest_broadcast"
+sidebarTitle: "suggest_broadcast"
 description: "Suggests other platforms where the brand could broadcast a piece of existing content."
 ---
 
-Suggests other platforms where the brand could broadcast a piece of existing content. Read-only — never creates drafts. Pair with [`create_content_draft`](/mcp/writes/create-content-draft) to actually write the cross-post.
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Suggests other platforms where the brand could broadcast a piece of existing content. Read-only — never creates drafts. Pair with create_content_draft to actually write the cross-post.
+
+Input: source_content_id (a content row id, must belong to the authenticated brand). Returns ranked platform suggestions with rationale strings.
+
+Use this when:
+- The user has a successful post on one platform and asks "where should I post this next?"
+- You're about to call create_content_draft and want to pick the highest-headroom platform.
+- The user wants to cross-post but doesn't know which channels are underused.
+
+Skip when:
+- The user wants attribution data (use get_attribution_report).
+- The user wants overall AI visibility (use get_brand_visibility).
+
+Ranking: platforms with the fewest recent posts rank highest (the most cross-post headroom). The source piece's own platform is excluded. Window defaults to 30 days.
+
+Response shape: \{ source: \{ contentId, platform, title, postedUrl, postedAt \}, windowDays, suggestions: [\{ platform, recentPostCount, score, rationale \}] \}.
 
 ## Inputs
 
-`source_content_id` — id of an existing content row that belongs to the authenticated brand. Returns ranked platform suggestions with rationale strings.
-
-## When to use
-
-- The user has a successful post on one platform and asks "where should I post this next?"
-- You're about to call `create_content_draft` and want to pick the highest-headroom platform.
-- The user wants to cross-post but doesn't know which channels are underused.
-
-## When not to use
-
-- The user wants attribution data — use [`get_attribution_report`](/mcp/reads/get-attribution-report).
-- The user wants overall AI visibility — use [`get_brand_visibility`](/mcp/reads/get-brand-visibility).
-
-## Ranking
-
-Higher score = more cross-post headroom on that platform. Excludes the source platform. Window defaults to 30 days.
-
-## Response
-
-```
-{ source: { contentId, platform, title, postedUrl, postedAt },
-  windowDays,
-  suggestions: [{ platform, recentPostCount, score, rationale }] }
-```
-
-## See also
-
-- [Overview](/mcp/overview)
-- [Broadcast](/features/broadcast)
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `source_content_id` | `integer` | yes | — | Content row id for the source piece. Must belong to the authenticated brand. |
+| `windowDays` | `integer` | no | — | Lookback window for counting recent posts per platform. Defaults to 30. |
+| `limit` | `integer` | no | — | Max suggestions to return. Default 4, max 6. |

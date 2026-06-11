@@ -1,24 +1,28 @@
 ---
 title: "mark_reply_posted"
+sidebarTitle: "mark_reply_posted"
 description: "Marks a social reply as posted with the live URL."
 ---
 
-Marks a social reply as posted with the live URL. Sets `status='published'`, stamps `posted_url` and `posted_at`. Brand resolved from auth context.
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
 
-## When to use
+Marks a social reply as posted with the live URL. Sets status='published', stamps posted_url + posted_at. Brand resolved from MCP auth context.
 
-- The user has just posted the reply on Reddit, Hacker News, or another platform and wants it tracked.
+Use this when:
+- The user has just posted the reply on Reddit/Hacker News/etc. and wants it tracked.
 - A user pastes a comment URL after replying manually.
 
-## When not to use
+Skip when:
+- The reply hasn't been posted yet — use update_reply for status changes that don't carry a URL.
+- The user wants to undo "posted" status — call update_reply with status='scheduled' or 'draft'.
 
-- The reply hasn't been posted yet — use [`update_reply`](/mcp/writes/update-reply) for status changes that don't carry a URL.
-- The user wants to undo a "posted" status — call [`update_reply`](/mcp/writes/update-reply) with `status='scheduled'` or `'draft'`.
+The posted_url should be the canonical URL of the live comment, not the source thread URL — Citable uses it for citation attribution.
 
 ## Inputs
 
-The `posted_url` should be the canonical URL of the live comment, not the source thread URL. Attribution joins on this column.
-
-## See also
-
-- [Overview](/mcp/overview)
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `reply_id` | `integer` | yes | — | ID of the reply row. |
+| `posted_url` | `string` | yes | — | Canonical URL of the live comment (not the source thread URL). |
