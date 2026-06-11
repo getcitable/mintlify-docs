@@ -1,19 +1,24 @@
 ---
 title: "list_replies"
+sidebarTitle: "list_replies"
 description: "Lists social-listening replies for the current brand."
 ---
 
-Lists social-listening replies for the current brand. Filters by source platform (Reddit, Hacker News, X, LinkedIn listening) and lifecycle status. Brand resolved from auth context.
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
 
-## When to use
+Lists social-listening replies for the current brand. Filters by source platform (reddit, hn, twitter, linkedin_listening) and lifecycle status. Brand resolved from MCP auth context.
 
+Use this when:
 - The user asks "what Reddit replies are in draft?"
-- The agent needs to find a reply to update before calling `update_reply` or `mark_reply_posted`.
+- Claude needs to find a reply to update before calling update_reply / mark_reply_posted.
 
-## Response
+Returns up to 50 most-recent rows (calendar surfaces the rest). Each row has id, source_type, source_ref_id, status, scheduled_for, posted_url, reply_text, brand_account_id.
 
-Returns up to 50 most-recent rows (the calendar surfaces the rest). Each row has `id`, `source_type`, `source_ref_id`, `status`, `scheduled_for`, `posted_url`, `reply_text`, `brand_account_id`.
+## Inputs
 
-## See also
-
-- [Overview](/mcp/overview)
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `source_type` | `'reddit' \| 'hn' \| 'twitter' \| 'linkedin_listening'` | no | — | Filter by source platform. |
+| `statuses` | `'draft' \| 'queued' \| 'scheduled' \| 'published' \| 'cancelled'[]` | no | — | Filter by status. Omit for all. |

@@ -1,79 +1,52 @@
 ---
 title: "emit_paid"
-description: "Launch a paid placement on an AI surface — validates persona-intent, calls the engine adapter, records the action for 30-day measurement."
+sidebarTitle: "emit_paid"
+description: "Emit a paid ad on an AI surface (ChatGPT Ads today; Perplexity / Gemini / Grok / Copilot when those engines become available)."
 ---
 
-## What it does
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
 
-Emits a paid ad on an AI surface — ChatGPT Ads today, with adapters for Perplexity, Gemini, Grok, and Copilot landing as each engine opens advertising. Engine-agnostic by design: pick the engine, pass the engine-shaped payload, and Citable routes to the right adapter.
+Emit a paid ad on an AI surface (ChatGPT Ads today; Perplexity / Gemini / Grok / Copilot when those engines become available). Engine-agnostic by design.
 
-Under the hood:
+What this does:
+1. The creative is validated against the persona's guardrails (blocking violations halt; warnings are logged).
+2. Calls the engine adapter to create the campaign / ad_group / ad on the external system.
+3. Records the action so its citation/conversion impact can be measured over time.
 
-1. The persona-intent matrix validates the creative content.
-2. Citable calls the engine adapter to create the campaign, ad group, or ad on the external system.
-3. The action is recorded so its 30-day citation impact can be measured.
-
-Intent is always `'commercial'` for `emit_paid` — paid placements exist to drive conversions, not just engagement. The caller cannot override this.
-
-## When to use
-
+Use this when:
 - The user (or upstream agent) has decided to launch a paid placement against a specific prompt cluster.
-- [`recommend_paid_ad_strategy`](/mcp/writes/recommend-paid-ad-strategy) returned a proposal the user approved.
+- recommend_paid_ad_strategy returned a proposal the user approved.
 
-## When not to use
+Skip when:
+- The user wants to pause / activate / archive an existing object (use manage_paid_ad).
+- The user wants strategy proposals, not creation (use recommend_paid_ad_strategy).
+- The user wants reporting (use get_paid_ads_insights).
 
-- The user wants to pause / activate / archive an existing object — use [`manage_paid_ad`](/mcp/writes/manage-paid-ad).
-- The user wants strategy proposals, not creation — use [`recommend_paid_ad_strategy`](/mcp/writes/recommend-paid-ad-strategy).
-- The user wants reporting — use [`get_paid_ads_insights`](/mcp/reads/get-paid-ads-insights).
+Intent: ALWAYS 'commercial' (paid ads exist to drive conversions). Caller cannot override this.
+
+Inputs:
+- object_type (required): 'campaign' | 'ad_group' | 'ad'.
+- engine (optional, default 'chatgpt').
+- payload (required): engine-shaped payload (e.g. ChatGPT Ads campaign body).
+- persona_id (required): persona this placement targets — the creative is validated against its guardrails.
+- content (optional): creative body to validate. Strongly recommended for 'ad' object_type.
+- parent_external_id (optional): for ad_group/ad, the parent campaign's external_id.
+- citable_prompt_ids (optional): tracked-prompt ids this placement is meant to win.
+- citable_hub_id (optional): content id of the hub this ad amplifies.
+
+Response: \{ externalId, engine, objectType, validation, payload \}. Inspect prior actions via get_action_outcome_history.
 
 ## Inputs
 
-- `object_type` (`'campaign'` | `'ad_group'` | `'ad'`, required).
-- `engine` (`'chatgpt'` | `'perplexity'` | `'gemini'` | `'grok'` | `'copilot'`, default `'chatgpt'`).
-- `payload` (object, required) — engine-shaped payload for the create API call (e.g. ChatGPT Ads campaign body).
-- `persona_id` (number, required) — persona this placement targets; drives matrix validation.
-- `content` (string, optional) — creative body to validate. Strongly recommended for `'ad'` object_type.
-- `parent_external_id` (string, optional) — required for `'ad_group'` / `'ad'`; the parent campaign or ad_group external id.
-- `citable_prompt_ids` (number[], optional) — tracked prompts this placement is meant to win.
-- `citable_hub_id` (number, optional) — content id of the hub this ad amplifies (links spoke → hub for measurement).
-
-## Response
-
-```json
-{
-  "externalId": "campaign_abc123",
-  "engine": "chatgpt",
-  "objectType": "campaign",
-  "payload": { "...": "engine-shaped echo" },
-  "validation": {
-    "status": "allowed",
-    "violations": []
-  }
-}
-```
-
-On block: `isError: true` with `structuredContent: { status: 'blocked' | 'no_connector' | 'error', ... }`. For `'blocked'`, fix the creative or record an override out-of-band and retry. For `'no_connector'`, connect the engine under Connectors first.
-
-## Persona-intent validation
-
-The matrix runs before the external adapter is called — no external system gets a side effect for content the matrix blocks. Intent is hard-coded to `'commercial'`.
-
-## Example
-
-Launch a ChatGPT Ads campaign targeting a buyer-stage prompt cluster, linked to a content hub:
-
-```json
-{
-  "object_type": "campaign",
-  "engine": "chatgpt",
-  "persona_id": 412,
-  "payload": {
-    "name": "Q2 — vs Competitor X buyer prompts",
-    "daily_budget_usd": 50,
-    "targeting": { "prompts": ["best alternative to competitor x", "competitor x vs"] }
-  },
-  "content": "Citable helps brands get cited by ChatGPT, Perplexity, Gemini, and Copilot...",
-  "citable_prompt_ids": [1902, 1908, 1911],
-  "citable_hub_id": 17203
-}
-```
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `object_type` | `'campaign' \| 'ad_group' \| 'ad'` | yes | — | Which level to create: campaign, ad_group, or ad. |
+| `engine` | `'chatgpt' \| 'perplexity' \| 'gemini' \| 'grok' \| 'copilot'` | no | `"chatgpt"` | AI ad engine. Default chatgpt. |
+| `payload` | `object` | yes | — | Engine-shaped payload for the create API call. |
+| `persona_id` | `integer` | yes | — | Persona this placement targets — the creative is validated against its guardrails. |
+| `content` | `string` | no | — | Creative body to validate against the persona's guardrails (recommended for ad object_type). |
+| `parent_external_id` | `string` | no | — | Required for 'ad_group' / 'ad' — the parent campaign or ad-group external id. |
+| `citable_prompt_ids` | `integer[]` | no | — | Tracked-prompt ids this placement is meant to win (scopes outcome measurement). |
+| `citable_hub_id` | `integer` | no | — | Content id of the hub this ad amplifies (links spoke→hub in the action history). |

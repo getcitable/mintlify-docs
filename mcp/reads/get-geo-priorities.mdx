@@ -1,41 +1,31 @@
 ---
 title: "get_geo_priorities"
-description: "Returns the brand's top-priority recommendations from the Action Engine, ordered by time group."
+sidebarTitle: "get_geo_priorities"
+description: "Returns the brand's top-priority GEO (Generative Engine Optimization) tickets from the Citable Action Engine, ordered by time_group (today → this-week → next-week → backlog)."
 ---
 
-Returns the brand's top-priority recommendations from the Citable Action Engine, ordered by time group (today → this-week → next-week → backlog). Each ticket includes a deep link back to the web app where the user can approve, edit, or dismiss the action.
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
 
-## When to use
+Returns the brand's top-priority GEO (Generative Engine Optimization) tickets from the Citable Action Engine, ordered by time_group (today → this-week → next-week → backlog). Each ticket includes a deep link back to Citable web where the user can approve, edit, or dismiss the action.
 
-- "What should I do for AI visibility this week?"
+Use this when the user asks:
+- "What should I do for GEO this week?"
 - "What's the top priority for my brand?"
 - "Give me my marketing to-do list."
 
-Skip when the user wants visibility metrics (use `get_brand_visibility`) or posted-content performance (use `get_content_performance`).
+Skip when the user wants visibility metrics (use get_brand_visibility) or posted-content performance (use get_content_performance).
+
+Response shape: \{ tickets: [...], totalRemaining, completed, effortRemainingMinutes, lastGeneratedAt \}. Each ticket has id, title, description[], status, priority, effortMinutes, templateKey, deepLinkUrl, taskCategory, taskType.
+
+Category taxonomy (use these to group / filter): technical, content_creation, media_placement, content_optimization, opportunity, report, operational, generic.
+
+Example: calling with \{ window: "week", limit: 5 \} returns the five most urgent tickets for this week across today + this-week groups.
 
 ## Inputs
 
-| Field | Type | Default | Meaning |
-|---|---|---|---|
-| `window` | `'today' \| 'week' \| 'next_week' \| 'all'` | `'all'` | Time horizon for the queue. |
-| `limit` | `int` | `20` | Page size. |
-
-## Response
-
-```
-{ tickets: [...], totalRemaining, completed, effortRemainingMinutes, lastGeneratedAt }
-```
-
-Each ticket has `id`, `title`, `description[]`, `status`, `priority`, `effortMinutes`, `templateKey`, `deepLinkUrl`, `taskCategory`, `taskType`.
-
-## Category taxonomy
-
-`technical`, `content_creation`, `media_placement`, `content_optimization`, `opportunity`, `report`, `operational`, `generic`.
-
-## Example
-
-Calling with `{ window: "week", limit: 5 }` returns the five most urgent recommendations across today + this-week.
-
-## See also
-
-- [Overview](/mcp/overview)
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `window` | `'today' \| 'week' \| 'all'` | no | — | Time window. "today" = today only, "week" = today+this-week, "all" = everything including backlog. Defaults to "all". |
+| `limit` | `integer` | no | — | Max number of tickets to return. Defaults to 10, max 50. |

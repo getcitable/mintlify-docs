@@ -1,73 +1,34 @@
 ---
 title: "get_topical_authority"
-description: "The four-metric funnel — Citation Rate, Mention Rate, Average Rank, Sentiment — broken down per competitor and filterable by stage, persona, and AI model."
+sidebarTitle: "get_topical_authority"
+description: "Returns the brand's topical authority matrix — Citation Rate, Mention Rate, Average Rank, and Sentiment broken down per competitor — filterable by journey stage, persona, and AI..."
 ---
 
-## What it does
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
 
-Returns the brand's topical authority matrix — **Citation Rate**, **Mention Rate**, **Average Rank**, and **Sentiment** broken down per competitor — filterable by journey stage, persona, and AI model.
+Returns the brand's topical authority matrix — Citation Rate, Mention Rate, Average Rank, and Sentiment broken down per competitor — filterable by journey stage, persona, and AI model.
 
-Defaults to non-branded prompts only (the canonical scope for recommendation work). Branded comparisons are available on the Grow tier and require explicit opt-in via `isBranded: true`.
-
-## When to use
-
+Use this when the user asks:
 - "Where am I weakest on purchase-stage prompts?"
 - "Who's beating me on comparison queries for the founder persona?"
-- "How does my sentiment look across stages?"
+- "How does my Sentiment look across stages?"
 - "What's my Citation Rate against [Competitor X]?"
 
-## When not to use
+Skip when the user wants a paid-ads-specific funnel (use get_paid_ads_insights) or a to-do list (use get_geo_priorities).
 
-- The user wants a paid-ads-specific view — use [`get_paid_ads_insights`](/mcp/reads/get-paid-ads-insights).
-- The user wants a recommended to-do list — use [`get_geo_priorities`](/mcp/reads/get-geo-priorities).
-- The user wants past actions and outcome deltas — use [`get_action_outcome_history`](/mcp/reads/get-action-outcome-history).
+Defaults: 7-day window, non-branded prompts only (isBranded=false), all four stages (awareness_discovery / consideration_evaluation / purchase_intent / support_usage), all personas, all models. Set 'isBranded' to true to query branded prompts — gated to Grow tier; non-Grow callers see own-brand row only with tierGated=true.
+
+Response: \{ citationRate[], mentionRate[], averageRank[], sentiment[], tierGated, scope: \{ stages, isBranded, competitorNames, modelCodes, personaNames, days, appliedTier \} \}. Each metric array has one row per brand (yours + competitors) with isYou flag, brand name, and a numeric value (sentiment has \{ score, sampleSize, confidence \}). Current limitation: per-competitor averageRank/sentiment rows are own-brand-only.
 
 ## Inputs
 
-| Field | Type | Default | Meaning |
-|---|---|---|---|
-| `days` | `int` (1–90) | `7` | Rolling window in days. |
-| `stages` | `JourneyStage[]` | all four | Subset of `awareness_discovery` / `consideration_evaluation` / `purchase_intent` / `support_usage`. |
-| `personaNames` | `string[]` | all | Filter to personas by display name. |
-| `modelCodes` | `string[]` | all configured | AI models, e.g. `["chatgpt", "perplexity"]`. |
-| `competitorNames` | `string[]` | all tracked | Limit comparison set. |
-| `isBranded` | `boolean \| null` | `false` | `false` = non-branded only (default), `true` = branded only (Grow-tier gated), `null` = both. |
-
-Brand id is resolved from auth.
-
-## Response
-
-```json
-{
-  "citationRate": [
-    { "isYou": true, "brand": "Citable", "value": 0.42 },
-    { "isYou": false, "brand": "Profound", "value": 0.31 }
-  ],
-  "mentionRate": [
-    { "isYou": true, "brand": "Citable", "value": 0.58 }
-  ],
-  "averageRank": [
-    { "isYou": true, "brand": "Citable", "value": 2.3 }
-  ],
-  "sentiment": [
-    { "isYou": true, "brand": "Citable", "value": { "score": 0.71, "sampleSize": 84, "confidence": "high" } }
-  ],
-  "tierGated": false,
-  "scope": {
-    "stages": ["awareness_discovery", "consideration_evaluation", "purchase_intent", "support_usage"],
-    "isBranded": false,
-    "competitorNames": ["Profound"],
-    "modelCodes": ["chatgpt", "perplexity"],
-    "personaNames": [],
-    "days": 7,
-    "appliedTier": "grow"
-  }
-}
-```
-
-Each metric array has one row per brand (yours + competitors) with `isYou`, `brand` name, and either a numeric `value` or a `{ score, sampleSize, confidence }` object for sentiment.
-
-## Notes
-
-- **`isBranded` default is `false`** — non-branded prompts only — because non-branded is the recommendation-relevant scope. Passing `true` on a non-Grow brand returns the own-brand row with `tierGated: true` and no competitor rows.
-- Per-competitor `averageRank` and `sentiment` rows may be own-brand-only in some windows depending on sample size; `citationRate` and `mentionRate` always have full competitor breakdowns.
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `days` | `integer` | no | — | Rolling window in days. Defaults to 7. |
+| `stages` | `'awareness_discovery' \| 'consideration_evaluation' \| 'purchase_intent' \| 'support_usage'[]` | no | — | Filter to specific journey stages. Defaults to all four. |
+| `personaNames` | `string[]` | no | — | Filter to specific personas by display name. |
+| `modelCodes` | `string[]` | no | — | Filter to specific AI models (e.g. ['chatgpt', 'perplexity']). Defaults to all configured for the brand. |
+| `competitorNames` | `string[]` | no | — | Limit comparison to specific competitor names. Defaults to all tracked competitors. |
+| `isBranded` | `boolean,null` | no | — | Filter prompts by branded flag. null = both, false = non-branded only (default), true = branded only (gated to Grow tier). |
