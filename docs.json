@@ -75,6 +75,7 @@
               "mcp/reads/get-action-with-children",
               "mcp/reads/score-content",
               "mcp/reads/list-content",
+              "mcp/reads/get-content-body",
               "mcp/reads/suggest-broadcast",
               "mcp/reads/recommend-paid-ad-strategy",
               "mcp/reads/get-paid-ads-insights",
