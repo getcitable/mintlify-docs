@@ -1,25 +1,21 @@
 ---
 title: "get_paid_ads_insights"
-sidebarTitle: "get_paid_ads_insights"
-description: "Returns the 4-card funnel (Citation Rate, Mention Rate, Average Rank, Sentiment) plus paid metrics (impressions, clicks, spend, CPC, CTR) for the brand's paid placements on AI e..."
+description: "Returns the four-metric funnel plus paid metrics for the brand's paid placements on AI engines."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
+Returns the four-metric funnel (Citation Rate, Mention Rate, Average Rank, Sentiment) plus paid metrics (impressions, clicks, spend, CPC, CTR) for the brand's paid placements on AI engines.
 
-Returns the 4-card funnel (Citation Rate, Mention Rate, Average Rank, Sentiment) plus paid metrics (impressions, clicks, spend, CPC, CTR) for the brand's paid placements on AI engines.
+## When to use
 
-Use this when the user asks:
 - "How's my ChatGPT Ads campaign doing?"
 - "What's my paid AI visibility?"
-- "Compare branded vs non-branded paid performance"
-
-The 'split' input controls whether the response is a single funnel or branded-vs-non-branded breakdown.
+- "Compare branded vs non-branded paid performance."
 
 ## Inputs
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `days` | `integer` | no | `30` | Rolling window in days. Default 30. |
-| `split` | `'nonbranded' \| 'branded' \| 'breakdown'` | no | `"nonbranded"` | 'nonbranded' (default) or 'branded' = one funnel for that segment; 'breakdown' = both side by side. |
+The `split` input controls whether the response is a single funnel or a branded-vs-non-branded breakdown.
+
+## See also
+
+- [Overview](/mcp/overview)
+- [Paid campaigns](/features/paid-campaigns)

@@ -1,45 +1,68 @@
 ---
 title: "Authentication"
-description: "One auth method: a brand-scoped API key. How to create it, connect with it, and what it can and cannot touch."
+description: "How Citable's MCP server resolves your brand and user context — and how to set it up over stdio or HTTP."
 ---
 
-Every MCP session is scoped to **one brand and one user**, resolved from your API key. The brand controls what the session can read and write; the user is recorded on every action. Neither is ever passed as a tool input.
+Every MCP session is scoped to one brand and one user. The brand controls what data the session sees and what writes it can make; the user is recorded on every action for audit. Neither is ever passed as a tool input — both are resolved from the transport layer.
 
-## Create an API key
+## Auth context shape
 
-In the Citable app: **Settings → API keys → Create key**. Pick a name and an optional expiry.
+When the server accepts your connection, it resolves a context that looks like:
 
-The key is shown **once**, at creation — alongside a ready-to-paste client config with the key already filled in. Citable stores only a hash, so copy it then. Treat it like any other secret.
-
-## Connect
-
-**Local clients (Claude Desktop, Claude Code, Cursor):** use the `mcp-remote` bridge config from the [overview](/mcp/overview#connect-in-one-step) — it passes your key as a Bearer header.
-
-**Hosted agents and direct integrations:** call the Streamable HTTP endpoint with the key in the header:
-
-```
-POST https://getcitable.com/mcp/v1
-Authorization: Bearer <your_api_key>
+```typescript
+interface AuthContext {
+  brandId: number;     // brand this session reads + writes for
+  userId: number;      // user behind the call (audit trail)
+  apiKeyId: number | null;  // the API key id, if HTTP-authenticated
+  source: string;      // 'stdio:env' | 'http:api_key'
+}
 ```
 
-Verify with the `ping` tool — it echoes the brand your session resolved to. If it's not the brand you expected, you're holding a key created under a different brand: create one under the right brand and reconnect.
+The `brandId` is the most important field — every read filters by it, every write rejects cross-brand IDs against it.
 
-## What a key can and cannot do
+## Transport options
 
-- A key belongs to **one brand and one user** (its creator). It cannot read or write any other brand.
-- Every read is filtered to the key's brand. Every write that takes an ID resolves it and rejects with a 403 if it belongs to a different brand — for example, `approve_ticket` on another brand's ticket code fails, and the attempt is logged.
-- To work with a different brand, create a key under that brand and reconnect — there is no brand-switching at runtime.
+### stdio (local clients)
 
-## Key lifecycle
+Used by Claude Desktop, Cursor, and other local MCP clients. Brand and user come from environment variables you set in your client config:
 
-- Revoke anytime from **Settings → API keys** — revoked keys fail immediately.
-- Every successful call stamps the key's last-used time, so you can spot stale keys.
-- Rotate by creating a new key, updating your config, then revoking the old one.
-- Optional expiry dates auto-disable a key after the date passes.
+```bash
+CITABLE_BRAND_ID=123
+CITABLE_USER_ID=456
+```
+
+The user must be an active member of the brand. The check runs at connection time, so a misconfigured env throws immediately rather than failing later on a tool call.
+
+### Streamable HTTP (remote agents)
+
+Used by hosted agents and remote integrations. Auth is an API key in the `Authorization` header:
+
+```
+Authorization: Bearer <api_key>
+```
+
+The key maps to a stored `(brand, user, api_key)` tuple. The resolved API key id is recorded on the auth context so every write is traceable back to a specific key.
+
+## Brand scoping
+
+Every read query filters by your auth context's `brandId` at the database layer. Every write tool that accepts an ID looks up that ID and rejects with a 403 if it belongs to a different brand. There's no MCP-side workaround — the same guard applies whether the client is Claude Desktop, a hosted agent, or any other caller.
+
+Example: `approve_ticket({ ticket_code: "OTHER-001" })` resolves the ticket, sees it belongs to a different brand, and rejects with a 403. The audit log records the failed attempt.
+
+## API key lifecycle
+
+Create API keys in the Citable web app under **Settings → API Keys**. Each key:
+
+- Belongs to one user (the creator) and one brand
+- Cannot be used to act on any other brand
+- Can be revoked anytime — revoked keys fail auth immediately
+- Records `last_used_at` on every successful call
+
+Rotate by creating a new key, updating your integration, and revoking the old one. Keys are shown once at creation time and never displayed again. Treat them like any other secret.
 
 ## Rate limits
 
-Each brand has a per-hour limit, reported in standard response headers:
+Each brand gets a per-hour rate limit. Response headers tell you where you stand:
 
 ```
 X-RateLimit-Limit: 100
@@ -47,4 +70,4 @@ X-RateLimit-Remaining: 47
 X-RateLimit-Reset: 1715731200
 ```
 
-The default tier allows 100 calls/hour. Higher plan tiers raise read limits; write limits apply on all tiers. Need more for a specific integration? Reach out from your account.
+The default tier gets 100 calls/hour. Higher tiers raise the read limit; write limits stay in place across all tiers as cost protection on the platform side. If you need a higher limit for a specific integration, get in touch from your account.

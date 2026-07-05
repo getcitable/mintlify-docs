@@ -1,29 +1,34 @@
 ---
 title: "get_content_performance"
-sidebarTitle: "get_content_performance"
-description: "Joins the brand's posted content (anything generated in Citable with a posted_url) against GA4 traffic."
+description: "Joins the brand's posted content against GA4 traffic — sessions, page views, unique users."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
+Joins the brand's posted content (anything generated in Citable with a `posted_url`) against GA4 traffic. Returns each posted URL with its sessions, page views, and unique users over the selected window. If the brand has no Google Analytics connection, returns `hasGaConnection=false` plus a guidance note pointing to the Connectors page.
 
-Joins the brand's posted content (anything generated in Citable with a posted_url) against GA4 traffic. Returns each posted URL with its sessions, page views, and unique users over the selected window. If the brand has no Google Analytics connection, returns hasGaConnection=false plus a guidance note pointing to /connectors.
+## When to use
 
-Use this when the user asks:
 - "Which of my blogs is actually driving traffic?"
 - "What content has worked in the last 30 days?"
 - "Which LinkedIn posts drove the most clicks?"
 
-Skip when the user wants AI visibility (use get_brand_visibility) or the to-do list (use get_geo_priorities).
+Skip when the user wants AI visibility (use [`get_brand_visibility`](/mcp/reads/get-brand-visibility)) or the to-do list (use [`get_geo_priorities`](/mcp/reads/get-geo-priorities)).
 
-Response shape: \{ windowDays, items: [\{ contentId, title, platform, postedUrl, postedAt, pagePath, sessions, pageViews, users \}], totals, hasGaConnection, note? \}.
+## Response
 
-Example: calling with \{ windowDays: 30, limit: 10 \} returns the 10 most recently posted URLs with traffic joined where available.
+```
+{ windowDays,
+  items: [{ contentId, title, platform, postedUrl, postedAt, pagePath,
+            sessions, pageViews, users }],
+  totals,
+  hasGaConnection,
+  note? }
+```
 
-## Inputs
+## Example
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `windowDays` | `integer` | no | — | How many days back to look for posted content. Defaults to 30. |
-| `limit` | `integer` | no | — | Max number of posted URLs to return. Defaults to 20, max 100. |
+Calling with `{ windowDays: 30, limit: 10 }` returns the 10 most recently posted URLs with traffic joined where available.
+
+## See also
+
+- [Overview](/mcp/overview)
+- [Google Analytics integration](/integrations/google-analytics)

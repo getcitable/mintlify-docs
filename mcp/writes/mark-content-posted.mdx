@@ -1,31 +1,28 @@
 ---
 title: "mark_content_posted"
-sidebarTitle: "mark_content_posted"
-description: "Records that a content draft has been posted by stamping the live URL and marking status='published'."
+description: "Records that a content draft has been posted by stamping the live URL and marking it published."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
+Records that a content draft has been posted by stamping the live URL and marking `status='published'`. This is a RECORDING — Citable does not call platform APIs to post for you.
 
-Records that a content draft has been posted by stamping the live URL and marking status='published'. This is a RECORDING — Citable does not call platform APIs to post for the user. Workflow: Claude drafts → user reviews/edits → user posts manually on the platform → user (or Claude on user's instruction) calls this with the live URL.
+Workflow: the agent drafts → the user reviews and edits → the user posts manually on the platform → the user (or the agent on the user's instruction) calls this with the live URL.
 
-Once stamped, the nightly attribution snapshot job picks up the post and starts tracking citation rate. Use get_attribution_report afterward to see lifetime / recent / trajectory metrics.
+Once stamped, the nightly attribution job picks up the post and starts tracking citation rate. Use [`get_attribution_report`](/mcp/reads/get-attribution-report) afterward to see lifetime, recent, and trajectory metrics.
 
-Use this when:
+## When to use
+
 - The user has posted the content somewhere and is sharing the live URL.
 - The user wants to retroactively log a post that's already live.
 
-Skip when:
-- The user has not yet posted the content (use schedule_content to keep it on the calendar).
-- The URL is not http/https — every other scheme is rejected.
+## When not to use
 
-Idempotent: re-calling with the same content_id preserves the original posted_at via COALESCE; posted_url is overwritten so typos can be corrected.
+- The user has not yet posted the content (use [`schedule_content`](/mcp/writes/schedule-content) to keep it on the calendar).
+- The URL is not http or https — other schemes are rejected.
 
-## Inputs
+## Idempotency
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `content_id` | `integer` | yes | — | ID of the content row. |
-| `posted_url` | `string` | yes | — | Live URL of the posted content (must be http or https). |
-| `posted_at` | `string` | no | — | Optional ISO timestamp of when the post went live. Defaults to now() on first call; preserved on idempotent re-calls. |
+Re-calling with the same `content_id` preserves the original `posted_at` via COALESCE; `posted_url` is overwritten so typos can be corrected.
+
+## See also
+
+- [Overview](/mcp/overview)

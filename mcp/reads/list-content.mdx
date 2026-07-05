@@ -1,36 +1,27 @@
 ---
 title: "list_content"
-sidebarTitle: "list_content"
 description: "Lists content rows for the brand with optional filters."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
-
-Lists content rows for the brand with optional filters. Returns the deep link for each row (editor or detail page depending on platform/status). Read-only — no allowlist entry required.
+Lists content rows for the brand with optional filters. Returns the deep link for each row (editor or detail page depending on platform/status). Read-only.
 
 Filters compose with AND. Pass nothing for "everything for the brand," newest first.
 
-Use this when:
+## When to use
+
 - The user asks "what do I have queued?" / "what's scheduled this week?" / "show me my published LinkedIn posts."
-- You want to confirm an action ticket has no draft yet before calling create_content_draft.
+- You want to confirm an action ticket has no draft yet before calling `create_content_draft`.
 - The user wants a list of content assigned to a specific reviewer.
 
-Skip when:
-- The user wants attribution data (use get_attribution_report).
-- The user wants the action↔content tree for a specific ticket (use get_action_with_children).
+## When not to use
 
-Pagination: passing the last item's id back as 'cursor' returns the next page. nextCursor=null when no more rows.
+- The user wants attribution data — use [`get_attribution_report`](/mcp/reads/get-attribution-report).
+- The user wants the action-and-content tree for a specific ticket — use [`get_action_with_children`](/mcp/reads/get-action-with-children).
 
-## Inputs
+## Pagination
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `status` | `'queued' \| 'scheduled' \| 'published' \| 'cancelled' \| 'draft'` | no | — | Filter to one status. Omit for all. |
-| `assigned_reviewer_id` | `integer` | no | — | Filter to content assigned to this reviewer (user id). |
-| `source_task_id` | `integer` | no | — | Filter to content spawned from this action ticket id. |
-| `scheduled_after` | `string` | no | — | Lower bound on scheduled_for (inclusive). |
-| `scheduled_before` | `string` | no | — | Upper bound on scheduled_for (inclusive). |
-| `limit` | `integer` | no | — | Max rows to return. Default 20, max 50. |
-| `cursor` | `integer` | no | — | Pagination cursor — pass the last item id from a prior call to fetch the next page. |
+Passing the last item's id back as `cursor` returns the next page. `nextCursor=null` when no more rows.
+
+## See also
+
+- [Overview](/mcp/overview)

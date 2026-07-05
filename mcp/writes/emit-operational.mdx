@@ -1,50 +1,72 @@
 ---
 title: "emit_operational"
-sidebarTitle: "emit_operational"
-description: "Emit an operational recommendation (config / setup change): records the action and adds a recommendation card to the Action Engine for review."
+description: "Recommend a brand-config change — inserts an Action Engine card and records the action for 30-day measurement."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
+## What it does
 
-Emit an operational recommendation (config / setup change): records the action and adds a recommendation card to the Action Engine for review.
+Emits an operational recommendation — a configuration or setup change the brand should make to improve their AI visibility footprint: enable an additional AI engine, add a journey stage, register a new channel account, calibrate a persona, raise the prompts-per-stage budget. The user reviews and accepts in the web UI; the accepted change flips the underlying brand setting.
 
-Produces a recommendation ONLY (no auto-apply). The user accepts in the UI, which then applies the underlying brand setting change.
+Operational actions are persona-agnostic, so the persona-intent matrix is skipped.
 
-Common subtypes:
-- 'enable_model' — recommend enabling an additional AI engine (perplexity, gemini, etc.) for scans
-- 'add_persona' — recommend adding a new persona to the matrix
-- 'add_competitor' — recommend a competitor to add to your tracked competitors
-- 'calibrate_persona' — recommend a persona-calibration tune for better intent fit
-- 'expand_journey' — recommend adding a journey stage to scans
-- 'add_brand_account' — recommend a channel account to connect
+## When to use
 
-Use this when:
-- get_brand_context shows a gap in coverage (e.g. only ChatGPT enabled when competitors are also winning on Perplexity).
+- A scan shows a coverage gap — e.g., only ChatGPT is enabled when competitors are also winning on Perplexity.
 - The user asks "what should I set up next?"
 
-Skip when:
-- The fix is structural / on-page (use emit_technical).
-- The fix is content creation (use emit_content).
+## When not to use
 
-Inputs:
-- subtype (required): one of the categories above (free-form string ≤ 40 chars).
-- title (required, ≤ 200 chars): one-line summary.
-- description (required): array of step-by-step instructions.
-- effort_minutes (optional, default 15): estimated effort.
-- priority (optional, default 'medium').
-- config_target (optional): JSON describing the proposed setting change. Recorded on the action so the user can later apply it.
-
-Response: \{ actionId, taskId, deepLinkUrl \}.
+- The fix is structural / on-page — use [`emit_technical`](/mcp/writes/emit-technical).
+- The fix is content creation — use [`emit_content`](/mcp/writes/emit-content).
 
 ## Inputs
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `subtype` | `string` | yes | — | Recommendation category, e.g. 'enable_model', 'add_persona', 'add_competitor' (free-form, max 40 chars). |
-| `title` | `string` | yes | — | One-line summary (max 200 chars). |
-| `description` | `string[]` | yes | — | Step-by-step instructions (1-20 steps, each max 500 chars). |
-| `effort_minutes` | `integer` | no | `15` | Estimated effort in minutes. Default 15. |
-| `priority` | `'low' \| 'medium' \| 'high' \| 'critical'` | no | `"medium"` | Priority in the Action Engine queue. Default medium. |
-| `config_target` | `object` | no | — | JSON describing the proposed config change. |
+- `subtype` (string, 1–40 chars, required) — category of change. Common values:
+  - `'enable_model'` — recommend enabling an additional AI engine in scans
+  - `'add_persona'` — recommend adding a new audience persona
+  - `'add_competitor'` — recommend a competitor to track
+  - `'calibrate_persona'` — recommend a persona-calibration tune
+  - `'expand_journey'` — recommend adding a journey stage to scans
+  - `'add_brand_account'` — recommend a channel account to connect
+- `title` (string, 1–200 chars, required) — one-line summary.
+- `description` (string[], 1–20 items, each ≤500 chars, required) — step-by-step instructions.
+- `effort_minutes` (number, 1–120, default 15).
+- `priority` (`'low'` | `'medium'` | `'high'` | `'critical'`, default `'medium'`).
+- `config_target` (object, optional) — JSON describing the proposed setting change, useful for future auto-apply. Example:
+  ```json
+  { "setting": "scan_models", "value_add": ["perplexity"] }
+  ```
+
+## Response
+
+```json
+{
+  "actionId": 8720,
+  "taskId": 4485,
+  "deepLinkUrl": "https://app.getcitable.com/actions/4485",
+  "validation": { "status": "allowed" }
+}
+```
+
+## Example
+
+Recommend enabling Perplexity because competitors are winning citations there:
+
+```json
+{
+  "subtype": "enable_model",
+  "title": "Enable Perplexity in scan models",
+  "description": [
+    "Go to Settings → Scan Config.",
+    "Check the Perplexity box in 'Models scanned'.",
+    "Save. The next nightly scan will include Perplexity prompts.",
+    "Review the new model's results in Brand Visibility after 24h."
+  ],
+  "effort_minutes": 5,
+  "priority": "high",
+  "config_target": {
+    "setting": "scan_models",
+    "value_add": ["perplexity"]
+  }
+}
+```

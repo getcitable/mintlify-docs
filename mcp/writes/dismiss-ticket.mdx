@@ -1,30 +1,27 @@
 ---
 title: "dismiss_ticket"
-sidebarTitle: "dismiss_ticket"
-description: "Cancels a Citable GEO ticket with a required written reason."
+description: "Cancels a Citable recommendation ticket with a required written reason."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
-
-Cancels a Citable GEO ticket with a required written reason. Use when the user has decided NOT to act on a recommendation and wants to clear it from their backlog — or when you are confident the recommendation is wrong for the brand and want to record why.
-
-Input:
-- ticket_code (required, e.g. "GEO-052") — the ticket code from get_geo_priorities or the web UI.
-- reason (required, 10–280 chars) — the "why." Examples: "Already handled manually last week", "Not aligned with Q2 focus on enterprise", "User decided to skip this channel entirely."
-
-The reason is stored on the ticket row (visible on the web detail page) and in the MCP tool-call audit log. Cannot be changed via this tool afterwards — re-dismissing an already-canceled ticket returns the existing reason and does not overwrite.
-
-Cannot dismiss a ticket that was already marked done — if the user wants to undo a completion, they do it in the web UI.
-
-Returns the canonical deep link so you can cite the page.
-
-Skip when: the user has actually completed the action (use approve_ticket instead).
+Cancels a Citable recommendation ticket with a required written reason. Use when the user has decided NOT to act on a recommendation and wants to clear it from their backlog — or when you're confident the recommendation is wrong for the brand and want to record why.
 
 ## Inputs
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `ticket_code` | `string` | yes | — | Ticket code, e.g. "GEO-052". |
-| `reason` | `string` | yes | — | Written justification for cancelling the ticket (10–280 chars). Visible on the web detail page. |
+- `ticket_code` (required, e.g. `"ABC-052"`) — the code from [`get_geo_priorities`](/mcp/reads/get-geo-priorities) or the web app. The prefix matches your brand.
+- `reason` (required, 10–280 chars) — the "why." Examples: "Already handled manually last week", "Not aligned with Q2 focus on enterprise", "User decided to skip this channel entirely."
+
+## Behavior
+
+The reason is stored on the ticket row (visible on the web detail page) and in the audit log. Cannot be changed via this tool afterwards — re-dismissing an already-canceled ticket returns the existing reason and does not overwrite.
+
+Cannot dismiss a ticket that was already marked done. If the user wants to undo a completion, they do it in the web app.
+
+Returns the canonical deep link so you can cite the page.
+
+## When not to use
+
+- The user has actually completed the action — use [`approve_ticket`](/mcp/writes/approve-ticket).
+
+## See also
+
+- [Overview](/mcp/overview)

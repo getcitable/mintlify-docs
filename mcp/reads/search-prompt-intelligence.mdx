@@ -1,34 +1,32 @@
 ---
 title: "search_prompt_intelligence"
-sidebarTitle: "search_prompt_intelligence"
-description: "Semantic search over the brand's tracked prompts in Citable's Prompt Intelligence system."
+description: "Semantic search over the brand's tracked prompts."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
+Semantic search over the brand's tracked prompts. Returns matching prompts with funnel stage (TOFU/MOFU/BOFU), strategic value, topic cluster, brand scope, persona match, platforms tracked (ChatGPT/Gemini/Claude/Perplexity/Grok), and latest visibility, citation, and sentiment scores.
 
-Semantic search over the brand's tracked prompts in Citable's Prompt Intelligence system. Returns matching prompts with funnel stage (TOFU/MOFU/BOFU), strategic value, topic cluster, brand scope, persona match, platforms tracked (ChatGPT/Gemini/Claude/Perplexity/Grok), and latest visibility/citation/sentiment scores.
+## When to use
 
-Use this when the user asks:
 - "Do I track prompts about topic X?"
 - "What MOFU prompts am I losing visibility on?"
 - "Show me prompts tied to persona Y."
 - "Which prompts mention competitor Z?"
 
-Skip when the user wants a summary (use get_brand_visibility) or action items (use get_geo_priorities).
+Skip when the user wants a summary (use [`get_brand_visibility`](/mcp/reads/get-brand-visibility)) or action items (use [`get_geo_priorities`](/mcp/reads/get-geo-priorities)).
 
-Response shape: \{ query, total, results: [\{ id, promptText, funnelStage, strategicValue, topicCluster, brandScope, personaMatch, platforms[], visibilityScore, citationScore, brandSentimentScore, isNew \}] \}.
+## Response
 
-Example: calling with \{ query: "AI marketing automation", funnelStage: "MOFU", limit: 10 \} returns up to 10 MOFU prompts semantically matching "AI marketing automation".
+```
+{ query, total,
+  results: [{ id, promptText, funnelStage, strategicValue, topicCluster,
+              brandScope, personaMatch, platforms[],
+              visibilityScore, citationScore, brandSentimentScore, isNew }] }
+```
 
-## Inputs
+## Example
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `query` | `string` | yes | — | Natural-language search query (semantic match). |
-| `funnelStage` | `'TOFU' \| 'MOFU' \| 'BOFU'` | no | — | Filter to one funnel stage. |
-| `strategicValue` | `string` | no | — | Filter by strategic value label (e.g. "Core Value Prop", "High-Leverage"). |
-| `platform` | `string` | no | — | Filter by AI platform (ChatGPT, Gemini, Claude, Perplexity, Grok). |
-| `personaMatch` | `string` | no | — | Filter by persona name tagged on the prompt. |
-| `limit` | `integer` | no | — | Max results. Defaults to 20, max 100. |
+Calling with `{ query: "AI marketing automation", funnelStage: "MOFU", limit: 10 }` returns up to 10 MOFU prompts semantically matching "AI marketing automation".
+
+## See also
+
+- [Overview](/mcp/overview)

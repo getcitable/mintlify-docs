@@ -1,53 +1,82 @@
 ---
 title: "emit_outreach"
-sidebarTitle: "emit_outreach"
-description: "Emit an outreach action: validates it against the persona's guardrails, creates/updates the outreach reply, and records the action for later outcome measurement."
+description: "Reply on a social thread — validates persona-intent, creates or updates the reply, and records the action for 30-day measurement."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
+## What it does
 
-Emit an outreach action: validates it against the persona's guardrails, creates/updates the outreach reply, and records the action for later outcome measurement.
+Emits an outreach action: validates persona-intent, creates or updates the social-reply row for the target thread, and records the action so its 30-day citation impact can be measured. Today this fully wires the social-listening channels (Reddit, Hacker News, X, LinkedIn listening). Cold email and LinkedIn DM channels return `status: 'pending_connector'` until those connectors are available — the action is still recorded so the intent appears in your history.
 
-Supported channels:
-- 'reddit' / 'hn' / 'twitter' / 'linkedin_listening' (social replies — fully wired)
-- 'gmail' / 'linkedin_dm' (returns status='pending_connector' until those connectors are available)
+## When to use
 
-Use this when:
-- The user wants to reply to a Reddit / HN / Twitter / LinkedIn thread that's been queued for response.
-- An ingested conversation is ripe for a follow-up reply (pair with from_conversation_id).
+- The user wants to reply to a Reddit / Hacker News / X / LinkedIn thread that's queued for response.
+- An ingested conversation is ripe for a follow-up reply (pair with the `source_ref_id` of the thread).
 
-Skip when:
-- The outreach is broad content publishing (use emit_content).
-- The outreach is paid surfacing (use emit_paid).
+## When not to use
 
-Persona guardrails: persona_id + intent are REQUIRED. A blocking violation halts the call unless override_reason (≥ 8 chars) is provided; overrides are recorded.
-
-Inputs:
-- persona_id (required): persona the reply speaks as.
-- intent (required): 'engagement' (relationship-build) or 'commercial' (pitch/conversion).
-- channel (required): one of the listed channels above.
-- reply_text (required, 1-4000 chars): the body of the reply.
-- source_ref_id (required for social channels): the Reddit/HN/Twitter/LinkedIn thread id this responds to.
-- source_url (optional): the source thread URL for audit.
-- brand_account_id (optional): the brand account this reply posts as.
-- scheduled_for (optional, YYYY-MM-DD): land on the calendar at a specific date.
-- override_reason (optional, ≥ 8 chars): bypass block-severity violations with audit.
-
-Response: \{ actionId, replyId, channel, status: 'queued' | 'scheduled' | 'pending_connector', validation \}.
+- The outreach is broad content publishing — use [`emit_content`](/mcp/writes/emit-content).
+- The outreach is a paid placement — use [`emit_paid`](/mcp/writes/emit-paid).
 
 ## Inputs
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `persona_id` | `integer` | yes | — | Persona the reply speaks as. The reply is validated against this persona's guardrails. |
-| `intent` | `'engagement' \| 'commercial'` | yes | — | 'engagement' = build the relationship; 'commercial' = pitch / drive a conversion. |
-| `channel` | `'reddit' \| 'hn' \| 'twitter' \| 'linkedin_listening' \| 'gmail' \| 'linkedin_dm'` | yes | — | Outreach channel. Social channels queue replies; gmail / linkedin_dm return pending_connector until those connectors are live. |
-| `reply_text` | `string` | yes | — | The reply body (1-4000 chars). |
-| `source_ref_id` | `integer` | no | — | Required for social channels; the thread id this reply responds to. |
-| `source_url` | `string` | no | — | URL of the source thread, for reference. |
-| `brand_account_id` | `integer` | no | — | Brand account this reply posts as. |
-| `scheduled_for` | `string` | no | — | Calendar date for the reply, YYYY-MM-DD. |
-| `target_prompt_ids` | `integer[]` | no | — | Tracked-prompt ids this outreach is meant to win (scopes outcome measurement). |
-| `override_reason` | `string` | no | — | Required to proceed past a blocking guardrail violation; recorded with the override. |
+- `persona_id` (number, required) — persona the reply speaks as.
+- `intent` (`'engagement'` | `'commercial'`, required) — `engagement` builds relationships; `commercial` pitches or converts.
+- `channel` (`'reddit'` | `'hn'` | `'twitter'` | `'linkedin_listening'` | `'gmail'` | `'linkedin_dm'`, required) — first four are fully wired; last two return `pending_connector`.
+- `reply_text` (string, 1–4000 chars, required) — body of the reply.
+- `source_ref_id` (number, required for social channels) — the thread id this responds to.
+- `source_url` (string URL, optional) — source thread URL for audit.
+- `brand_account_id` (number, optional) — the account this reply posts as.
+- `scheduled_for` (`YYYY-MM-DD`, optional) — lands on the calendar at a specific date instead of `'queued'`.
+- `target_prompt_ids` (number[], optional) — tracked prompts the reply is meant to win citations on.
+- `override_reason` (string, ≥8 chars, optional) — bypass block-severity violations with audit.
+
+## Response
+
+```json
+{
+  "actionId": 8512,
+  "replyId": 6041,
+  "channel": "reddit",
+  "status": "queued",
+  "scheduledFor": null,
+  "validation": {
+    "status": "allowed",
+    "violations": [],
+    "overrideIds": []
+  }
+}
+```
+
+For gated channels (`gmail`, `linkedin_dm`):
+
+```json
+{
+  "actionId": 8513,
+  "channel": "gmail",
+  "status": "pending_connector",
+  "meta": {
+    "validation": "allowed"
+  }
+}
+```
+
+## Persona-intent validation
+
+Outreach almost always touches a persona, so the validation matrix fires on every emit. Block-severity rules halt unless `override_reason ≥ 8 chars` is supplied. For `pending_connector` channels the matrix still runs, but a failure doesn't suppress the `pending_connector` response — you need to know which connector is missing more than you need an action record.
+
+## Example
+
+Reply to a Reddit thread as the brand's insider persona, engagement intent:
+
+```json
+{
+  "persona_id": 412,
+  "intent": "engagement",
+  "channel": "reddit",
+  "reply_text": "We ran into this exact problem last quarter. The fix that worked for us was...",
+  "source_ref_id": 88412,
+  "source_url": "https://reddit.com/r/saas/comments/abc123/...",
+  "brand_account_id": 17,
+  "target_prompt_ids": [1834]
+}
+```

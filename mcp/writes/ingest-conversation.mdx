@@ -1,30 +1,26 @@
 ---
 title: "ingest_conversation"
-sidebarTitle: "ingest_conversation"
-description: "Pushes a conversation summary + extracted facts into the user's Citable brand knowledge base."
+description: "Pushes a conversation summary and extracted facts into the user's brand knowledge base."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
-
-Pushes a conversation summary + extracted facts into the user's Citable brand knowledge base. Use when the user and you have been discussing their brand, positioning, ICP, differentiators, or recent launches — anything Citable's recommendations should know about going forward. The ingest becomes durable context for future get_brand_context / get_geo_priorities calls.
-
-Input:
-- summary (required, 50–2000 chars) — a clear paragraph describing what the conversation revealed. Write it so another person could read it without the original chat.
-- extracted_facts (optional array, 0–20 items, each 5–200 chars) — concrete claims extracted from the conversation ("ICP: Series B SaaS CMOs", "Unique differentiator: in-house GEO agent", etc.).
-- source_url (optional) — e.g., a Claude share URL or blog post URL. Must be a full absolute URL if provided.
-- spawn_draft (optional) — if the user has agreed on what to post next, also create a queued content draft tied to this conversation in the same call. One call, one review surface. The draft is anchored to the newly-ingested conversation via from_conversation_id and lands at status='queued' — never published. Pass \{ platform, body_draft, title? \} to spawn it.
-
-Ingested content is NOT immediately visible to read tools. It lands in a human-review queue. Tell the user the review URL (returned in the response) so they can verify or dismiss. This is a guardrail against prompt injection.
-
-Skip when: the user is discussing something unrelated to their brand, or when they haven't given you enough to write a 50+ char summary. Skip spawn_draft when the user hasn't explicitly asked for content yet.
+Pushes a conversation summary and extracted facts into the user's Citable brand knowledge base. Use when the user and the agent have been discussing the brand — positioning, ICP, differentiators, recent launches, anything Citable's recommendations should know about going forward. The ingest becomes durable context for future [`get_brand_context`](/mcp/reads/get-brand-context) and [`get_geo_priorities`](/mcp/reads/get-geo-priorities) calls.
 
 ## Inputs
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `summary` | `string` | yes | — | A clear paragraph capturing what the conversation revealed about the brand. |
-| `extracted_facts` | `string[]` | no | — | Concrete claims extracted from the conversation (0–20 items, each 5–200 chars). |
-| `source_url` | `string` | no | — | Optional URL pointing at the conversation or reference material. |
-| `spawn_draft` | `object` | no | — | When set, also creates a queued content draft anchored to the newly ingested conversation via from_conversation_id. Skip unless the user has explicitly asked you to draft content from this conversation. |
+- `summary` (required, 50–2000 chars) — a clear paragraph describing what the conversation revealed. Write it so another person could read it without the original chat.
+- `extracted_facts` (optional array, 0–20 items, each 5–200 chars) — concrete claims extracted from the conversation ("ICP: Series B SaaS CMOs", "Unique differentiator: in-house AEO agent").
+- `source_url` (optional) — e.g., a share URL or blog post URL. Must be a full absolute URL if provided.
+- `spawn_draft` (optional) — if the user has agreed on what to post next, also create a queued content draft tied to this conversation in the same call. Pass `{ platform, body_draft, title? }` to spawn it.
+
+## Review queue
+
+Ingested content is NOT immediately visible to read tools. It lands in a human-review queue. Tell the user the review URL (returned in the response) so they can verify or dismiss. This is a guardrail against prompt injection.
+
+## When not to use
+
+- The user is discussing something unrelated to their brand, or hasn't given you enough to write a 50+ char summary.
+- The user hasn't explicitly asked for content yet — skip `spawn_draft`.
+
+## See also
+
+- [Overview](/mcp/overview)

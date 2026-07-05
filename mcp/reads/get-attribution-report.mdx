@@ -1,29 +1,23 @@
 ---
 title: "get_attribution_report"
-sidebarTitle: "get_attribution_report"
-description: "Returns AI-citation attribution for posted content."
+description: "Returns AI-citation attribution for posted content — lifetime, recent-window, and weekly trajectory."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
+Returns AI-citation attribution for posted content. Computed from nightly per-(content, prompt, day) snapshots so prompt-run frequency cannot drown out actual signal. Three signals per post: lifetime sums (citing runs / prompt runs since posted), recent rate within the window (default 14d), and a weekly trajectory series for sparklines. Also returns per-platform breakdowns and the top prompts driving citations.
 
-Returns AI-citation attribution for posted content. Computed from nightly snapshots and normalized, so frequently-run prompts don't drown out the signal. Three signals per post: lifetime sums (citing_runs / prompt_runs since posted), recent rate within the window (default 14d), and a weekly trajectory series for sparklines. Also returns per-platform breakdowns and the top prompts driving citations.
+## When to use
 
-Use this when the user asks:
 - "What's working — which posts drive AI citations?"
 - "Is my citation rate trending up?"
 - "Which prompts is this LinkedIn post showing up on?"
 - "How does this blog compare to that one for AI visibility?"
 
-Skip when the user wants generic web traffic (use get_content_performance) or AI visibility across the brand at large (use get_brand_visibility).
-
-Pass content_id to narrow to a single posted content row. Omit for the brand-wide top 200 most recent posts. The response includes posts with no snapshots yet (zero baseline) so the caller can render an empty state without a second round-trip.
+Skip when the user wants generic web traffic (use [`get_content_performance`](/mcp/reads/get-content-performance)) or AI visibility across the brand at large (use [`get_brand_visibility`](/mcp/reads/get-brand-visibility)).
 
 ## Inputs
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `content_id` | `integer` | no | — | Limit report to a single posted content row. Omit for brand-wide. |
-| `rate_window` | `'7d' \| '14d' \| '30d'` | no | — | Window for the recent-rate metric. Default 14d. |
-| `trajectory_weeks` | `integer` | no | — | Weeks of trajectory data to return. Default 8 weeks. |
+Pass `content_id` to narrow to a single posted content row. Omit for the brand-wide top 200 most recent posts. The response includes posts with no snapshots yet (zero baseline) so the caller can render an empty state without a second round-trip.
+
+## See also
+
+- [Overview](/mcp/overview)

@@ -1,28 +1,26 @@
 ---
 title: "approve_ticket"
-sidebarTitle: "approve_ticket"
-description: "Marks a Citable GEO ticket as done."
+description: "Marks a Citable recommendation ticket as done."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
-
-Marks a Citable GEO ticket as done. Use after the user has completed the recommended action (published a piece of content, fixed a technical issue, etc.) or has explicitly asked you to approve the recommendation.
-
-Input:
-- ticket_code (required, e.g. "GEO-124") — the ticket code visible in the web UI and returned by get_geo_priorities.
-- note (optional, max 500 chars) — free-text reason for approval; stored in the tool-call audit log.
-
-The tool is idempotent: approving an already-done ticket returns the current state without re-writing. A dismissed ticket cannot be approved via this tool — it must be reopened in the web UI first.
-
-Returns the canonical deep link for the ticket so you can cite the page back to the user.
-
-Skip when: the user wants to cancel/reject a ticket (use dismiss_ticket), or wants details on a ticket they haven't identified yet (use get_geo_priorities first).
+Marks a Citable recommendation ticket as done. Use after the user has completed the recommended action (published a piece of content, fixed a technical issue, and so on) or has explicitly asked you to approve the recommendation.
 
 ## Inputs
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `ticket_code` | `string` | yes | — | Ticket code, e.g. "GEO-051". |
-| `note` | `string` | no | — | Optional free-text note about why this ticket is being approved. |
+- `ticket_code` (required, e.g. `"ABC-051"`) — the code visible in the web app and returned by [`get_geo_priorities`](/mcp/reads/get-geo-priorities). The prefix matches your brand.
+- `note` (optional, max 500 chars) — free-text reason for approval; stored in the audit log.
+
+## Behavior
+
+Idempotent: approving an already-done ticket returns the current state without re-writing. A dismissed ticket cannot be approved via this tool — it must be reopened in the web app first.
+
+Returns the canonical deep link for the ticket so you can cite the page back to the user.
+
+## When not to use
+
+- The user wants to cancel or reject a ticket — use [`dismiss_ticket`](/mcp/writes/dismiss-ticket).
+- The user wants details on a ticket they haven't identified yet — use [`get_geo_priorities`](/mcp/reads/get-geo-priorities) first.
+
+## See also
+
+- [Overview](/mcp/overview)

@@ -44,6 +44,7 @@
             "group": "Integrations",
             "pages": [
               "integrations/google-analytics",
+              "integrations/ai-traffic-proxy",
               "integrations/google-ads",
               "integrations/reddit"
             ]
@@ -64,43 +65,41 @@
             "group": "Read tools",
             "pages": [
               "mcp/reads/ping",
-              "mcp/reads/get-geo-priorities",
-              "mcp/reads/get-brand-visibility",
-              "mcp/reads/get-content-performance",
-              "mcp/reads/search-prompt-intelligence",
               "mcp/reads/get-brand-context",
-              "mcp/reads/list-brands",
-              "mcp/reads/list-replies",
-              "mcp/reads/get-attribution-report",
-              "mcp/reads/get-action-with-children",
-              "mcp/reads/score-content",
-              "mcp/reads/list-content",
-              "mcp/reads/get-content-body",
-              "mcp/reads/suggest-broadcast",
-              "mcp/reads/recommend-paid-ad-strategy",
-              "mcp/reads/get-paid-ads-insights",
+              "mcp/reads/get-brand-visibility",
+              "mcp/reads/get-geo-priorities",
               "mcp/reads/get-topical-authority",
-              "mcp/reads/get-action-outcome-history"
+              "mcp/reads/get-action-outcome-history",
+              "mcp/reads/get-action-with-children",
+              "mcp/reads/get-attribution-report",
+              "mcp/reads/get-content-performance",
+              "mcp/reads/get-paid-ads-insights",
+              "mcp/reads/search-prompt-intelligence",
+              "mcp/reads/list-brands",
+              "mcp/reads/list-content",
+              "mcp/reads/list-replies",
+              "mcp/reads/suggest-broadcast"
             ]
           },
           {
             "group": "Write tools",
             "pages": [
-              "mcp/writes/update-reply",
-              "mcp/writes/mark-reply-posted",
-              "mcp/writes/schedule-reply",
-              "mcp/writes/approve-ticket",
-              "mcp/writes/dismiss-ticket",
-              "mcp/writes/ingest-conversation",
-              "mcp/writes/create-content-draft",
-              "mcp/writes/schedule-content",
-              "mcp/writes/mark-content-posted",
-              "mcp/writes/manage-paid-ad",
               "mcp/writes/emit-content",
               "mcp/writes/emit-outreach",
               "mcp/writes/emit-technical",
               "mcp/writes/emit-operational",
-              "mcp/writes/emit-paid"
+              "mcp/writes/emit-paid",
+              "mcp/writes/manage-paid-ad",
+              "mcp/writes/recommend-paid-ad-strategy",
+              "mcp/writes/create-content-draft",
+              "mcp/writes/schedule-content",
+              "mcp/writes/mark-content-posted",
+              "mcp/writes/update-reply",
+              "mcp/writes/schedule-reply",
+              "mcp/writes/mark-reply-posted",
+              "mcp/writes/approve-ticket",
+              "mcp/writes/dismiss-ticket",
+              "mcp/writes/ingest-conversation"
             ]
           }
         ]
@@ -110,15 +109,6 @@
   "footer": {
     "socials": {
       "website": "https://getcitable.com"
-    }
-  },
-  "integrations": {
-    "ga4": {
-      "measurementId": ""
-    },
-    "posthog": {
-      "apiKey": "",
-      "apiHost": "https://us.i.posthog.com"
     }
   }
 }

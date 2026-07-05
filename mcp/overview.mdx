@@ -1,72 +1,77 @@
 ---
 title: "Overview"
-description: "Citable's MCP server lets any AI agent read your brand's AI visibility data and act on it — draft content, score it against your tracked buyer questions, and measure what got cited."
+description: "Citable's MCP server exposes your brand's data and actions to any AI agent that speaks the Model Context Protocol — Claude Desktop, Cursor, ChatGPT, or your own integrations."
 ---
 
-Citable runs an MCP server you can connect from any client that speaks the [Model Context Protocol](https://modelcontextprotocol.io) — Claude Desktop, Claude Code, Cursor, or your own hosted agents. Read tools surface your brand's visibility metrics, recommendations, tracked prompts, and content history. Write tools let an agent draft and score content, queue outreach replies, manage paid placements, and act on recommendations — always as drafts for human review, never auto-published.
+Citable runs an MCP server you can connect to from any AI client that supports the [Model Context Protocol](https://modelcontextprotocol.io). Read tools surface your brand's scan results, recommendations, and content history. Write tools let an agent draft content, schedule replies, manage paid placements, and act on recommendations on your behalf.
 
-If you're looking for product docs instead, start with the [introduction](/introduction).
+The audience for this reference is developers integrating Citable into their own AI workflows. If you're a Citable user looking for product docs, start with the [introduction](/introduction) instead.
 
-## Connect in one step
+## Transports
 
-Create an API key in the Citable app under **Settings → API keys** (shown once at creation — the app hands you this exact config with your key filled in), then add it to your client:
+Citable supports two transports.
+
+| Transport | Use it for |
+|---|---|
+| **stdio** | Local clients like Claude Desktop or Cursor running on your machine. Brand and user context come from environment variables. |
+| **Streamable HTTP** | Hosted agents or remote integrations. Auth is an API key passed in the `Authorization: Bearer <key>` header. |
+
+Both transports expose the same tool surface. See [authentication](/mcp/auth) for the full setup of each.
+
+## Tool categories
+
+The MCP server exposes three groups of tools.
+
+**Read tools** return data — brand identity, AI visibility metrics, recommendation queue, posted content, attribution reports, prompt intelligence. All reads are scoped to the brand resolved from your auth context.
+
+**Coarse write tools** (the `emit_*` family) bundle the most common write flows into single calls. Each `emit_*` call validates the action, performs the side effect, and records the result so it can be measured 30 days later. Prefer these for new integrations.
+
+**Fine-grained write tools** expose individual steps — create a draft, schedule it, mark it posted, approve or dismiss a recommendation, ingest a conversation. These exist because the same actions are taken by humans in the Citable web app step-by-step, and the MCP surface mirrors that flow.
+
+## Guarantees on every call
+
+Every tool call goes through:
+
+1. **Auth resolution.** Your brand and user are derived from the API key or environment context. Tools never accept `brand_id` as an input — it's always inferred.
+2. **Cross-brand protection.** Write tools that take an ID resolve the target brand and reject if it doesn't match your auth context. You can only read and write your own brand's data.
+3. **Action recording.** Every write tool records what happened, so the platform can measure the outcome later and your future recommendations get sharper.
+4. **Rate limits.** Each brand has a per-hour rate limit, returned in standard `X-RateLimit-*` response headers.
+
+## Versioning
+
+The current namespace is `v1`. Within v1, the contract grows additively — new tools and new optional inputs are added; existing tools and required inputs don't change shape. You can code against v1 today and not worry about a breaking change for at least a quarter.
+
+## Quick start
+
+Once you have an API key from **Settings → API Keys** in the Citable web app:
+
+```bash
+export CITABLE_MCP_URL="https://api.getcitable.com/mcp"
+export CITABLE_API_KEY="..."
+```
+
+Or for stdio with Claude Desktop, add to your Claude Desktop config:
 
 ```json
 {
   "mcpServers": {
     "citable": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "https://getcitable.com/mcp/v1",
-        "--header",
-        "Authorization:Bearer ${CITABLE_API_KEY}"
-      ],
+      "command": "node",
+      "args": ["/path/to/citable-mcp.js"],
       "env": {
-        "CITABLE_API_KEY": "your_api_key_here"
+        "CITABLE_BRAND_ID": "123",
+        "CITABLE_USER_ID": "456"
       }
     }
   }
 }
 ```
 
-Hosted agents can skip the bridge and call the Streamable HTTP endpoint directly with the same `Authorization: Bearer` header. See [authentication](/mcp/auth) for details.
+Verify the connection with the `ping` tool — it returns the resolved brand and user, so you can confirm you're talking to the right context before any real calls.
 
-Verify the connection with `ping` — it returns the server identity and which brand your session is scoped to.
+```
+> ping()
+< pong — citable-mcp v1, brand 123, user 456
+```
 
-## The optimization loop
-
-The tools are designed to compose into one loop: find the buyer questions your brand is losing, create content that answers them, hold it to a quality floor, ship it, and measure whether AI engines actually cite it.
-
-| Step | Tool | What it gives you |
-|---|---|---|
-| 1. Target | `search_prompt_intelligence`, `get_geo_priorities` | The tracked buyer questions you're losing, and the prioritized to-do list |
-| 2. Brief | `get_brand_context` | Voice, personas, differentiators — who you're writing as |
-| 3. Draft | `emit_content` or `create_content_draft` | A queued draft with an instant GEO score |
-| 4. Judge | `score_content` | The full quality breakdown: baseline gates, per-dimension fixes, and prompt-fit against the exact questions you targeted |
-| 5. Revise | `score_content` (again) | Iterate until the baseline gates pass — the score is a quality floor, not a vanity number |
-| 6. Ship | `mark_content_posted` | Record the live URL once the user posts it |
-| 7. Measure | `get_attribution_report` | Which posts AI engines actually cite, and the trend |
-
-Steps 4–5 are the core: `score_content` returns pass/fail **baseline gates** (answer-first, evidence present, right-sized, unique insight, answers the target questions) and a concrete fix for each weak dimension. A failed gate caps the score, so polished-but-empty content can't look good. Revise until the gates pass, then ship.
-
-## Tool categories
-
-**Read tools** return data — identity, visibility, recommendations, content, attribution, prompt intelligence, and the `score_content` judge. Reads never change anything.
-
-**One-call writes** (the `emit_*` family) record a complete action in a single call: validate, draft, and register it for outcome measurement. Prefer these for agent integrations.
-
-**Staged writes** mirror the step-by-step flow humans use in the app: `create_content_draft` → `schedule_content` → `mark_content_posted`, plus `approve_ticket` / `dismiss_ticket` / `ingest_conversation`. Use these when you want control between steps.
-
-## Guarantees on every call
-
-1. **Brand is inferred, never an input.** Your brand and user come from the API key. No tool accepts a `brand_id` argument.
-2. **Cross-brand protection.** Any ID you pass is resolved and rejected if it belongs to another brand.
-3. **Drafts, not auto-publishing.** Content writes land in a review queue with a deep link into the app. Citable never posts to platforms on your behalf.
-4. **Everything is recorded.** Writes are logged and registered for outcome measurement, so future recommendations get sharper.
-5. **Rate limits** are returned in standard `X-RateLimit-*` response headers.
-
-## Versioning
-
-The current namespace is `v1`. Within v1 the contract grows additively: new tools and new optional inputs get added; existing tools and required inputs don't change shape.
+You're connected. Browse the per-tool pages for what each tool does, the inputs it accepts, and the response shape.

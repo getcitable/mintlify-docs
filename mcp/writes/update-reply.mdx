@@ -1,32 +1,27 @@
 ---
 title: "update_reply"
-sidebarTitle: "update_reply"
-description: "Updates a draft social-listening reply (Reddit, Hacker News, future Twitter/LinkedIn)."
+description: "Updates a draft social reply."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
+Updates a draft social-listening reply (Reddit, Hacker News, X, LinkedIn listening). Patches `reply_text` and/or `status`; brand is resolved from the auth context.
 
-Updates a draft social-listening reply (Reddit, Hacker News, future Twitter/LinkedIn). Patches reply_text and/or status; the brand is resolved from the MCP auth context.
+## When to use
 
-Use this when:
-- The user has reviewed the auto-generated reply text and wants Claude to revise it.
-- A draft needs to move to "queued" or "cancelled" without posting.
+- The user has reviewed the auto-generated reply text and wants the agent to revise it.
+- A draft needs to move to `queued` or `cancelled` without posting.
 
-Skip when:
-- The user wants to mark the reply as posted with a live URL — use mark_reply_posted instead.
-- The user wants to schedule it for a specific date — use schedule_reply.
-- The reply doesn't exist yet — replies are created via the Reddit/HN UI's Generate Reply button.
+## When not to use
 
-Allowed status values: draft, queued, scheduled, published, cancelled. Note that flipping to published without supplying posted_url leaves the URL blank — prefer mark_reply_posted for that transition.
+- The user wants to mark the reply as posted with a live URL — use [`mark_reply_posted`](/mcp/writes/mark-reply-posted) instead.
+- The user wants to schedule it for a specific date — use [`schedule_reply`](/mcp/writes/schedule-reply).
+- The reply doesn't exist yet — replies are created in the social-listening UI's Generate Reply flow.
 
-Returns the updated reply on success, or an error message if the reply doesn't exist or doesn't belong to this brand.
+## Status values
 
-## Inputs
+Allowed: `draft`, `queued`, `scheduled`, `published`, `cancelled`. Flipping to `published` without supplying `posted_url` leaves the URL blank — prefer [`mark_reply_posted`](/mcp/writes/mark-reply-posted) for that transition.
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `reply_id` | `integer` | yes | — | ID of the reply row to patch. |
-| `reply_text` | `string` | no | — | New reply text. Plain text; the editor renders newlines as paragraph breaks. |
-| `status` | `'draft' \| 'queued' \| 'scheduled' \| 'published' \| 'cancelled'` | no | — | New lifecycle status. To mark as posted with a URL, prefer mark_reply_posted. |
+Returns the updated reply on success, or an error if the reply doesn't exist or doesn't belong to this brand.
+
+## See also
+
+- [Overview](/mcp/overview)

@@ -1,28 +1,25 @@
 ---
 title: "get_action_with_children"
-sidebarTitle: "get_action_with_children"
-description: "Returns a parent action ticket and all its child content tickets (drafts, scheduled, posted) in one call."
+description: "Returns an action and all its child content (drafts, scheduled, posted) in one call."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
+Returns a parent action ticket and all its child content tickets (drafts, scheduled, posted) in one call. Each child includes status, `scheduled_for`, `posted_url`, assignee fields, and a deep link to its editor or detail page.
 
-Returns a parent action ticket and all its child content tickets (drafts, scheduled, posted) in one call. Children are every piece of content created from this action. Each child includes status, scheduled_for, posted_url, assignee fields, and the canonical deepLinkUrl to its editor or detail page.
+## When to use
 
-Use this when:
-- The user asks about a specific action by ticket code ("Show me GEO-051 and its content").
+- The user asks about a specific action by ticket code ("Show me ABC-051 and its content").
 - The user wants to know what content already exists against an action before drafting more.
-- Claude is about to call create_content_draft and wants to confirm an action doesn't already have a queued draft.
+- You're about to call `create_content_draft` and want to confirm an action doesn't already have a queued draft.
 
-Skip when:
-- The user wants the brand-wide priority list (use get_geo_priorities).
-- The user wants attribution for a specific posted URL (use get_attribution_report).
+## When not to use
 
-Input is a ticket code like "GEO-051". Brand is resolved from the MCP auth context — a ticket from another brand returns null even if the same sequence number exists in this brand.
+- The user wants the brand-wide priority list — use [`get_geo_priorities`](/mcp/reads/get-geo-priorities).
+- The user wants attribution for a specific posted URL — use [`get_attribution_report`](/mcp/reads/get-attribution-report).
 
 ## Inputs
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `ticket_code` | `string` | yes | — | Action ticket code (parent). Format: PREFIX-NNN. |
+Input is a ticket code like `"ABC-051"`. Brand resolved from auth context — a ticket from another brand returns null even if the same sequence number exists in your brand.
+
+## See also
+
+- [Overview](/mcp/overview)

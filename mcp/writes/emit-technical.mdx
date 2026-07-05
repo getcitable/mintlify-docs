@@ -1,52 +1,68 @@
 ---
 title: "emit_technical"
-sidebarTitle: "emit_technical"
-description: "Emit a technical recommendation against a specific URL: adds a recommendation card to the brand's Action Engine and records the action for outcome measurement over time."
+description: "Recommend a site-shape fix on a specific URL — inserts an Action Engine card and records the action for 30-day measurement."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
+## What it does
 
-Emit a technical recommendation against a specific URL: adds a recommendation card to the brand's Action Engine and records the action for outcome measurement over time.
+Emits a technical recommendation against a specific URL: inserts an Action Engine card and records the action so its 30-day citation impact can be measured. The recommendation is the deliverable — Citable doesn't auto-apply edits to your CMS. The user applies the fix in their own CMS, then marks it done.
 
-Produces a recommendation ONLY (no CMS auto-apply). The user copies the suggestion and applies it in their own CMS.
+Technical actions are persona-agnostic, so the persona-intent matrix is skipped.
 
-Common subtypes:
-- 'schema_markup' — add JSON-LD (Product / FAQ / Article / Organization)
-- 'faq_block' — add an FAQ section to capture FAQPage rich result
-- 'tldr_summary' — add a 2-3 sentence summary at the top of the page
-- 'canonical_fix' — set rel=canonical / consolidate duplicate URLs
-- 'eeat_signal' — author byline, credentials, last-updated date
-- 'comparison_block' — add a side-by-side comparison table vs cited competitors
+## When to use
 
-Use this when:
-- get_topical_authority shows a specific URL is losing on prompts where competitors win, AND a structural fix would help.
+- A scan shows a specific URL is losing on prompts where competitors win, AND a structural fix would help.
 - The user asks "what should I change on /page-x to get cited more?"
 
-Skip when:
-- The fix needs net-new content (use emit_content).
-- The fix needs a paid push (use emit_paid).
+## When not to use
 
-Inputs:
-- subtype (required): one of the categories above (free-form string ≤ 40 chars).
-- target_url (required): the page the recommendation applies to.
-- title (required, ≤ 200 chars): one-line summary of the change.
-- description (required): array of step-by-step instructions (each ≤ 500 chars).
-- effort_minutes (optional, default 30): estimated implementer effort.
-- priority (optional, 'low'|'medium'|'high'|'critical', default 'medium').
-- target_prompt_ids (optional): tracked-prompt ids this recommendation expects to win.
-
-Response: \{ actionId, taskId, deepLinkUrl \}.
+- The fix needs net-new content — use [`emit_content`](/mcp/writes/emit-content).
+- The fix needs a paid push — use [`emit_paid`](/mcp/writes/emit-paid).
 
 ## Inputs
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `subtype` | `string` | yes | — | Recommendation category, e.g. 'schema_markup', 'faq_block', 'tldr_summary' (free-form, max 40 chars). |
-| `target_url` | `string` | yes | — | The page URL the recommendation applies to. |
-| `title` | `string` | yes | — | One-line summary of the change (max 200 chars). |
-| `description` | `string[]` | yes | — | Step-by-step instructions (1-20 steps, each max 500 chars). |
-| `effort_minutes` | `integer` | no | `30` | Estimated implementer effort in minutes. Default 30. |
-| `priority` | `'low' \| 'medium' \| 'high' \| 'critical'` | no | `"medium"` | Priority in the Action Engine queue. Default medium. |
-| `target_prompt_ids` | `integer[]` | no | — | Tracked-prompt ids this fix is meant to win (scopes outcome measurement). |
+- `subtype` (string, 1–40 chars, required) — category of fix. Common values:
+  - `'schema_markup'` — add JSON-LD (Product / FAQ / Article / Organization)
+  - `'faq_block'` — add an FAQ section to capture the FAQPage rich result
+  - `'tldr_summary'` — add a 2–3 sentence summary at the top of the page
+  - `'canonical_fix'` — set `rel=canonical` or consolidate duplicate URLs
+  - `'eeat_signal'` — author byline, credentials, last-updated date
+  - `'comparison_block'` — side-by-side comparison table vs cited competitors
+- `target_url` (URL, required) — the page the recommendation applies to.
+- `title` (string, 1–200 chars, required) — one-line summary of the change.
+- `description` (string[], 1–20 items, each ≤500 chars, required) — step-by-step instructions.
+- `effort_minutes` (number, 5–480, default 30) — estimated implementer effort.
+- `priority` (`'low'` | `'medium'` | `'high'` | `'critical'`, default `'medium'`).
+- `target_prompt_ids` (number[], optional) — tracked prompts this recommendation expects to win.
+
+## Response
+
+```json
+{
+  "actionId": 8620,
+  "taskId": 4412,
+  "deepLinkUrl": "https://app.getcitable.com/actions/4412",
+  "validation": { "status": "allowed" }
+}
+```
+
+## Example
+
+Recommend adding FAQ JSON-LD to a comparison landing page that's losing on three buyer-stage prompts:
+
+```json
+{
+  "subtype": "schema_markup",
+  "target_url": "https://example.com/vs/competitor-x",
+  "title": "Add FAQPage JSON-LD to /vs/competitor-x",
+  "description": [
+    "Open the page template in your CMS.",
+    "Paste the JSON-LD block (provided below) into the <head>.",
+    "Confirm in Google's Rich Results Test that FAQPage is detected.",
+    "Republish the page."
+  ],
+  "effort_minutes": 25,
+  "priority": "high",
+  "target_prompt_ids": [1902, 1908, 1911]
+}
+```

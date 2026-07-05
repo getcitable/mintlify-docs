@@ -1,34 +1,65 @@
 ---
 title: "get_action_outcome_history"
-sidebarTitle: "get_action_outcome_history"
-description: "Returns recent Citable-emitted actions for the brand, with their measured outcome deltas where the measurement window has resolved."
+description: "Returns recent actions recorded for the brand with their measured 30-day outcome deltas where the measurement window has resolved."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
+## What it does
 
-Returns recent Citable-emitted actions for the brand, with their measured outcome deltas where the measurement window has resolved. This is the canonical history of "what did Citable do, and what happened next."
+Returns recent actions Citable has recorded for the brand, with their measured 30-day outcome deltas. This is the canonical "what did we do, and what happened next" history — the foundation for measuring whether actions actually move citation rate and share of voice over time.
 
-Use this when the user asks:
+## When to use
+
 - "What did Citable do for me last month?"
 - "Which actions actually moved citations?"
 - "Show me the best-performing content actions."
 - "What's still measuring (pending outcomes)?"
 
-Skip when the user wants live recommendations (use get_geo_priorities) or current visibility metrics (use get_topical_authority / get_paid_ads_insights).
+## When not to use
 
-Inputs:
-- actionType (optional): filter by 'content' / 'outreach' / 'technical' / 'operational' / 'paid'
-- outcomeStatus (optional): filter by 'pending' (still measuring) / 'measured' (delta computed) / 'inconclusive' / 'failed'
-- limit (default 20, max 100)
-
-Response: \{ rows: [...], totalReturned, status, meta \}. Each row has id, actionType, actionSubtype, emittedAt, executedAt, postedUrl, outcomeStatus, deltaMetrics (when measured).
+- The user wants live recommendations — use [`get_geo_priorities`](/mcp/reads/get-geo-priorities).
+- The user wants current visibility metrics — use [`get_topical_authority`](/mcp/reads/get-topical-authority) or [`get_paid_ads_insights`](/mcp/reads/get-paid-ads-insights).
+- The user wants a single action's tree of child artifacts — use [`get_action_with_children`](/mcp/reads/get-action-with-children).
 
 ## Inputs
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `actionType` | `'content' \| 'outreach' \| 'technical' \| 'operational' \| 'paid'` | no | — | Filter by action class. Omit for all. |
-| `outcomeStatus` | `'pending' \| 'measured' \| 'inconclusive' \| 'failed'` | no | — | Filter by outcome state: 'pending' = still measuring, 'measured' = impact computed. |
-| `limit` | `integer` | no | `20` | Max rows to return. Default 20, max 100. |
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `actionType` | `'content' \| 'outreach' \| 'technical' \| 'operational' \| 'paid'` | none | Filter by action category. |
+| `outcomeStatus` | `'pending' \| 'measured' \| 'inconclusive' \| 'failed'` | none | `pending` = still inside the 30-day window. `measured` = delta computed. |
+| `limit` | `int` (1–100) | `20` | Page size. |
+
+Brand id is resolved from auth.
+
+## Response
+
+```json
+{
+  "rows": [
+    {
+      "id": "act_01H...",
+      "action_type": "content",
+      "action_subtype": "linkedin_post",
+      "emitted_by": "mcp:create_content_draft",
+      "executor": "human:cole@getcitable.com",
+      "posted_url": "https://linkedin.com/posts/...",
+      "emitted_at": "2026-04-10T14:22:00Z",
+      "executed_at": "2026-04-11T09:15:00Z",
+      "outcome_status": "measured",
+      "outcome_resolved_at": "2026-05-11T09:15:00Z",
+      "baseline_metrics": { "citation_rate": 0.31, "mention_rate": 0.47 },
+      "measurement_metrics": { "citation_rate": 0.42, "mention_rate": 0.58 },
+      "delta_metrics": { "citation_rate": 0.11, "mention_rate": 0.11 },
+      "intent": "engagement",
+      "validation_status": "ok"
+    }
+  ],
+  "totalReturned": 1,
+  "status": "ok"
+}
+```
+
+## Notes
+
+- **Outcome window is 30 days.** A row with `outcome_status: 'pending'` means the measurement window hasn't completed yet for that action. `outcome_resolved_at` is null until then.
+- `delta_metrics` is only populated when `outcome_status === 'measured'`. For `'inconclusive'` or `'failed'` outcomes, inspect `measurement_metrics` and `baseline_metrics` directly.
+- Brand-scoped at the query layer. No cross-brand reads possible from any API key.

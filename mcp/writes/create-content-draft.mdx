@@ -1,36 +1,34 @@
 ---
 title: "create_content_draft"
-sidebarTitle: "create_content_draft"
-description: "Creates a content draft against an action ticket OR an ingested conversation."
+description: "Creates a content draft against an action ticket or an ingested conversation."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
+Creates a content draft against an action ticket OR an ingested conversation. The draft lands at `status='queued'` — never published. Returns the editor URL so the user can review, edit, and approve in the web app before scheduling.
 
-Creates a content draft against an action ticket OR an ingested conversation. The draft lands at status='queued' — never published. Returns the editor URL so the user can review, edit, and approve in the web UI before scheduling.
+## Anchor invariant
 
-Provide EXACTLY ONE of source_task_id or from_conversation_id, never both. IDs from another brand are rejected.
+Provide EXACTLY ONE of `source_task_id` or `from_conversation_id`, never both. Cross-brand IDs are rejected.
 
-Quality signal (returned in structuredContent): geoScore (0-100 — the unified GEO/AEO citability score), artifactsFlagged: string[]. For the explainable breakdown (baseline gates + per-dimension why/fix + prompt-fit), call score_content.
-- If geoScore \< 60 OR artifactsFlagged is non-empty, REVISE the body and re-call. The flags name the AI-slop pattern detected (e.g., "hollow heading opener", "fictional persona intro"). Aim for clean drafts — the queued state is for review, not damage control.
+## Quality signal
 
-Use this when:
+Returned in `structuredContent`: `geoScore` (0–100), `aeoScore` (0–100), `artifactsFlagged: string[]`.
+
+If `geoScore < 60` OR `artifactsFlagged` is non-empty, revise the body and re-call. The flags name the AI-slop pattern detected (for example, "hollow heading opener", "fictional persona intro"). Aim for clean drafts — the queued state is for review, not damage control.
+
+## When to use
+
 - The user has agreed on what to post next.
-- You want to materialize the result of a brand conversation as a draft (pair with from_conversation_id from a prior ingest_conversation call).
+- You want to materialize the result of a brand conversation as a draft (pair with `from_conversation_id` from a prior `ingest_conversation` call).
 
-Skip when:
+## When not to use
+
 - The user is just brainstorming — wait for an explicit "draft this" instruction.
-- The user wants to publish — Citable does not call platform APIs; we record posted_url AFTER the user posts manually (see mark_content_posted).
+- The user wants Citable to publish — Citable does not call platform APIs. We record `posted_url` after the user posts manually (see [`mark_content_posted`](/mcp/writes/mark-content-posted)).
 
-Body limits: 1–8000 chars. For long-form (blog) posts, write the full body here; the editor URL lets the user iterate from there.
+## Body limits
 
-## Inputs
+1–8000 chars. For long-form (blog) posts, write the full body here; the editor URL lets the user iterate from there.
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `source_task_id` | `integer` | no | — | Anchor: the action ticket id this draft responds to. Provide this OR from_conversation_id. |
-| `from_conversation_id` | `integer` | no | — | Anchor: a conversation id returned by a prior ingest_conversation call. Provide this OR source_task_id. |
-| `platform` | `'linkedin' \| 'twitter' \| 'reddit' \| 'blog' \| 'instagram' \| 'youtube'` | yes | — | Target platform for the draft. |
-| `body` | `string` | yes | — | Draft body (1–8000 chars). Plain text or markdown depending on platform. |
-| `title` | `string` | no | — | Optional title (capped 200 chars). Defaults to the first 80 chars of body. |
+## See also
+
+- [Overview](/mcp/overview)

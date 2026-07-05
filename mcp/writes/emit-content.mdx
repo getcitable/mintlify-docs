@@ -1,57 +1,80 @@
 ---
 title: "emit_content"
-sidebarTitle: "emit_content"
-description: "Emit a piece of content for the brand: validates it against the target persona's guardrails, saves a draft at status='queued', and records the action so its citation / share-of-..."
+description: "Draft content for a brand persona in one atomic call — validates persona-intent, drafts to queued status, records the action for 30-day measurement."
 ---
 
-{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
-    Do not edit by hand — edit the tool's description in the platform repo
-    and re-run `npm run docs:mcp`. */}
+## What it does
 
-Emit a piece of content for the brand: validates it against the target persona's guardrails, saves a draft at status='queued', and records the action so its citation / share-of-voice impact can be measured over time.
+Emits a single piece of content for the brand: validates persona-intent, drafts to `status='queued'`, and records the action so its 30-day citation and share-of-voice impact can be measured. One atomic emit bundles what `create_content_draft`, `schedule_content`, and `mark_content_posted` do separately — the fine-grained tools remain available for step-by-step human-UI flows.
 
-This is the one-call way to record a complete content action. If you want staged control — draft now, schedule later, mark posted when it goes live — use create_content_draft / schedule_content / mark_content_posted instead.
+Hub vs spoke is built in: set `fan_out_role='hub'` on the long-form canonical piece, then call `emit_content` again with `fan_out_role='spoke'` and `parent_action_id=<hub action id>` for each channel adaptation. Spoke outcomes roll up to the hub so you can see "this hub's Reddit spoke delivered 3× the LinkedIn spoke" as a queryable fact.
 
-Use this when:
+## When to use
+
 - The user (or upstream agent) has decided WHAT to post and on WHICH channel.
-- You want one atomic emit that records the action for later outcome measurement.
-- You're building a hub-spoke fan-out: set fan_out_role='hub' on the long-form piece, then call emit_content again with fan_out_role='spoke' + parent_action_id=\<hub action id> for each channel adaptation.
+- You want one atomic emit that produces a measurable action record.
+- You're building a hub-spoke fan-out — one hub call, N spoke calls referencing the hub.
 
-Skip when:
-- The user is brainstorming (no decision yet) — ingest_conversation instead.
-- The content is a paid ad — use emit_paid.
-- The action is an outreach DM/email — use emit_outreach.
+## When not to use
 
-Persona guardrails: persona_id + intent are REQUIRED — every content emit is validated against the target persona's guardrails. If a blocking violation fires, fix the body to clear it, or pass override_reason (≥ 8 chars) to proceed; overrides are recorded with your reason.
-
-Inputs:
-- persona_id (required): the persona this content targets.
-- intent (required): 'engagement' (build relationships) or 'commercial' (drive a buy decision).
-- platform (required): linkedin / twitter / reddit / blog / instagram / youtube.
-- body (required, 1-8000 chars): the draft. Long-form for blogs; short-form for socials.
-- title (optional): caps 200 chars. Defaults to body[:80].
-- source_task_id OR from_conversation_id (one of, optional): anchor.
-- action_subtype (optional): e.g. 'long_form_hub', 'reddit_spoke', 'linkedin_spoke'.
-- fan_out_role (optional): 'hub' for the canonical piece; 'spoke' for adaptations.
-- parent_action_id (optional): when fan_out_role='spoke', the hub action's id.
-- target_prompt_ids (optional): integer[] of tracked-prompt ids this content targets (used to scope outcome measurement).
-- override_reason (optional, ≥ 8 chars): bypass block-severity violations with audit.
-
-Response: \{ actionId, contentId, deepLinkUrl, geoScore, artifactsFlagged, validation: \{ status, violations, overrideIds \} \}. (geoScore is the unified GEO/AEO citability score; call score_content for the explainable breakdown + per-dimension fixes.)
+- The user is brainstorming (no decision yet) — use [`ingest_conversation`](/mcp/writes/ingest-conversation) instead.
+- The content is a paid ad — use [`emit_paid`](/mcp/writes/emit-paid).
+- The action is an outreach reply on a social thread — use [`emit_outreach`](/mcp/writes/emit-outreach).
 
 ## Inputs
 
-| Field | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `persona_id` | `integer` | yes | — | Persona this content targets. The content is validated against this persona's guardrails. |
-| `intent` | `'engagement' \| 'commercial'` | yes | — | 'engagement' = relationship-building; 'commercial' = drive a buy decision. |
-| `platform` | `'linkedin' \| 'twitter' \| 'reddit' \| 'blog' \| 'instagram' \| 'youtube'` | yes | — | Target platform for the content. |
-| `body` | `string` | yes | — | The draft body (1-8000 chars). Long-form for blog; short-form for socials. |
-| `title` | `string` | no | — | Optional title (max 200 chars). Defaults to the first 80 chars of the body. |
-| `source_task_id` | `integer` | no | — | Anchor: action ticket this responds to. Either this OR from_conversation_id. |
-| `from_conversation_id` | `integer` | no | — | Anchor: ingested conversation. Either this OR source_task_id. |
-| `action_subtype` | `string` | no | — | Finer subtype, e.g. 'long_form_hub' / 'reddit_spoke'. |
-| `fan_out_role` | `'hub' \| 'spoke'` | no | — | Set 'hub' on the canonical piece, 'spoke' on channel adaptations. |
-| `parent_action_id` | `integer` | no | — | Hub action's id; required when fan_out_role='spoke'. |
-| `target_prompt_ids` | `integer[]` | no | — | Tracked-prompt ids this content is meant to win citations on. Scopes outcome measurement. |
-| `override_reason` | `string` | no | — | Required to proceed past a blocking guardrail violation; recorded with the override. |
+- `persona_id` (number, required) — the persona this content targets.
+- `intent` (`'engagement'` | `'commercial'`, required) — `engagement` builds relationships; `commercial` drives a buy decision.
+- `platform` (`'linkedin'` | `'twitter'` | `'reddit'` | `'blog'` | `'instagram'` | `'youtube'`, required).
+- `body` (string, 1–8000 chars, required) — the draft. Long-form for blogs; short-form for socials.
+- `title` (string, ≤200 chars, optional) — defaults to `body[:80]`.
+- `source_task_id` (number, optional) — anchor: action ticket this responds to. Either this OR `from_conversation_id`.
+- `from_conversation_id` (number, optional) — anchor: ingested conversation. Either this OR `source_task_id`.
+- `action_subtype` (string, ≤40 chars, optional) — e.g. `'long_form_hub'`, `'reddit_spoke'`, `'linkedin_spoke'`.
+- `fan_out_role` (`'hub'` | `'spoke'`, optional) — set `'hub'` on the canonical piece, `'spoke'` on adaptations.
+- `parent_action_id` (number, optional) — required when `fan_out_role='spoke'`; the hub action's id.
+- `target_prompt_ids` (number[], optional) — tracked prompts this content targets. Scopes 30-day outcome measurement.
+- `override_reason` (string, ≥8 chars, optional) — bypass block-severity persona-intent violations with an audit record.
+
+## Response
+
+```json
+{
+  "actionId": 8421,
+  "contentId": 17203,
+  "deepLinkUrl": "https://app.getcitable.com/content/17203",
+  "geoScore": 72,
+  "aeoScore": 81,
+  "artifactsFlagged": [],
+  "validation": {
+    "status": "allowed",
+    "violations": [],
+    "overrideIds": []
+  }
+}
+```
+
+On block: `isError: true` with `structuredContent: { status: 'blocked', violations: [...] }`. Fix the body or pass `override_reason` to retry.
+
+## Persona-intent validation
+
+Every content emit is persona-scoped — `persona_id` and `intent` must be supplied so the validation matrix can fire. Block-severity rules halt the emit unless `override_reason ≥ 8 chars` is passed (one audit record per blocked rule, with the action tagged `validation_status='overridden'`).
+
+## Example
+
+Draft a LinkedIn engagement post for an insider persona, anchored to an action ticket, targeting two prompts:
+
+```json
+{
+  "persona_id": 412,
+  "intent": "engagement",
+  "platform": "linkedin",
+  "title": "Why we stopped writing thought-leadership posts",
+  "body": "Three months ago we shut down our LinkedIn content engine. Here's what happened next...",
+  "source_task_id": 9011,
+  "action_subtype": "linkedin_spoke",
+  "fan_out_role": "spoke",
+  "parent_action_id": 8420,
+  "target_prompt_ids": [1834, 1859]
+}
+```
