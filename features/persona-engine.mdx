@@ -1,0 +1,48 @@
+---
+title: "Persona Engine"
+description: "Generate and maintain accurate audience personas — then run your actual buyers' questions through AI to see exactly how you rank with each segment."
+---
+
+Persona Engine turns abstract "target customer" thinking into a live testing instrument. It builds structured audience personas from your brand data, then uses those personas to simulate the real questions your buyers are asking AI engines — and measures how your brand performs against each one.
+
+## What a persona contains
+
+Each persona is a multi-dimensional profile of a buyer segment:
+
+- **Demographics** — age range, income bracket, occupation, and gender distribution
+- **Questions they ask AI** — the actual natural-language queries this segment types into ChatGPT, Perplexity, or other engines when researching your category
+- **Goals and pain points** — what they're trying to accomplish and what's getting in the way
+- **Psychographic profile** — values, priorities, and decision-making style
+- **Watering holes** — the platforms, communities, and media properties they frequent
+
+Citable auto-generates an initial set of personas by analyzing your brand information and scanning your website. You can edit any generated persona or build new ones from scratch — brands often have sharper instincts about their own customers than any automated system.
+
+## How the simulation works
+
+Once a persona is defined, Citable generates 12–20 representative prompts that someone in this segment would realistically ask an AI engine. Each prompt is sent through the ChatGPT API and broken into roughly 20 scenario directions to minimize redundant computation while covering the full question space.
+
+For each direction, Citable records:
+- Which websites the AI cited or mentioned
+- Your brand's position in those responses
+- The citation count and visibility score
+- Sentiment of any mention
+
+This gives you a persona-level view of your AI presence: not just "how visible am I?" but "how visible am I to the people I'm actually trying to reach?"
+
+## How personas connect to other features
+
+Persona Engine is the data source that makes the rest of Citable's recommendations specific rather than generic:
+
+- **[Prompt Intelligence](/features/prompt-intelligence)** — filter by persona to see exactly which questions from that segment you're winning and losing
+- **[Brand Studio](/features/brand-studio)** — select a persona when generating content so the draft targets that segment's vocabulary and concerns
+- **[Broadcast](/features/broadcast)** — distribution recommendations are weighted by which channels each persona frequents
+
+## Managing your persona set
+
+Most brands maintain two to five audience personas. A few guidelines:
+
+- Keep personas distinct — if two personas would ask the same questions and read the same content, merge them.
+- Update personas when your product or customer base shifts. Stale personas produce stale scan data.
+- If you serve both a B2B and B2C segment, they should be separate personas — their questions look completely different to an AI engine.
+
+Persona Engine is currently in **Preview**. Deeper cross-feature linking and persona export capabilities are in development.
