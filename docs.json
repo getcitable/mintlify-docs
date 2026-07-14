@@ -31,34 +31,13 @@
             ]
           },
           {
-            "group": "Core",
-            "pages": [
-              "features/dashboard",
-              "features/action-engine",
-              "features/content-calendar",
-              "features/persona-engine"
-            ]
-          },
-          {
-            "group": "Create",
+            "group": "Features",
             "pages": [
               "features/brand-studio",
               "features/broadcast",
-              "features/social-listening",
-              "features/media-press-placement",
-              "features/paid-campaigns"
-            ]
-          },
-          {
-            "group": "Insights",
-            "pages": [
-              "features/citation-research",
-              "features/prompt-intelligence",
-              "features/brand-sentiment",
-              "features/agent-analytics",
+              "features/action-engine",
               "features/content-audit",
-              "workspace/brand-strategy",
-              "workspace/brand-knowledge"
+              "features/paid-campaigns"
             ]
           },
           {
@@ -66,6 +45,8 @@
             "pages": [
               "integrations/google-analytics",
               "integrations/ai-traffic-proxy",
+              "integrations/cloudflare-worker",
+              "integrations/ingest-pipeline",
               "integrations/google-ads",
               "integrations/reddit"
             ]

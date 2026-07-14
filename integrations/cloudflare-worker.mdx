@@ -1,0 +1,253 @@
+---
+title: "Cloudflare Worker (Self-Hosted)"
+description: "Deploy your own Cloudflare Worker to send classified traffic to Citable's ingest API — contact us for credentials first."
+---
+
+This guide explains how to deploy a **Cloudflare Worker on your own zone** that captures HTTP request data, classifies AI-related traffic, and forwards it to Citable's [ingest pipeline](/integrations/ingest-pipeline). The Worker runs as middleware — it does not replace your origin; it logs telemetry and passes the request through.
+
+<Note>
+  Looking for a fully managed setup where Citable runs the Workers? See [AI Traffic Proxy (Managed)](/integrations/ai-traffic-proxy) — available to trusted partners; contact us to enable.
+</Note>
+
+## Overview
+
+The integration uses a Cloudflare Worker on **your** Cloudflare account. For each request the Worker:
+
+1. Forwards the request to your origin (fail-open)
+2. Extracts signals (user agent, referrer, path, bot score)
+3. Classifies traffic (crawler, AI referral, agent, human)
+4. POSTs high-signal events to `https://ingest.getcitable.com`
+
+Events flow through Citable's queue into ClickHouse and appear in **Agent Analytics** alongside managed-proxy traffic.
+
+## Before you start — provision credentials in Connectors
+
+You need a **site ID** and **ingest auth token** registered on Citable's side before your Worker can send data. **Self-serve this from the Citable app** — no need to email us for credentials.
+
+### Step 1 — Create credentials in Connectors
+
+1. Open **Settings → Connectors** in Citable.
+2. Find **AI Traffic Proxy** and click **Connect**.
+3. Choose **Self-hosted Cloudflare Worker** (not the managed CNAME proxy).
+4. Enter your **site ID** — the hostname your Worker will run on (e.g. `www.example.com`). This becomes the partition key for your traffic in Agent Analytics.
+5. Click **Create credentials**.
+
+Citable registers `token:{your-token}` → `siteId` in our infrastructure and shows you:
+
+| Credential | Use in your Worker |
+| --- | --- |
+| `siteId` | `SITE_ID` in `wrangler.toml` `[vars]` — must match what you entered |
+| Ingest auth token | `CITABLE_INGEST_TOKEN` Wrangler **secret** — sent as `x-auth-token` on every ingest POST |
+
+<Warning>
+  Copy the ingest token when it is shown — it is displayed once for security. If you lose it, disconnect and recreate credentials in Connectors, or use **Regenerate token** when available.
+</Warning>
+
+<Note>
+  Looking for Citable to run the Workers for you? That is the [managed proxy](/integrations/ai-traffic-proxy) path for trusted partners — [contact us](https://getcitable.com) to enable it.
+</Note>
+
+Need help choosing routes, reviewing your Worker, or debugging ingest errors? [Contact us](https://getcitable.com) — we are happy to assist even though credential setup is self-serve.
+
+## Prerequisites
+
+- A **Cloudflare account** with Workers enabled on the zone you want to instrument
+- **Node.js** on your development machine
+- Access to your domain's Cloudflare DNS / Workers configuration
+- A **Citable ingest token** from us (see above)
+- A Citable account with **Connectors** access (to self-provision ingest credentials)
+
+Using Cloudflare Enterprise with Logpush? Contact us — we can discuss alternative ingestion paths.
+
+## Implementation guide
+
+### Set up your development environment
+
+Create a new Worker project:
+
+```bash
+npm create cloudflare@latest -- citable-log-collector
+```
+
+When prompted:
+
+- Template: **Hello World**
+- Language: **TypeScript**
+- Deploy now: optional (you can deploy after configuring)
+
+```bash
+cd citable-log-collector
+```
+
+### Configure your Worker
+
+Edit `wrangler.toml` (or `wrangler.json`). Replace the route pattern and zone with your site:
+
+```toml
+name = "citable-log-collector"
+main = "src/index.ts"
+compatibility_date = "2024-09-01"
+
+# Route all traffic on your marketing / storefront hostname
+[[routes]]
+pattern = "www.example.com/*"
+zone_name = "example.com"
+
+[vars]
+INGEST_URL = "https://ingest.getcitable.com"
+SITE_ID = "www.example.com"
+```
+
+<Tip>
+  Use the hostname shoppers and bots actually visit (e.g. `www.example.com/*`), not your internal origin. If unsure about route patterns, contact Citable before deploying.
+</Tip>
+
+Copy this TypeScript into `src/index.ts`:
+
+```typescript
+export interface Env {
+  INGEST_URL: string
+  SITE_ID: string
+  CITABLE_INGEST_TOKEN: string
+}
+
+type TrafficType = 'crawler' | 'ai_referred' | 'agent' | 'human'
+
+const CRAWLER_UA = /GPTBot|ClaudeBot|PerplexityBot|Google-Extended|Applebot/i
+const AI_REFERRERS = /chat\.openai\.com|perplexity\.ai|gemini\.google/i
+
+export default {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    const response = await fetch(request)
+
+    ctx.waitUntil(sendTelemetry(request, env))
+
+    return response
+  },
+}
+
+async function sendTelemetry(request: Request, env: Env): Promise<void> {
+  const url = new URL(request.url)
+  const cf = (request as Request & { cf?: { country?: string; botManagement?: { score?: number } } }).cf ?? {}
+  const userAgent = request.headers.get('user-agent') ?? ''
+  const referrer = request.headers.get('referer') ?? ''
+
+  const classification = classify(userAgent, referrer, request)
+
+  // Only send high-signal types to ingest (human traffic stays out of ClickHouse)
+  if (classification.type === 'human') return
+
+  const event = {
+    siteId: env.SITE_ID,
+    proxyHost: url.hostname,
+    timestamp: Date.now(),
+    trafficType: classification.type,
+    botName: classification.botName,
+    aiSource: classification.aiSource,
+    referrer,
+    urlPath: url.pathname,
+    method: request.method,
+    country: cf.country ?? '',
+    cfBotScore: cf.botManagement?.score ?? 99,
+    confidence: classification.confidence,
+  }
+
+  try {
+    const res = await fetch(env.INGEST_URL, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-auth-token': env.CITABLE_INGEST_TOKEN,
+      },
+      body: JSON.stringify(event),
+    })
+    if (!res.ok) {
+      console.error(`[citable] ingest failed: ${res.status} ${await res.text()}`)
+    }
+  } catch (err) {
+    console.error('[citable] ingest threw:', err)
+  }
+}
+
+function classify(ua: string, referrer: string, request: Request): {
+  type: TrafficType
+  botName: string
+  aiSource: string
+  confidence: number
+} {
+  if (CRAWLER_UA.test(ua)) {
+    return { type: 'crawler', botName: ua.split('/')[0], aiSource: '', confidence: 0.85 }
+  }
+  if (AI_REFERRERS.test(referrer)) {
+    const host = new URL(referrer).hostname
+    return { type: 'ai_referred', botName: '', aiSource: host, confidence: 0.9 }
+  }
+  if (request.method === 'POST' && (request.headers.get('content-type') ?? '').includes('json')) {
+    return { type: 'agent', botName: '', aiSource: '', confidence: 0.7 }
+  }
+  return { type: 'human', botName: '', aiSource: '', confidence: 0.5 }
+}
+```
+
+This example uses simplified classification. Citable's managed proxy uses a fuller bot registry and behavioral signals — contact us if you need parity.
+
+### Deploy your Worker
+
+```bash
+# Log in to the Cloudflare account that owns your zone
+npx wrangler login
+
+# Store the ingest token from Connectors (never commit this)
+npx wrangler secret put CITABLE_INGEST_TOKEN
+# Paste the token shown in Connectors when you created credentials
+
+# Deploy
+npx wrangler deploy
+```
+
+### Test your implementation
+
+1. Visit your site through the routed hostname (e.g. `https://www.example.com`).
+2. Optionally simulate a crawler: `curl -A "GPTBot/1.0" https://www.example.com/`
+3. Open **Agent Analytics** (`/ai-traffic`) → **Edge Traffic**. Allow a few minutes for data to appear.
+
+Direct ingest smoke test (optional):
+
+```bash
+curl -i -X POST https://ingest.getcitable.com \
+  -H "content-type: application/json" \
+  -H "x-auth-token: YOUR_CITABLE_INGEST_TOKEN" \
+  -d '{
+    "siteId": "www.example.com",
+    "proxyHost": "www.example.com",
+    "timestamp": '"$(date +%s000)"',
+    "trafficType": "crawler",
+    "botName": "GPTBot"
+  }'
+```
+
+Expect `200 OK`.
+
+## Troubleshooting
+
+| Symptom | Check |
+| --- | --- |
+| `401` from ingest | Token missing, wrong secret, or revoked — confirm `CITABLE_INGEST_TOKEN` matches Connectors; recreate credentials if needed |
+| `400 Invalid payload` | Missing `siteId`, `timestamp`, or `trafficType` in JSON body |
+| No data in Agent Analytics | `siteId` in Worker must match what Citable registered; confirm brand in Citable UI |
+| Worker errors in CF dashboard | Workers → your script → Logs; verify `INGEST_URL` and route pattern |
+| Crawlers blocked before Worker | Cloudflare Bot Fight / Block AI bots may filter requests — add a skip rule for your hostname |
+
+## Security considerations
+
+- Store `CITABLE_INGEST_TOKEN` as a Wrangler **secret**, not a `[vars]` plain-text value
+- Rotate tokens from **Connectors** (disconnect + recreate, or Regenerate when available) — old KV entries are revoked
+- Monitor Worker invocations for unusual volume or error rates
+- The ingest endpoint is not a public API — treat the token like an API key
+
+## Need help?
+
+- **Credential setup:** self-serve in [Connectors](https://getcitable.com/connectors) — choose **Self-hosted Cloudflare Worker**
+- **Setup help or debugging:** [getcitable.com](https://getcitable.com)
+- **Managed alternative:** [AI Traffic Proxy](/integrations/ai-traffic-proxy) — Citable runs the Workers for trusted partners
+- **Pipeline architecture:** [Ingest Pipeline](/integrations/ingest-pipeline)
