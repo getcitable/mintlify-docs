@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Citable",
-  "description": "Citable helps B2B brands get cited by ChatGPT, Perplexity, Gemini, and other AI assistants. Documentation for the product and the MCP API.",
+  "description": "Citable is the autonomous revenue engine for agentic commerce. It measures how AI agents decide what shoppers buy, acts on what it finds, and proves the results in orders. Documentation for the product and the MCP API.",
   "colors": {
     "primary": "#0f172a",
     "light": "#3b82f6",
