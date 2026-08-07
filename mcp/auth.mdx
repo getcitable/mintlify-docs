@@ -3,7 +3,7 @@ title: "Authentication"
 description: "How Citable's MCP server resolves your brand and user context — and how to set it up over stdio or HTTP."
 ---
 
-Every MCP session is scoped to one brand and one user. The brand controls what data the session sees and what writes it can make; the user is recorded on every action for audit. Neither is ever passed as a tool input — both are resolved from the transport layer.
+Every MCP session is scoped to one brand and one user. The brand controls what data the session sees and which records it can write to; the key's scopes control whether it may write at all; the user is recorded on every action for audit. None of the three is ever passed as a tool input — all are resolved from the transport layer.
 
 ## Auth context shape
 
@@ -14,11 +14,29 @@ interface AuthContext {
   brandId: number;     // brand this session reads + writes for
   userId: number;      // user behind the call (audit trail)
   apiKeyId: number | null;  // the API key id, if HTTP-authenticated
+  scopes: string[];    // ['read'] or ['read', 'write']
   source: string;      // 'stdio:env' | 'http:api_key'
 }
 ```
 
 The `brandId` is the most important field — every read filters by it, every write rejects cross-brand IDs against it.
+
+## Permissions
+
+Every key carries a scope list, chosen when you mint it:
+
+| Scope | What it allows |
+| --- | --- |
+| `read` | Every read tool — visibility, prompts, content, attribution, benchmarks. |
+| `write` | Additionally the write tools: importing and archiving tracked questions, emitting actions, queueing and scheduling content, approving and dismissing tickets. Implies `read`. |
+
+`read` is the default. Calling a write tool with a read-only key returns a **403 with `Insufficient scope`** — the check runs before the tool's own logic, so nothing is written and no lookup happens.
+
+Give an integration the narrowest scope that does its job. An agent that reports on visibility does not need `write`, and a read-only key cannot archive your tracked questions or spend plan capacity if it leaks.
+
+<Note>
+Keys created before permissions were enforced carry `read + write`, because that is the access they have actually had. Check the Permissions column in **Settings → API Keys** and re-mint any that should be read-only.
+</Note>
 
 ## Transport options
 
@@ -62,12 +80,17 @@ Rotate by creating a new key, updating your integration, and revoking the old on
 
 ## Rate limits
 
-Each brand gets a per-hour rate limit. Response headers tell you where you stand:
+Calls are limited to **60 per minute per API key** (requests that arrive before auth resolves are bucketed by client IP instead). The limit is currently flat — it does not vary by plan tier, and it counts reads and writes together. Response headers tell you where you stand:
 
 ```
-X-RateLimit-Limit: 100
-X-RateLimit-Remaining: 47
-X-RateLimit-Reset: 1715731200
+RateLimit-Limit: 60
+RateLimit-Policy: 60;w=60
+RateLimit-Remaining: 47
+RateLimit-Reset: 42
 ```
 
-The default tier gets 100 calls/hour. Higher tiers raise the read limit; write limits stay in place across all tiers as cost protection on the platform side. If you need a higher limit for a specific integration, get in touch from your account.
+`RateLimit-Reset` is seconds until the window rolls over. Exceeding the limit returns a JSON-RPC error with `Rate limit exceeded`. If you need a higher limit for a specific integration, get in touch from your account.
+
+<Note>
+Rate limiting is throughput protection, not an authorization control. Use the `read` scope to stop an integration from writing.
+</Note>
