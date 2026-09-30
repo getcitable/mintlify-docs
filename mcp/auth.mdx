@@ -28,11 +28,13 @@ Every key carries a scope list, chosen when you mint it:
 | Scope | What it allows |
 | --- | --- |
 | `read` | Every read tool — visibility, prompts, content, attribution, benchmarks. |
-| `write` | Additionally the write tools: importing and archiving tracked questions, emitting actions, queueing and scheduling content, approving and dismissing tickets. Implies `read`. |
+| `write` | Additionally the write tools: importing and archiving tracked questions, emitting actions, queueing and scheduling content, editing, scheduling and marking social replies as posted, creating, pausing and archiving paid ads, and approving and dismissing tickets. Implies `read`. |
 
 `read` is the default. Calling a write tool with a read-only key returns a **403 with `Insufficient scope`** — the check runs before the tool's own logic, so nothing is written and no lookup happens.
 
-Give an integration the narrowest scope that does its job. An agent that reports on visibility does not need `write`, and a read-only key cannot archive your tracked questions or spend plan capacity if it leaks.
+A key cannot do more than the person who created it. Creating a key with `write` needs the member, admin or owner role on the brand. A viewer's key is read-only, and that is checked on every call, so a key loses `write` as soon as its creator becomes a viewer.
+
+Give an integration the narrowest scope that does its job. An agent that reports on visibility does not need `write`, and a read-only key cannot archive your tracked questions, launch paid ads or spend plan capacity if it leaks.
 
 <Note>
 Keys created before permissions were enforced carry `read + write`, because that is the access they have actually had. Check the Permissions column in **Settings → API Keys** and re-mint any that should be read-only.
@@ -40,16 +42,18 @@ Keys created before permissions were enforced carry `read + write`, because that
 
 ## Transport options
 
-### stdio (local clients)
+### stdio (self-hosted development)
 
-Used by Claude Desktop, Cursor, and other local MCP clients. Brand and user come from environment variables you set in your client config:
+Runs the MCP server as a local process against your own Citable database. It needs the same database credentials as the Citable backend, so it is not a way to connect to Citable's hosted service. For that, use Streamable HTTP with an API key, including from Claude Desktop through the `mcp-remote` bridge (see the [overview](/mcp/overview)).
+
+Brand and user come from environment variables:
 
 ```bash
 CITABLE_BRAND_ID=123
 CITABLE_USER_ID=456
 ```
 
-The user must be an active member of the brand. The check runs at connection time, so a misconfigured env throws immediately rather than failing later on a tool call.
+The process trusts these values. It does not check that the user is a member of the brand, and the session can read and write. Anyone who can start it already has direct access to the database, so a check inside it would not protect anything.
 
 ### Streamable HTTP (remote agents)
 
@@ -74,6 +78,7 @@ Create API keys in the Citable web app under **Settings → API Keys**. Each key
 - Belongs to one user (the creator) and one brand
 - Cannot be used to act on any other brand
 - Can be revoked anytime — revoked keys fail auth immediately
+- Stops working when its creator is removed from the brand or the brand is deleted
 - Records `last_used_at` on every successful call
 
 Rotate by creating a new key, updating your integration, and revoking the old one. Keys are shown once at creation time and never displayed again. Treat them like any other secret.
