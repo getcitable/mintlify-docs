@@ -1,15 +1,16 @@
 ---
 title: "get_content_performance"
-description: "Joins the brand's posted content against GA4 traffic — sessions, page views, unique users."
+description: "Lists the brand's posted content. GA4 traffic is not joined yet: traffic fields are null, never 0."
 ---
 
-Joins the brand's posted content (anything generated in Citable with a `posted_url`) against GA4 traffic. Returns each posted URL with its sessions, page views, and unique users over the selected window. If the brand has no Google Analytics connection, returns `hasGaConnection=false` plus a guidance note pointing to the Connectors page.
+Lists the brand's posted content (anything generated in Citable with a `posted_url`). GA4 traffic is **not joined** to these pages yet: `sessions`, `pageViews` and `users` are `null` and `trafficStatus` is `"not_joined"` for every brand, including brands with Google Analytics connected. `null` means unknown, not zero. `hasGaConnection` says whether GA4 is connected; when it is `false`, the note points to the Connectors page.
 
 ## When to use
 
-- "Which of my blogs is actually driving traffic?"
-- "What content has worked in the last 30 days?"
-- "Which LinkedIn posts drove the most clicks?"
+- "What content have we posted in the last 30 days?"
+- "Which posted URLs do we have to measure?"
+
+For traffic numbers, say they are not available through this tool yet rather than giving a number.
 
 Skip when the user wants AI visibility (use [`get_brand_visibility`](/mcp/reads/get-brand-visibility)) or the to-do list (use [`get_geo_priorities`](/mcp/reads/get-geo-priorities)).
 
@@ -18,15 +19,17 @@ Skip when the user wants AI visibility (use [`get_brand_visibility`](/mcp/reads/
 ```
 { windowDays,
   items: [{ contentId, title, platform, postedUrl, postedAt, pagePath,
-            sessions, pageViews, users }],
-  totals,
+            sessions: null, pageViews: null, users: null }],
+  totals: { totalContent, sessionsAttributed: null,
+            pageViewsAttributed: null, usersAttributed: null },
   hasGaConnection,
+  trafficStatus: "not_joined",
   note? }
 ```
 
 ## Example
 
-Calling with `{ windowDays: 30, limit: 10 }` returns the 10 most recently posted URLs with traffic joined where available.
+Calling with `{ windowDays: 30, limit: 10 }` returns the 10 most recently posted URLs, with traffic marked not joined.
 
 ## See also
 
