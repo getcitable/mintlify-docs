@@ -1,0 +1,69 @@
+---
+title: "get_search_console"
+description: "Google search demand from the brand's connected Search Console: queries and pages with Google impressions and clicks."
+---
+
+Returns **Google search demand** from the brand's connected Google Search Console: the Google search queries the brand's pages showed for, and the pages themselves, with `googleImpressions` (times shown in Google results), `googleClicks` and `googlePosition` (average rank, 1 = top). Read from the daily Search Console import, which covers a fixed window (usually the last 90 days, ending on the import day), returned as `windowStart` / `windowEnd`. Google's last 2–3 days are incomplete, so when checking against the Search Console UI, use exactly that window. The tool cannot pick another date range.
+
+This is Google search data only. It does not show what anyone asked ChatGPT, Gemini, Perplexity or any other AI assistant.
+
+## Views
+
+- `queries` (default): one row per Google search query, with Google's own total for it (Search Console UI: Performance → Queries). `page` is `null`.
+- `query_pages`: one row per query and page. A query's `query_pages` rows do **not** add up to its `queries` total, because Google counts per page. Never sum them.
+- `pages`: one row per page with its Google totals (Performance → Pages). A page row sums its URL variants (trailing slash, tracking parameters) and lists them in `urls`, so it can read above any single row in Search Console.
+
+Passing `pageContains` on `queries` returns `query_pages` rows, since per-query totals carry no page.
+
+## Tracked-question matches are our inference
+
+In the `queries` and `query_pages` views a row may carry `matchedTrackedQuestionId` / `matchedTrackedQuestionText` with `matchMethod: "inferred_word_overlap"`. That is Citable's inference, from shared words, that the Google search relates to one of the brand's tracked questions. It is not evidence that the tracked question was asked of an AI assistant. Tracked questions are the brand's question bank (the questions Citable scans).
+
+`matchStatus` says whether matching ran: `ok` (a null match is a real no-match), `unavailable` (the question bank could not be read, so rows are unmatched because Citable could not check), `skipped` (not attempted).
+
+## Status
+
+| `status` | Meaning |
+|---|---|
+| `not_connected` | The brand has no Search Console connection. Connect it on the Connectors page. |
+| `no_data_yet` | Connected, but the first import has not run yet. |
+| `unavailable` | Connected, but the stored data could not be read right now. Not zero. |
+| `ok` | Connected and imported. An empty list means nothing matched the filters. |
+
+`truncated: true` means the import hit its row cap, so some rows are missing. Do not read a missing row as zero.
+
+## When to use
+
+- "Which Google searches bring people to our pricing page?"
+- "Which pages get Google clicks?"
+- "Is there Google search demand around this tracked question?"
+
+Skip when the user wants AI visibility (use [`get_brand_visibility`](/mcp/reads/get-brand-visibility)) or the tracked questions themselves (use [`search_prompt_intelligence`](/mcp/reads/search-prompt-intelligence)).
+
+## Inputs
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `view` | `"queries" \| "query_pages" \| "pages"` | no | Defaults to `queries`. |
+| `pageContains` | `string` | no | Only rows whose page URL contains this text (case-insensitive). On `queries` this returns `query_pages` rows. |
+| `queryContains` | `string` | no | Only Google search queries containing this text. Not used on `pages`. |
+| `limit` | `integer` | no | Max rows, sorted by Google impressions. Defaults to 25, max 100. |
+| `matchTrackedQuestions` | `boolean` | no | Query views: add an inferred tracked-question match per row. Defaults to true. |
+
+## Response
+
+```
+{ source: "google_search_console", status, view,
+  windowStart, windowEnd, pulledAt, totalMatchingRows, truncated, matchStatus,
+  queries: [{ searchQuery, page /* null on queries */, googleImpressions, googleClicks, googlePosition,
+              matchedTrackedQuestionId, matchedTrackedQuestionText, matchMethod }],
+  pages: [{ page, urls, googleImpressions, googleClicks, googlePosition }] }
+```
+
+## Example
+
+Calling with `{ pageContains: "/pricing", limit: 10 }` returns the 10 `query_pages` rows with the most Google impressions on pricing pages. `{ queryContains: "citable" }` returns per-query totals for searches containing "citable".
+
+## See also
+
+- [Overview](/mcp/overview)

@@ -75,6 +75,7 @@
               "mcp/reads/get-action-with-children",
               "mcp/reads/get-attribution-report",
               "mcp/reads/get-content-performance",
+              "mcp/reads/get-search-console",
               "mcp/reads/get-paid-ads-insights",
               "mcp/reads/search-prompt-intelligence",
               "mcp/reads/list-brands",
