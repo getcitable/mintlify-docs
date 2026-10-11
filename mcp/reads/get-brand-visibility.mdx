@@ -11,7 +11,7 @@ Returns the brand's AI visibility summary from the AI assistants listed in `engi
 - `citationShare` is the share of all URLs cited in those AI answers that point to the brand's own website or profiles, all time.
 - `topCompetitors[].mentionShare` is each brand's share of all brand mentions in the last `windowDays`; the row with `isYourBrand` is this brand.
 - `topSources` and `personaCitationRates` cover the last `windowDays`.
-- `sentiment` covers the last `windowDays` and counts only answers that mention the brand.
+- `sentiment` covers the last `windowDays` and counts only answers that mention the brand. `sentiment.score` is the average of those answers' sentiment scores, each from -100 (negative) to +100 (positive); `positiveCount`, `negativeCount` and `neutralCount` split the same answers.
 - `trackedQuestions` is how many questions are tracked; `scanProgress` is set only while a scan is running.
 
 ## When to use
