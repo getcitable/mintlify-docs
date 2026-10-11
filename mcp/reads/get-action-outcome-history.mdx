@@ -25,7 +25,7 @@ Returns recent actions Citable has recorded for the brand, with their measured 3
 | Field | Type | Default | Meaning |
 |---|---|---|---|
 | `actionType` | `'content' \| 'outreach' \| 'technical' \| 'operational' \| 'paid'` | none | Filter by action category. |
-| `outcomeStatus` | `'pending' \| 'measured' \| 'inconclusive' \| 'failed'` | none | `pending` = still inside the 30-day window. `measured` = delta computed. |
+| `outcomeStatus` | `'pending' \| 'measured' \| 'inconclusive' \| 'failed' \| 'not_sent' \| 'not_posted'` | none | `pending` = still inside the 30-day window. `measured` = delta computed. `not_sent` = couldn't be carried out (e.g. the channel isn't connected). `not_posted` = never posted (no posted URL 30 days on, or the draft failed). |
 | `limit` | `int` (1–100) | `20` | Page size. |
 
 Brand id is resolved from auth.
@@ -61,5 +61,6 @@ Brand id is resolved from auth.
 ## Notes
 
 - **Outcome window is 30 days.** A row with `outcome_status: 'pending'` means the measurement window hasn't completed yet for that action. `outcome_resolved_at` is null until then.
+- **`not_sent` and `not_posted` never happened.** They're final, never counted as results, and kept in history (never deleted). `outcome_reason` says why. A `not_posted` action goes back to `pending` if a posted URL arrives later.
 - `delta_metrics` is only populated when `outcome_status === 'measured'`. For `'inconclusive'` or `'failed'` outcomes, inspect `measurement_metrics` and `baseline_metrics` directly.
 - Brand-scoped at the query layer. No cross-brand reads possible from any API key.
