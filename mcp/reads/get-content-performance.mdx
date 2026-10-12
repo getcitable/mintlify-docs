@@ -1,16 +1,27 @@
 ---
 title: "get_content_performance"
-description: "Lists the brand's posted content. GA4 traffic is not joined yet: traffic fields are null, never 0."
+description: "Posted content joined per page to GA4 traffic: sessions, page views and users. Unknown traffic is null, never 0."
 ---
 
-Lists the brand's posted content (anything generated in Citable with a `posted_url`). GA4 traffic is **not joined** to these pages yet: `sessions`, `pageViews` and `users` are `null` and `trafficStatus` is `"not_joined"` for every brand, including brands with Google Analytics connected. `null` means unknown, not zero. `hasGaConnection` says whether GA4 is connected; when it is `false`, the note points to the Connectors page.
+Lists the brand's posted content (anything generated in Citable with a `posted_url`) with GA4 traffic per page: `sessions`, `pageViews` and `users` (GA4 "Users", `activeUsers`) over the trailing window. `trafficWindow` gives the exact dates, in the GA4 property's time zone, matching GA4's own "Last N days" range, so the numbers can be checked against GA4's Pages report.
+
+## Traffic status
+
+A number is only ever a GA4 measurement. Each item has a `trafficStatus`:
+
+| `trafficStatus` | Meaning |
+|---|---|
+| `joined` | Read from GA4. `0` means GA4 recorded nothing for that page in the window. |
+| `not_on_site` | Posted on another site (e.g. LinkedIn), which the brand's GA4 cannot see. Traffic is `null`: unknown, not zero. |
+| `not_joined` | GA4 was not read: no connection, or the read failed (the `note` says which). Traffic is `null`. |
+
+The top-level `trafficStatus` is `joined` when GA4 was read. `totals` are de-duplicated by GA4 across the pages, so they are not the sum of the rows (a user who read two pages counts once), and they are `null` when nothing was measured. `hasGaConnection` says whether GA4 is connected; without it, the `note` points to the Connectors page.
 
 ## When to use
 
-- "What content have we posted in the last 30 days?"
-- "Which posted URLs do we have to measure?"
-
-For traffic numbers, say they are not available through this tool yet rather than giving a number.
+- "Which of my blogs is actually driving traffic?"
+- "What content has worked in the last 30 days?"
+- "How many sessions did the posts we published get?"
 
 Skip when the user wants AI visibility (use [`get_brand_visibility`](/mcp/reads/get-brand-visibility)) or the to-do list (use [`get_geo_priorities`](/mcp/reads/get-geo-priorities)).
 
@@ -19,17 +30,18 @@ Skip when the user wants AI visibility (use [`get_brand_visibility`](/mcp/reads/
 ```
 { windowDays,
   items: [{ contentId, title, platform, postedUrl, postedAt, pagePath,
-            sessions: null, pageViews: null, users: null }],
-  totals: { totalContent, sessionsAttributed: null,
-            pageViewsAttributed: null, usersAttributed: null },
+            sessions, pageViews, users, trafficStatus }],
+  totals: { totalContent, sessionsAttributed,
+            pageViewsAttributed, usersAttributed },
   hasGaConnection,
-  trafficStatus: "not_joined",
+  trafficStatus,
+  trafficWindow: { startDate, endDate, timeZone } | null,
   note? }
 ```
 
 ## Example
 
-Calling with `{ windowDays: 30, limit: 10 }` returns the 10 most recently posted URLs, with traffic marked not joined.
+Calling with `{ windowDays: 30, limit: 10 }` returns the 10 most recently posted URLs with their GA4 traffic over GA4's last 30 days.
 
 ## See also
 
