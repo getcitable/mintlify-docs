@@ -1,22 +1,22 @@
 ---
 title: "recommend_paid_ad_strategy"
-description: "Returns ranked coverage-gap recommendations for paid placement on AI engines."
+description: "Proposes one ChatGPT Ads campaign test for the brand, built around its tracked questions, and lists what to test next."
 ---
 
-Returns ranked coverage-gap recommendations for paid placement on AI engines (ChatGPT Ads today).
+Proposes one ChatGPT Ads campaign test for the brand, built around its tracked questions, and lists what to test next.
 
-## How it ranks
+## How it works
 
-- **Step A** — pull competitor keyword spend from Google Ads (optional input).
-- **Step B** — surface non-branded prompts where the brand's share of voice is below threshold.
-- **Step C** — double signal: prompts with BOTH competitor spend AND a Citable visibility gap surface first.
-- **Step D** — return ad-group seeds with recommended context hints.
+- **Groups:** the brand's active, non-branded tracked questions, grouped by persona and buying stage (consideration and decision only, the same unit a campaign test runs on). Other stages are left out and counted.
+- **Share of voice per group:** the % of that group's answers (in the window, for the chosen engine) that mention the brand. A group with fewer than 20 answers is listed as "too few answers yet", never as 0%, and is never ranked.
+- **One recommended test:** the measured group with the largest gap (groups need at least 20 answers to be ranked; ties go first to groups whose questions competitors already pay for (when competitor keywords are provided), then to more answers, then more questions), at the campaign-test default of $25/day for 7 days, stated as a starting point, not a forecast. Other groups are listed as "next" with no budget.
+- **Ad groups:** each is built around one tracked question (up to 5 per test); its context hint is that question.
+- **Competitor keywords** (optional, e.g. a Google Ads export) feed that first tie-break.
 
 ## When to use
 
 - "Where should I spend on ChatGPT Ads?"
-- "Recommend a paid-ads strategy."
-- "What prompts am I losing to competitors that they're already paying for?"
+- "What ChatGPT Ads test should I run first?"
 
 ## See also
 
