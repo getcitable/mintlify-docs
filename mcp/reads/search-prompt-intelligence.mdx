@@ -3,7 +3,7 @@ title: "search_prompt_intelligence"
 description: "Semantic search over the brand's tracked prompts."
 ---
 
-Semantic search over the brand's tracked prompts. Returns matching prompts with funnel stage (TOFU/MOFU/BOFU), strategic value, topic cluster, brand scope, persona match, platforms tracked (ChatGPT/Gemini/Claude/Perplexity/Grok), and latest visibility, citation, and sentiment scores.
+Semantic search over the brand's tracked prompts. Returns matching prompts with journey stage (awareness_discovery / consideration_evaluation / purchase_intent / support_usage), strategic value, topic cluster, brand scope, persona match, platforms tracked (ChatGPT/Gemini/Claude/Perplexity/Grok), and latest visibility, citation, and sentiment scores. Many recent prompts have no stage yet, so a stage-filtered list is not the whole set.
 
 ## When to use
 
@@ -25,7 +25,7 @@ Skip when the user wants a summary (use [`get_brand_visibility`](/mcp/reads/get-
 
 ## Example
 
-Calling with `{ query: "AI marketing automation", funnelStage: "MOFU", limit: 10 }` returns up to 10 MOFU prompts semantically matching "AI marketing automation".
+Calling with `{ query: "AI marketing automation", funnelStage: "consideration_evaluation", limit: 10 }` returns up to 10 consideration_evaluation prompts semantically matching "AI marketing automation".
 
 ## See also
 
