@@ -80,6 +80,7 @@
               "mcp/reads/search-prompt-intelligence",
               "mcp/reads/list-brands",
               "mcp/reads/list-content",
+              "mcp/reads/list-open-items",
               "mcp/reads/list-replies",
               "mcp/reads/suggest-broadcast"
             ]
