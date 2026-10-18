@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Citable",
-  "description": "Citable is the campaign management platform for D2C brands winning AI-assisted shoppers. It plans campaigns around the questions AI answers, shows where AI recommends competitors instead of you, and tracks AI-referred orders. Documentation for the product and the MCP API.",
+  "description": "Citable is the campaign management platform for brands winning AI-assisted shoppers. It plans campaigns around the questions AI answers, shows where AI recommends competitors instead of you, and, for stores that connect Shopify or GA4, tracks AI-referred orders.",
   "colors": {
     "primary": "#0f172a",
     "light": "#3b82f6",
