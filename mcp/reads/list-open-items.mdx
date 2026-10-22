@@ -1,0 +1,40 @@
+---
+title: "list_open_items"
+description: "Lists what on the brand is waiting on a person: scheduled posts not yet posted, open tickets with a due date, and product-page changes awaiting a decision."
+---
+
+Lists what on the brand is waiting on a person: posts scheduled but not posted, open Action Engine tickets with a due date, and product-page changes waiting for a decision. Read-only.
+
+It is the same list the Action Engine badge and the weekly email read, so an agent sending reminders can't disagree with them. It is computed from the source records on every call: a post marked posted or a ticket closed drops off at once.
+
+## Inputs
+
+| Field | Type | Meaning |
+|---|---|---|
+| `overdue_only` | boolean, optional | Only items past their due date. |
+| `owner_user_id` | integer, optional | Only items waiting on this user. |
+| `include_dismissed` | boolean, optional | Include items someone dismissed. Default `false`. |
+
+## What comes back
+
+A one-line count (`3 open items, 1 overdue.`), then one line per item, plus the same data as structured content: `total`, `overdue`, and `items`. Each item has:
+
+- `title` and `link`, the page where the item gets done.
+- `sourceType` (`content`, `ticket` or `pdp_run`) and `sourceId`.
+- `status`: `open` or `overdue`.
+- `dueAt` and `ownerUserId` (null when nobody owns it).
+- `dismissed`.
+
+## When to use
+
+- You send reminders for the team: one message or one calendar block listing everything overdue, never one per item.
+- The user asks "what's waiting on me?" or "what's overdue?".
+
+## When not to use
+
+- The user wants every content row, not only the ones waiting on someone: use [`list_content`](/mcp/reads/list-content).
+- The user wants one ticket with its drafts: use [`get_action_with_children`](/mcp/reads/get-action-with-children).
+
+## See also
+
+- [Overview](/mcp/overview)
