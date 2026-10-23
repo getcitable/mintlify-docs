@@ -46,8 +46,16 @@ The current namespace is `v1`. Within v1, the contract grows additively — new 
 Once you have an API key from **Settings → API Keys** in the Citable web app:
 
 ```bash
-export CITABLE_MCP_URL="https://api.getcitable.com/mcp"
+export CITABLE_MCP_URL="https://app.getcitable.com/mcp/v1"
 export CITABLE_API_KEY="..."
+```
+
+Point an HTTP-transport MCP client straight at that URL with the key as a
+bearer token. For Claude Code:
+
+```bash
+claude mcp add --transport http citable https://app.getcitable.com/mcp/v1 \
+  --header "Authorization: Bearer $CITABLE_API_KEY"
 ```
 
 Or for stdio with Claude Desktop, add to your Claude Desktop config:
