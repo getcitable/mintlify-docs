@@ -34,6 +34,7 @@ For assistants that don't support OAuth, open **Citable MCP › API keys** in Ci
 - 60 requests per minute per connection.
 - The data a connection returns reflects the AI assistants your Citable plan tracks.
 
+
 ## Tools
 
 Generated from the server's tool registry.
@@ -49,7 +50,7 @@ Generated from the server's tool registry.
 | [`get_brand_visibility`](/mcp/reads/get-brand-visibility) | Returns the brand's AI visibility summary from the AI assistants listed in `engines`, each with the date of its last answer. | Read only |
 | [`get_content_body`](/mcp/reads/get-content-body) | Returns the full body text of one content item, plus its title, SEO metadata, and status. | Read only |
 | [`get_content_performance`](/mcp/reads/get-content-performance) | Lists the brand's posted content (anything generated in Citable with a posted_url) with GA4 traffic per page: sessions, pageViews and users (GA4 \"Users\", activeUsers) over the t... | Read only |
-| [`get_geo_priorities`](/mcp/reads/get-geo-priorities) | Returns the brand's top-priority GEO (Generative Engine Optimization) tickets from the Citable Action Engine, ordered by time_group (today → this-week → next-week → backlog). | Read only |
+| [`get_geo_priorities`](/mcp/reads/get-geo-priorities) | Returns the brand's top-priority AI visibility tickets from the Citable Action Engine, ordered by time_group (today → this-week → next-week → backlog). | Read only |
 | [`get_paid_ads_insights`](/mcp/reads/get-paid-ads-insights) | Returns the 4-card funnel (Citation Rate, Mention Rate, Average Rank, Sentiment) plus paid metrics (impressions, clicks, spend, CPC, CTR) for the brand's paid placements on AI e... | Read only |
 | [`get_pdp_publish_readiness`](/mcp/reads/get-pdp-publish-readiness) | Checks whether this brand can publish PDP changes to live Shopify right now (connection, write scopes, SHOPIFY_LIVE_WRITE_ENABLED). | Read only |
 | [`get_pdp_run`](/mcp/reads/get-pdp-run) | Returns one PDP optimization run and its change proposals (diffs, decisions, write status). | Read only |
@@ -64,7 +65,7 @@ Generated from the server's tool registry.
 | [`ping`](/mcp/reads/ping) | Health check — returns the Citable MCP server identity and the resolved brand/user context. | Read only |
 | [`plan_question_bank`](/mcp/reads/plan-question-bank) | Call this first when the user wants to plan, rebuild, or expand the questions Citable tracks in AI search — or to see how many slots they have left. | Read only |
 | [`recommend_paid_ad_strategy`](/mcp/reads/recommend-paid-ad-strategy) | Proposes one ChatGPT Ads campaign test for the brand, built around its tracked questions, and lists what to test next. | Read only |
-| [`score_content`](/mcp/reads/score-content) | Scores a piece of content for GEO (how likely AI answer engines — ChatGPT, Perplexity, Google AI Overviews — are to CITE it) and returns an explainable, channel-aware breakdown ... | Read only |
+| [`score_content`](/mcp/reads/score-content) | Scores a piece of content for how well it's set up to be cited in AI answers, and returns an explainable, channel-aware breakdown so you can fix it before shipping. | Read only |
 | [`search_prompt_intelligence`](/mcp/reads/search-prompt-intelligence) | Semantic search over the brand's tracked prompts in Citable's Prompt Intelligence system. | Read only |
 | [`suggest_broadcast`](/mcp/reads/suggest-broadcast) | Suggests other platforms where the brand could broadcast a piece of existing content. | Read only |
 | [`approve_ticket`](/mcp/writes/approve-ticket) | Marks a Citable GEO ticket as done. | Read, write and spend |
@@ -77,7 +78,7 @@ Generated from the server's tool registry.
 | [`emit_content`](/mcp/writes/emit-content) | Emit a piece of content for the brand: validates it against the target persona's guardrails, saves a draft at status='queued', and records the action so its citation / share-of-... | Drafts for my approval |
 | [`emit_operational`](/mcp/writes/emit-operational) | Emit an operational recommendation (config / setup change): records the action and adds a recommendation card to the Action Engine for review. | Drafts for my approval |
 | [`emit_outreach`](/mcp/writes/emit-outreach) | Emit an outreach action: validates it against the persona's guardrails, creates/updates the outreach reply, and records the action for later outcome measurement. | Read, write and spend |
-| [`emit_paid`](/mcp/writes/emit-paid) | Emit a paid ad on an AI surface (ChatGPT Ads today; Perplexity / Gemini / Grok / Copilot when those engines become available). | Read, write and spend |
+| [`emit_paid`](/mcp/writes/emit-paid) | Emit a paid ad on ChatGPT Ads. | Read, write and spend |
 | [`emit_technical`](/mcp/writes/emit-technical) | Emit a technical recommendation against a specific URL: adds a recommendation card to the brand's Action Engine and records the action for outcome measurement over time. | Drafts for my approval |
 | [`import_prompts`](/mcp/writes/import-prompts) | Import tracked questions into the brand's question bank (additive — never modifies or removes existing questions). | Read, write and spend |
 | [`ingest_conversation`](/mcp/writes/ingest-conversation) | Pushes a conversation summary + extracted facts into the user's Citable brand knowledge base. | Read, write and spend |
@@ -90,4 +91,4 @@ Generated from the server's tool registry.
 | [`schedule_content`](/mcp/writes/schedule-content) | Schedules a content draft onto the content calendar by setting scheduled_for, OR clears the schedule (when scheduled_for is null) to take it off the calendar. | Read, write and spend |
 | [`schedule_reply`](/mcp/writes/schedule-reply) | Schedules a social reply onto the content calendar by setting scheduled_for, OR clears the schedule (when scheduled_for is null) to take it off the calendar. | Read, write and spend |
 | [`start_pdp_optimization`](/mcp/writes/start-pdp-optimization) | Proposes field-level changes to this brand's Shopify product pages (PDPs) for a person to approve. | Drafts for my approval |
-| [`update_reply`](/mcp/writes/update-reply) | Updates a draft social-listening reply (Reddit, Hacker News, future Twitter/LinkedIn). | Read, write and spend |
+| [`update_reply`](/mcp/writes/update-reply) | Updates a draft social-listening reply (Reddit, Hacker News). | Read, write and spend |
