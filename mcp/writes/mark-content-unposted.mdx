@@ -1,0 +1,28 @@
+---
+title: "mark_content_unposted"
+sidebarTitle: "mark_content_unposted"
+description: "Records that posted content has been taken down: sets status='taken_down' and unposted_at, and keeps posted_url and posted_at so the history survives."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Records that posted content has been taken down: sets status='taken_down' and unposted_at, and keeps posted_url and posted_at so the history survives. This is a RECORDING; Citable does not remove anything from the platform itself.
+
+For BLOG content it also submits the URL to IndexNow, so search engines drop it sooner.
+
+Use this when:
+- The content was live (mark_content_posted was called) and has now been removed, and its URL no longer resolves.
+
+Skip when:
+- The content was never marked posted. That's an error.
+- The page is still live. Remove it first, then record it.
+
+Idempotent: re-calling keeps the first unposted_at. Calling mark_content_posted again later (a re-publish) clears it.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `content_id` | `integer` | yes | — | ID of the content row. |

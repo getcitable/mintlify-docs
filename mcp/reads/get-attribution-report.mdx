@@ -1,23 +1,33 @@
 ---
 title: "get_attribution_report"
-description: "Returns AI-citation attribution for posted content — lifetime, recent-window, and weekly trajectory."
+sidebarTitle: "get_attribution_report"
+description: "Returns AI-citation attribution for posted content."
 ---
 
-Returns AI-citation attribution for posted content. Computed from nightly per-(content, prompt, day) snapshots so prompt-run frequency cannot drown out actual signal. Three signals per post: lifetime sums (citing runs / prompt runs since posted), recent rate within the window (default 14d), and a weekly trajectory series for sparklines. Also returns per-platform breakdowns and the top prompts driving citations.
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
 
-## When to use
+Returns AI-citation attribution for posted content. Computed from nightly snapshots and normalized, so frequently-run prompts don't drown out the signal. Three signals per post: lifetime totals, recent counts within the window (default 14d), and a weekly trajectory series for sparklines. Lifetime totals since posted: citing_runs = answers that cited the post; brand_answers = the brand's answers across all its tracked questions. Also returns per-platform breakdowns and the top prompts driving citations.
 
+Use this when the user asks:
 - "What's working — which posts drive AI citations?"
-- "Is my citation rate trending up?"
+- "Are my posts getting cited more over time?"
 - "Which prompts is this LinkedIn post showing up on?"
 - "How does this blog compare to that one for AI visibility?"
 
-Skip when the user wants GA4 web traffic for posted pages (use [`get_content_performance`](/mcp/reads/get-content-performance)) or AI visibility across the brand at large (use [`get_brand_visibility`](/mcp/reads/get-brand-visibility)).
+Skip when the user wants GA4 web traffic for posted pages (use get_content_performance) or AI visibility across the brand at large (use get_brand_visibility).
+
+Engines: each post has per-engine figures in platforms.lifetime and platforms.recent (keys: chatgpt, google_aio, perplexity, gemini, claude, grok; only engines the brand is scanned on). citing = answers that cited the post; brand_answers = every answer to every question the brand tracks on that engine, not only this post's questions. So quote answer counts per engine ("cited in 12 Google AI Overviews answers since \<platforms.lifetime[k].since>"), never a rate or a fraction: against that base a cited post looks like it is failing.
+
+Recent window: recent.window_days days ending at recent.window_end, the newest day the nightly job has counted (it never counts today, so this lags by a day or two). In platforms.recent, an engine with brand_answers 0 did not run in the window: citing is null and checked is false. Say it wasn't checked, never that it cited the post 0 times. When recent.days_with_data is 0, recent.citing_runs is null: nothing was counted for this post in the window. Say it wasn't checked, never that it wasn't cited. recent.days_with_data is how many of those days have data for the post; when it is lower than window_days, say so ("cited in 3 answers in the 14 days to 2026-10-16, 9 of them with data").
+
+Pass content_id to narrow to a single posted content row. Omit for the brand-wide top 200 most recent posts. The response includes posts with no snapshots yet (zero baseline) so the caller can render an empty state without a second round-trip.
 
 ## Inputs
 
-Pass `content_id` to narrow to a single posted content row. Omit for the brand-wide top 200 most recent posts. The response includes posts with no snapshots yet (zero baseline) so the caller can render an empty state without a second round-trip.
-
-## See also
-
-- [Overview](/mcp/overview)
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `content_id` | `integer` | no | — | Limit report to a single posted content row. Omit for brand-wide. |
+| `rate_window` | `'7d' \| '14d' \| '30d'` | no | — | Window for the recent counts. Default 14d. |
+| `trajectory_weeks` | `integer` | no | — | Weeks of trajectory data to return. Default 8 weeks. |

@@ -1,0 +1,30 @@
+---
+title: "complete_ae_project_ticket"
+sidebarTitle: "complete_ae_project_ticket"
+description: "Sets the status of a ticket that belongs to an Action Engine project."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Sets the status of a ticket that belongs to an Action Engine project. Accepts todo, in_progress, or done.
+
+Get ticketId from get_ae_project — the id is only served once the project is live.
+
+Why this matters beyond a checkbox: marking a HUMAN-executor ticket done records the measurement SPOKE on the project's ledger hub, which is what makes the project's outcome delta mean anything. Agent-executed tickets do not emit a spoke, and re-submitting "done" on an already-done ticket does not double-count. Project progress is recomputed on every call.
+
+Only tickets on a LIVE project accept changes — project status must be one of launched, measuring. Note this is STRICTER than ticket visibility (launched, measuring, done): a completed project's tickets are a readable record but a frozen one, and a call against one returns project_not_live. That is the rule, not a bug — do not retry.
+
+Requires an API key with the "write" scope.
+
+Response shape: \{ ticket: \{ id, status, executor, projectId \}, progress, spokeLedgerId \}. spokeLedgerId is null whenever no spoke was recorded (agent ticket, no ledger hub, or not a fresh transition into done).
+
+Skip when: the ticket is a legacy standalone GEO ticket (use approve_ticket / dismiss_ticket), or the user wants to approve/launch the PROJECT itself — that gate lives in the Citable web UI.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `ticketId` | `integer` | yes | — | Ticket id from get_ae_project (only served once the project is live). |
+| `status` | `'todo' \| 'in_progress' \| 'done'` | yes | — | New ticket status. "done" on a human ticket records the measurement spoke. |

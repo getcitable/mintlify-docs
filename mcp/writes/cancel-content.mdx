@@ -1,0 +1,28 @@
+---
+title: "cancel_content"
+sidebarTitle: "cancel_content"
+description: "Cancels a content draft: sets its status to cancelled, so it leaves the drafts backlog and the calendar."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Cancels a content draft: sets its status to cancelled, so it leaves the drafts backlog and the calendar. Never deletes and never publishes; the draft stays in list_content with status cancelled.
+
+Only a draft made by the same person's AI connection that hasn't been posted or approved can be cancelled; otherwise nothing changes. Scheduled drafts can't be cancelled here.
+
+Each cancel counts toward the same daily limit as drafting (50 a day on a drafts-only connection).
+
+Use this when:
+- An older version of a draft is still queued. For a new version, create_content_draft with supersedes_id cancels the old one in the same step.
+- The person says a draft is no longer wanted.
+
+Skip when:
+- The content was posted and later removed: use mark_content_unposted.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `content_id` | `integer` | yes | — | ID of the draft to cancel. |

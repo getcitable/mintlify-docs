@@ -1,31 +1,24 @@
 ---
 title: "list_brands"
+sidebarTitle: "list_brands"
 description: "Returns the one brand this call is authorized for."
 ---
 
-Returns the one brand this call is authorized for.
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
 
-## When to use
+Returns the one brand this call is authorized for. Use this when:
 
 - You need to verify which brand the key resolved to before acting (e.g. an autonomous agent's preflight check).
-- `get_brand_context` returned something unexpected (wrong plan tier, wrong workspace) and you want the authoritative id and slug.
+- get_brand_context returned something unexpected (wrong planTier, wrong workspace) and you want the authoritative id/slug.
 
-To operate on a different brand, create an API key under that brand in Citable (Settings → API keys), update the MCP config with it, and reconnect. Keys never grant access beyond their minted brand.
+Read-only. To operate on a different brand, create an API key under that brand in Citable (Settings → API keys), update the MCP config with it, and reconnect — keys never grant access beyond their minted brand.
 
-## Read-only behavior
+Response shape: \{ brands: [\{ id, name, slug, planTier, planName, role, websiteUrl \}], activeBrandId \}. `activeBrandId` echoes the brand resolved by the auth context; an empty brands array means the key owner's membership on that brand has lapsed. `planTier` is the internal plan key; show the user `planName` (e.g. "Optimize") instead. `planName` is null for a workspace billed through a service provider, which is not shown a plan name.
 
-Read-only. Does not change the active brand — the auth context is fixed for the session at connection time. To actually retarget writes to a different brand, update your MCP config (`CITABLE_BRAND_ID` env var for stdio, or regenerate the API key under the target brand for HTTP) and reconnect.
+Takes no arguments — resolved entirely from the auth context.
 
-## Response
+## Inputs
 
-```
-{ brands: [{ id, name, slug, planTier, planName, role, websiteUrl }], activeBrandId }
-```
-
-`activeBrandId` echoes the brand currently resolved by the auth context, so the caller can spot the active row.
-
-Takes no arguments — user resolved from the auth context.
-
-## See also
-
-- [Overview](/mcp/overview)
+_No inputs — call with an empty argument object._

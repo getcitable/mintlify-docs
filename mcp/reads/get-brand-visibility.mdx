@@ -1,49 +1,38 @@
 ---
 title: "get_brand_visibility"
-description: "Returns the brand's AI visibility summary from the AI assistants listed in engines, each with the date of its last answer."
+sidebarTitle: "get_brand_visibility"
+description: "Returns the brand's AI visibility summary from the AI assistants listed in `engines`, each with the date of its last answer."
 ---
 
-Returns the brand's AI visibility summary from the AI assistants listed in `engines`, each with the date of its last answer. Includes brand visibility, citation share, sentiment, top 5 competitors, top 5 cited sources, and per-persona citation rates. Optionally filter `personaCitationRates` to a single persona.
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
 
-## What the numbers mean
+Returns the brand's AI visibility summary from the AI assistants listed in `engines`, each with the date of its last answer. Includes brand visibility %, citation share, sentiment, top 5 competitors, top 5 cited sources, and per-persona citation rates. Optionally filter personaCitationRates to a single persona.
 
-- `brandVisibility`, `citationShare` and `avgBrandRank` are **all time**: `brandVisibility` is the share of all `answersAnalyzed` AI answers that mention the brand. `windowDays` does not apply to them yet.
-- `citationShare` is the share of all URLs cited in those AI answers that point to the brand's own website or profiles, all time.
-- `topCompetitors[].mentionShare` is each brand's share of all brand mentions in the last `windowDays`; the row with `isYourBrand` is this brand.
-- `topSources` and `personaCitationRates` cover the last `windowDays`.
-- `sentiment` covers the last `windowDays` and counts only answers that mention the brand. `sentiment.score` is the average of those answers' sentiment scores, each from -100 (negative) to +100 (positive); `positiveCount`, `negativeCount` and `neutralCount` split the same answers.
-- `trackedQuestions` is how many questions are tracked; `scanProgress` is set only while a scan is running.
+What the numbers mean:
+- brandVisibility, citationShare and avgBrandRank are ALL TIME: brandVisibility is the share of all `answersAnalyzed` AI answers that mention the brand. windowDays does not apply to them yet.
+- citationShare is the share of all URLs cited in those AI answers that point to the brand's own website or profiles, all time.
+- topCompetitors[].mentionShare is each brand's share of all brand mentions in the last windowDays; the row with isYourBrand is this brand.
+- topSources and personaCitationRates cover the last windowDays.
+- sentiment covers the last windowDays and counts only answers that mention the brand. sentiment.score is the average of those answers' sentiment scores, each from -100 (negative) to +100 (positive); positiveCount, negativeCount and neutralCount split the same answers.
+- trackedQuestions is how many questions are tracked; scanProgress is set only while a scan is running.
 
-## When to use
-
-- "How visible am I across AI engines?"
-- "Am I winning the AI search war?"
-- "Which competitors are beating me?"
+Use this when the user asks:
+- "How visible am I across AI systems?"
+- "Am I winning the GEO war?"
+- "What competitors are beating me?"
 - "How does persona X see my brand?"
 
-Skip when the user wants the to-do list (use `get_geo_priorities`) or full brand identity (use `get_brand_context`).
+Skip when the user wants the to-do list (use get_geo_priorities) or full brand identity (use get_brand_context).
+
+Response shape: \{ windowDays, brandVisibility, citationShare, avgBrandRank, trackedQuestions, answersAnalyzed, engines[\{ code, name, lastResultAt \}], scanProgress, sentiment, topCompetitors[], topSources[], personaCitationRates[], lastAnalysisAt \}. Deprecated, kept for existing readers: totalPrompts and completedPrompts (now the tracked-question count, or scan progress while a scan runs) and topCompetitors[].visibility (same as mentionShare).
+
+Example: calling with \{ windowDays: 7, persona: "SMB founder" \} narrows the persona section to matches of "SMB founder" (case-insensitive).
 
 ## Inputs
 
-| Field | Type | Default | Meaning |
-|---|---|---|---|
-| `windowDays` | `int` | `30` | Window for competitors, sources, personas and sentiment. The all-time headline ignores it. |
-| `persona` | `string` | none | Filter `personaCitationRates` to a single persona name (case-insensitive). |
-
-## Response
-
-```
-{ windowDays, brandVisibility, citationShare, avgBrandRank, trackedQuestions,
-  answersAnalyzed, engines[] { code, name, lastResultAt }, scanProgress, sentiment, topCompetitors[],
-  topSources[], personaCitationRates[], lastAnalysisAt }
-```
-
-**Deprecated** (kept for existing readers, to be removed once no outside key calls this tool for 30 days): `totalPrompts` and `completedPrompts` (now the tracked-question count, or scan progress while a scan runs) and `topCompetitors[].visibility` (same as `mentionShare`).
-
-## Example
-
-Calling with `{ windowDays: 7, persona: "SMB founder" }` narrows the persona section to matches of "SMB founder".
-
-## See also
-
-- [Overview](/mcp/overview)
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `windowDays` | `integer` | no | — | How many days back to compute the summary. Defaults to 30. |
+| `persona` | `string` | no | — | Filter personaCitationRates to this persona name (case-insensitive match). |

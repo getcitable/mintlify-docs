@@ -1,0 +1,24 @@
+---
+title: "get_pdp_run"
+sidebarTitle: "get_pdp_run"
+description: "Returns one PDP optimization run and its change proposals (diffs, decisions, write status)."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Returns one PDP optimization run and its change proposals (diffs, decisions, write status).
+
+Pass run_id OR shopify_product_id (latest run for that SKU). Use after start_pdp_optimization, or when the user asks about a product page's proposed changes.
+
+baseline_snapshot is included on the run — that is the immutable pre-publish state used for revert.
+
+Skip when: no run exists yet (start_pdp_optimization first).
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `run_id` | `integer` | no | — | PDP run id. |
+| `shopify_product_id` | `integer` | no | — | Shopify product id — returns the latest run for that SKU. |

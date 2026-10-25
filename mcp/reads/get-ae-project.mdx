@@ -1,0 +1,29 @@
+---
+title: "get_ae_project"
+sidebarTitle: "get_ae_project"
+description: "Returns ONE Action Engine project: its goal, verifiable metrics, evidence, and — when the project is live — its ticket list."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Returns ONE Action Engine project: its goal, verifiable metrics, evidence, and — when the project is live — its ticket list.
+
+Call this FIRST whenever the user references a project by number ("project #12", "what's in the Q3 campaign"). Never answer about a specific project from the get_ae_projects summary alone; the goal, metrics, planned work, and ticket ids are only here.
+
+THE VISIBILITY RULE: ticket rows come back only when project status is one of launched, measuring, done. On a proposed or approved project the response carries ticketsVisible: false and an EMPTY tickets array — this is the product working as designed, not missing data, and not a permission error. Say so plainly, name the status, and point at evidence.planned_work, which holds the human-readable draft plan for exactly this case.
+
+Response shape: \{ id, name, initiativeKey, status, health, progress, goalStatement, metrics, evidence, targetDate, approvedAt, launchedAt, completedAt, ticketRollup, ticketsVisible, ticketsHiddenReason, tickets: [\{ id, code, displaySeq, shopifyProductId, title, executor, status, description \}] \}.
+
+"code" is the Linear-style ticket code the user sees in the UI (GEO-078) — quote it when naming a ticket. "shopifyProductId" is set when the ticket IS a product page (the product-page project materialises one ticket per top seller), so a page's optimization run, its ticket and its code all name the same SKU.
+
+Ticket ids from this call are what complete_ae_project_ticket takes.
+
+Skip when: the user wants the whole portfolio (get_ae_projects), or a legacy standalone GEO ticket (get_geo_priorities).
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `projectId` | `integer` | yes | — | Project id, as returned by get_ae_projects (the "#N" in the UI). |

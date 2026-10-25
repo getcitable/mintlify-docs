@@ -1,0 +1,31 @@
+---
+title: "next_actions"
+sidebarTitle: "next_actions"
+description: "Returns what to work on next for this brand: the open gaps (questions buyers are likely to ask where AI assistants don't name the brand yet, with the questions' ids and text), t..."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Returns what to work on next for this brand: the open gaps (questions buyers are likely to ask where AI assistants don't name the brand yet, with the questions' ids and text), the tickets on launched campaigns that are waiting for the agent's draft, and recent Reddit threads waiting for a reply. Also returns approve_url, where a person approves drafts in Citable.
+
+There is no tool to draft a Reddit reply yet: write the reply text in your answer for a person to paste and post.
+
+If cards_stale is true, the gaps are out of date or missing: say so, and don't invent gaps or questions. If a ticket has targets_missing, say it has no target questions recorded, and don't invent them.
+
+latest_loop_run is the last weekly loop run, or the last day a person's AI drafted through this connection (when, scheduled or from a chat, ok or failed, what it created, its summary). Say what it made before starting a new one. If it failed, say so and offer to run it now. Don't read out the error.
+
+A ticket may carry not_now: a person's reason for skipping it. Respect it.
+
+Each gap has evidence: ai_answers means it comes from our own tests of AI assistants, comes first (brand never named first), and carries facts with the counts (answers, engines, brand_named, competitors named instead, cited URLs) to quote as they are, never to recount; search_console means it comes from Google search demand.
+
+The other gaps come best value for effort first (effort_to_impact, 1–5, higher is better).
+
+Use target question ids from here when you draft (create_content_draft, emit_content, emit_technical, emit_operational).
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `limit` | `integer` | no | — | Most gaps and most tickets to return. Default 5. |

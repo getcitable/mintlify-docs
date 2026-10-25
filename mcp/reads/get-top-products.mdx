@@ -1,0 +1,29 @@
+---
+title: "get_top_products"
+sidebarTitle: "get_top_products"
+description: "Returns the brand's best-selling Shopify products, ranked by units sold and filtered to real merchandise (excludes non-product line items like shipping insurance)."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Returns the brand's best-selling Shopify products, ranked by units sold and filtered to real merchandise (excludes non-product line items like shipping insurance).
+
+Use this when the user asks:
+- "What are my top 5 products?"
+- "What's selling the most right now?"
+- "Which SKUs should I feature / optimize?"
+
+Falls back to all-time sales when the requested recent window has no orders — check `ordersAreStale` in the response to know which period was actually used.
+
+Response shape: \{ products: [...], windowDays, ordersAreStale \}. Each product has title, sku, productType, status, units, revenue, price, url.
+
+Example: calling with \{ limit: 5 \} returns the five best-selling products over the last 30 days (or all-time, if nothing sold in the last 30 days).
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `limit` | `integer` | no | — | Max number of products to return. Defaults to 10, max 50. |
+| `windowDays` | `integer` | no | — | Trailing days of orders to rank over. Defaults to 30. Falls back to all-time automatically when the recent window has no orders. |

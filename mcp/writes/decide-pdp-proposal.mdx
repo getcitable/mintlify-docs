@@ -1,0 +1,28 @@
+---
+title: "decide_pdp_proposal"
+sidebarTitle: "decide_pdp_proposal"
+description: "Approves, rejects, or resets ONE PDP change proposal."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Approves, rejects, or resets ONE PDP change proposal. Item-by-item only — there is no approve-all.
+
+Input:
+- proposal_id (required) — from get_pdp_run.
+- decision (required) — approved | rejected | pending (pending undoes a prior decision).
+- final_value (optional) — operator edit; only valid with decision=approved. Writer uses COALESCE(final_value, after_value).
+
+Decisions lock once a proposal has been handed to the Shopify writer (write_status != not_attempted).
+
+Requires write scope. Does NOT publish to Shopify — use publish_pdp_changes after approvals.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `proposal_id` | `integer` | yes | — | Proposal id from get_pdp_run. |
+| `decision` | `'approved' \| 'rejected' \| 'pending'` | yes | — | approved \| rejected \| pending (undo). |
+| `final_value` | `string` | no | — | Optional operator edit; only with decision=approved. |

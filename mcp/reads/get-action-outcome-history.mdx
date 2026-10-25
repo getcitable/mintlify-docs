@@ -1,66 +1,34 @@
 ---
 title: "get_action_outcome_history"
-description: "Returns recent actions recorded for the brand with their measured 30-day outcome deltas where the measurement window has resolved."
+sidebarTitle: "get_action_outcome_history"
+description: "Returns recent Citable-emitted actions for the brand, with their measured outcome deltas where the measurement window has resolved."
 ---
 
-## What it does
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
 
-Returns recent actions Citable has recorded for the brand, with their measured 30-day outcome deltas. This is the canonical "what did we do, and what happened next" history — the foundation for measuring whether actions actually move citation rate and share of voice over time.
+Returns recent Citable-emitted actions for the brand, with their measured outcome deltas where the measurement window has resolved. This is the canonical history of "what did Citable do, and what happened next."
 
-## When to use
-
+Use this when the user asks:
 - "What did Citable do for me last month?"
 - "Which actions actually moved citations?"
 - "Show me the best-performing content actions."
 - "What's still measuring (pending outcomes)?"
 
-## When not to use
+Skip when the user wants live recommendations (use get_geo_priorities) or current visibility metrics (use get_topical_authority / get_paid_ads_insights).
 
-- The user wants live recommendations — use [`get_geo_priorities`](/mcp/reads/get-geo-priorities).
-- The user wants current visibility metrics — use [`get_topical_authority`](/mcp/reads/get-topical-authority) or [`get_paid_ads_insights`](/mcp/reads/get-paid-ads-insights).
-- The user wants a single action's tree of child artifacts — use [`get_action_with_children`](/mcp/reads/get-action-with-children).
+Inputs:
+- actionType (optional): filter by 'content' / 'outreach' / 'technical' / 'operational' / 'paid'
+- outcomeStatus (optional): filter by 'pending' (still measuring) / 'measured' (delta computed) / 'inconclusive' / 'failed' / 'not_sent' (couldn't be carried out, e.g. a channel isn't connected) / 'not_posted' (never posted: no posted URL 30 days on, or the draft failed). not_sent and not_posted are final and never count as results; outcomeReason says why.
+- limit (default 20, max 100)
+
+Response: \{ rows: [...], totalReturned, status, meta \}. Each row has id, actionType, actionSubtype, emittedAt, executedAt, postedUrl, outcomeStatus, outcomeReason (for not_sent / not_posted), parentActionId and fanOutRole (hub / spoke), deltaMetrics (when measured), and verdict: the fix's latest verdict, or null before one is computed. verdict = \{ label: 'ahead' | 'not ahead' | 'too early', reason (the counts behind it), tooltip (what it was compared with), method ('question' | 'page'), ruleVersion, computedAt \}. A launched action with neither a posted page nor target questions has verdict \{ label: 'not measurable', reason, tooltip: null, method: null, ruleVersion: null, computedAt: null \}. Quote label, reason and tooltip word for word.
 
 ## Inputs
 
-| Field | Type | Default | Meaning |
-|---|---|---|---|
-| `actionType` | `'content' \| 'outreach' \| 'technical' \| 'operational' \| 'paid'` | none | Filter by action category. |
-| `outcomeStatus` | `'pending' \| 'measured' \| 'inconclusive' \| 'failed' \| 'not_sent' \| 'not_posted'` | none | `pending` = still inside the 30-day window. `measured` = delta computed. `not_sent` = couldn't be carried out (e.g. the channel isn't connected). `not_posted` = never posted (no posted URL 30 days on, or the draft failed). |
-| `limit` | `int` (1–100) | `20` | Page size. |
-
-Brand id is resolved from auth.
-
-## Response
-
-```json
-{
-  "rows": [
-    {
-      "id": "act_01H...",
-      "action_type": "content",
-      "action_subtype": "linkedin_post",
-      "emitted_by": "mcp:create_content_draft",
-      "executor": "human:cole@getcitable.com",
-      "posted_url": "https://linkedin.com/posts/...",
-      "emitted_at": "2026-04-10T14:22:00Z",
-      "executed_at": "2026-04-11T09:15:00Z",
-      "outcome_status": "measured",
-      "outcome_resolved_at": "2026-05-11T09:15:00Z",
-      "baseline_metrics": { "citation_rate": 0.31, "mention_rate": 0.47 },
-      "measurement_metrics": { "citation_rate": 0.42, "mention_rate": 0.58 },
-      "delta_metrics": { "citation_rate": 0.11, "mention_rate": 0.11 },
-      "intent": "engagement",
-      "validation_status": "ok"
-    }
-  ],
-  "totalReturned": 1,
-  "status": "ok"
-}
-```
-
-## Notes
-
-- **Outcome window is 30 days.** A row with `outcome_status: 'pending'` means the measurement window hasn't completed yet for that action. `outcome_resolved_at` is null until then.
-- **`not_sent` and `not_posted` never happened.** They're final, never counted as results, and kept in history (never deleted). `outcome_reason` says why. A `not_posted` action goes back to `pending` if a posted URL arrives later.
-- `delta_metrics` is only populated when `outcome_status === 'measured'`. For `'inconclusive'` or `'failed'` outcomes, inspect `measurement_metrics` and `baseline_metrics` directly.
-- Brand-scoped at the query layer. No cross-brand reads possible from any API key.
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `actionType` | `'content' \| 'outreach' \| 'technical' \| 'operational' \| 'paid'` | no | — | Filter by action class. Omit for all. |
+| `outcomeStatus` | `'pending' \| 'measured' \| 'inconclusive' \| 'failed' \| 'not_sent' \| 'not_posted'` | no | — | Filter by outcome state: 'pending' = still measuring, 'measured' = impact computed, 'not_sent' / 'not_posted' = never happened (see outcome_reason). |
+| `limit` | `integer` | no | `20` | Max rows to return. Default 20, max 100. |

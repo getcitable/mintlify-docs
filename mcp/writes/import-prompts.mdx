@@ -1,0 +1,29 @@
+---
+title: "import_prompts"
+sidebarTitle: "import_prompts"
+description: "Import tracked questions into the brand's question bank (additive — never modifies or removes existing questions)."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Import tracked questions into the brand's question bank (additive — never modifies or removes existing questions). Each item needs the question text plus one or more personas from plan_question_bank; journeyStage is optional (auto-classified when omitted; one of: awareness_discovery, consideration_evaluation, purchase_intent, support_usage).
+
+Give each question every persona a real buyer of that type would plausibly ask it (personaIds or personaNames arrays), and only those. A single personaId/personaName still works. Don't spray every persona onto every question.
+
+Every (question, persona) is tracked and measured separately and consumes one plan slot. A question attached to 3 personas is 3 tracked questions, and the same question can score differently for each.
+
+Server rules:
+- Net-new (question, persona) rows must fit remaining headroom (duplicates cost nothing). Over-cap imports are rejected with the exact headroom.
+- A (question, persona) pair already tracked is skipped as duplicate — never overwritten.
+- Max 50 items per call (each item may still fan out to several personas).
+
+ALWAYS run \{ dryRun: true \} first and show the user the result — then import for real only after their explicit confirmation. Imported questions enter the next scheduled scan automatically.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `prompts` | `object[]` | yes | — | The questions to import. |
+| `dryRun` | `boolean` | no | — | true = validate and report what WOULD happen without writing. Always dry-run first. |

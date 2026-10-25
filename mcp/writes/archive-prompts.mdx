@@ -1,0 +1,23 @@
+---
+title: "archive_prompts"
+sidebarTitle: "archive_prompts"
+description: "Archive (or restore) tracked questions by id."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Archive (or restore) tracked questions by id. Archiving stops future scans while preserving history — reversible via mode "restore", not a delete. Archived questions free plan slots immediately, so archive-then-import is how a starter set is replaced without extra headroom.
+
+Get question ids from plan_question_bank (each current question includes an id) or search_prompt_intelligence.
+
+Never call without first showing the user the exact questions that will stop being tracked and getting explicit confirmation. Run \{ dryRun: true \} first. Max 300 ids per call. Ids not belonging to this brand report status "not_found" and are never touched.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `promptIds` | `integer[]` | yes | — | Ids of the tracked questions to archive or restore. |
+| `mode` | `'archive' \| 'restore'` | no | — | "archive" (default) stops scanning; "restore" resumes it. |
+| `dryRun` | `boolean` | no | — | true = report what WOULD change without writing. Always dry-run first. |

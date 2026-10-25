@@ -1,84 +1,93 @@
 ---
 title: "Overview"
-description: "Citable's MCP server exposes your brand's data and actions to any AI agent that speaks the Model Context Protocol."
+description: "Citable's MCP server lets an AI assistant work with your brand's Citable data."
 ---
 
-Citable runs an MCP server you can connect to from any AI client that supports the [Model Context Protocol](https://modelcontextprotocol.io). Read tools surface your brand's scan results, recommendations, and content history. Write tools let an agent draft content, schedule replies, manage paid placements, and act on recommendations on your behalf.
+Citable's MCP server lets an AI assistant work with your brand's Citable data. It can show how AI assistants answer the questions your buyers are likely to ask, which brands those answers name instead of you, and which pages they cite. It can also draft fixes for you to review and approve in Citable.
 
-The audience for this reference is developers integrating Citable into their own AI workflows. If you're a Citable user looking for product docs, start with the [introduction](/introduction) instead.
+**Endpoint:** `https://app.getcitable.com/mcp/v1`
 
-## Transports
+## Connect with OAuth
 
-Citable supports two transports.
+1. Add the endpoint in your AI assistant's connector settings.
+2. Sign in to Citable.
+3. Choose the brands to connect and an access level. The connection works only with the brands you choose when you connect.
 
-| Transport | Use it for |
-|---|---|
-| **stdio** | Running the server yourself, for development against your own Citable database. It needs the backend's database credentials, and brand and user come from environment variables. To connect Claude Desktop or Cursor to Citable, use Streamable HTTP with an API key (Claude Desktop through the `mcp-remote` bridge, below). |
-| **Streamable HTTP** | Hosted agents or remote integrations. Auth is an API key passed in the `Authorization: Bearer <key>` header. |
+## Access levels
 
-Both transports expose the same tool surface. See [authentication](/mcp/auth) for the full setup of each.
+- **Read only:** see gaps, AI answers, your content and results. Read only can't create, publish or schedule anything.
+- **Drafts for my approval:** everything in Read only, plus creating drafts and proposals in Citable. Nothing goes live: every draft waits for a person to approve it in Citable.
+- **Read, write and spend:** everything above, plus actions such as publishing, scheduling and managing ads. This level works only on platforms we have reviewed. Connections from any other platform are limited to Drafts for my approval, whatever is selected at sign-in.
 
-## Tool categories
+With Read only or Drafts for my approval, the connection cannot publish, schedule, spend your ad budget or contact anyone. Give Read, write and spend only to an assistant you trust to take those actions.
 
-The MCP server exposes three groups of tools.
+## Disconnect
 
-**Read tools** return data — brand identity, AI visibility metrics, recommendation queue, posted content, attribution reports, prompt intelligence. All reads are scoped to the brand resolved from your auth context.
+Owners and admins see every app connected to a brand in Citable under **Citable MCP › Connected apps**, and members see their own. Any of them can be disconnected at any time. A disconnected app loses access within 30 seconds.
 
-**Coarse write tools** (the `emit_*` family) bundle the most common write flows into single calls. Each `emit_*` call validates the action, performs the side effect, and records the result so it can be measured 30 days later. Prefer these for new integrations.
+## Connect with an API key
 
-**Fine-grained write tools** expose individual steps — create a draft, schedule it, mark it posted, approve or dismiss a recommendation, ingest a conversation. These exist because the same actions are taken by humans in the Citable web app step-by-step, and the MCP surface mirrors that flow.
+For assistants that don't support OAuth, open **Citable MCP › API keys** in Citable (app.getcitable.com/api-keys-settings), choose **Create an API key**, and pick its access level (the same three levels). Keep keys private. To turn a key off, choose **Revoke**.
 
-## Guarantees on every call
+## Limits
 
-Every tool call goes through:
+- 60 requests per minute per connection.
+- The data a connection returns reflects the AI assistants your Citable plan tracks.
 
-1. **Auth resolution.** Your brand and user are derived from the API key or environment context. Tools never accept `brand_id` as an input — it's always inferred.
-2. **Cross-brand protection.** Write tools that take an ID resolve the target brand and reject if it doesn't match your auth context. You can only read and write your own brand's data.
-3. **Action recording.** Every write tool records what happened, so the platform can measure the outcome later and your future recommendations get sharper.
-4. **Rate limits.** Each brand has a per-hour rate limit, returned in standard `X-RateLimit-*` response headers.
+## Tools
 
-## Versioning
+Generated from the server's tool registry.
 
-The current namespace is `v1`. Within v1, the contract grows additively — new tools and new optional inputs are added; existing tools and required inputs don't change shape. You can code against v1 today and not worry about a breaking change for at least a quarter.
-
-## Quick start
-
-Once you have an API key from **Settings → API Keys** in the Citable web app:
-
-```bash
-export CITABLE_MCP_URL="https://api.getcitable.com/mcp"
-export CITABLE_API_KEY="..."
-```
-
-Or for stdio with Claude Desktop, add to your Claude Desktop config:
-
-```json
-{
-  "mcpServers": {
-    "citable": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "https://app.getcitable.com/mcp/v1",
-        "--header",
-        "Authorization:Bearer ${CITABLE_API_KEY}"
-      ],
-      "env": {
-        "CITABLE_API_KEY": "citable_live_REPLACE_WITH_YOUR_KEY"
-      }
-    }
-  }
-}
-```
-
-Claude Desktop loads only stdio servers, so `mcp-remote` runs locally as one and forwards each call over HTTPS with your API key. Restart Claude Desktop after saving.
-
-Verify the connection with the `ping` tool — it returns the resolved brand and user, so you can confirm you're talking to the right context before any real calls.
-
-```
-> ping()
-< pong — citable-mcp v1, brand 123, user 456
-```
-
-You're connected. Browse the per-tool pages for what each tool does, the inputs it accepts, and the response shape.
+| Tool | What it does | Lowest access level that can use it |
+|---|---|---|
+| [`get_action_outcome_history`](/mcp/reads/get-action-outcome-history) | Returns recent Citable-emitted actions for the brand, with their measured outcome deltas where the measurement window has resolved. | Read only |
+| [`get_action_with_children`](/mcp/reads/get-action-with-children) | Returns a parent action ticket and all its child content tickets (drafts, scheduled, posted) in one call. | Read only |
+| [`get_ae_project`](/mcp/reads/get-ae-project) | Returns ONE Action Engine project: its goal, verifiable metrics, evidence, and — when the project is live — its ticket list. | Read only |
+| [`get_ae_projects`](/mcp/reads/get-ae-projects) | Returns the brand's Action Engine PROJECTS (campaigns), grouped by initiative, each with its ticket rollup. | Read only |
+| [`get_attribution_report`](/mcp/reads/get-attribution-report) | Returns AI-citation attribution for posted content. | Read only |
+| [`get_brand_context`](/mcp/reads/get-brand-context) | Returns the brand's identity snapshot — id, slug, plan tier, name, mission/description, industry, differentiators, personas (every active one), distribution accounts per channel... | Read only |
+| [`get_brand_visibility`](/mcp/reads/get-brand-visibility) | Returns the brand's AI visibility summary from the AI assistants listed in `engines`, each with the date of its last answer. | Read only |
+| [`get_content_body`](/mcp/reads/get-content-body) | Returns the full body text of one content item, plus its title, SEO metadata, and status. | Read only |
+| [`get_content_performance`](/mcp/reads/get-content-performance) | Lists the brand's posted content (anything generated in Citable with a posted_url) with GA4 traffic per page: sessions, pageViews and users (GA4 \"Users\", activeUsers) over the t... | Read only |
+| [`get_geo_priorities`](/mcp/reads/get-geo-priorities) | Returns the brand's top-priority GEO (Generative Engine Optimization) tickets from the Citable Action Engine, ordered by time_group (today → this-week → next-week → backlog). | Read only |
+| [`get_paid_ads_insights`](/mcp/reads/get-paid-ads-insights) | Returns the 4-card funnel (Citation Rate, Mention Rate, Average Rank, Sentiment) plus paid metrics (impressions, clicks, spend, CPC, CTR) for the brand's paid placements on AI e... | Read only |
+| [`get_pdp_publish_readiness`](/mcp/reads/get-pdp-publish-readiness) | Checks whether this brand can publish PDP changes to live Shopify right now (connection, write scopes, SHOPIFY_LIVE_WRITE_ENABLED). | Read only |
+| [`get_pdp_run`](/mcp/reads/get-pdp-run) | Returns one PDP optimization run and its change proposals (diffs, decisions, write status). | Read only |
+| [`get_search_console`](/mcp/reads/get-search-console) | Returns Google search demand from the brand's connected Google Search Console: the Google search queries the brand's pages showed for, and the pages themselves, with googleImpre... | Read only |
+| [`get_top_products`](/mcp/reads/get-top-products) | Returns the brand's best-selling Shopify products, ranked by units sold and filtered to real merchandise (excludes non-product line items like shipping insurance). | Read only |
+| [`get_topical_authority`](/mcp/reads/get-topical-authority) | Returns the brand's topical authority matrix — Citation Rate, Mention Rate, Average Rank, and Sentiment broken down per competitor — filterable by journey stage, persona, and AI... | Read only |
+| [`list_brands`](/mcp/reads/list-brands) | Returns the one brand this call is authorized for. | Read only |
+| [`list_content`](/mcp/reads/list-content) | Lists content rows for the brand with optional filters. | Read only |
+| [`list_open_items`](/mcp/reads/list-open-items) | Lists what on the brand is waiting on a person: posts scheduled but not posted, open Action Engine tickets with a due date, and product-page changes waiting for a decision. | Read only |
+| [`list_replies`](/mcp/reads/list-replies) | Lists social-listening replies for the current brand. | Read only |
+| [`next_actions`](/mcp/reads/next-actions) | Returns what to work on next for this brand: the open gaps (questions buyers are likely to ask where AI assistants don't name the brand yet, with the questions' ids and text), t... | Read only |
+| [`ping`](/mcp/reads/ping) | Health check — returns the Citable MCP server identity and the resolved brand/user context. | Read only |
+| [`plan_question_bank`](/mcp/reads/plan-question-bank) | Call this first when the user wants to plan, rebuild, or expand the questions Citable tracks in AI search — or to see how many slots they have left. | Read only |
+| [`recommend_paid_ad_strategy`](/mcp/reads/recommend-paid-ad-strategy) | Proposes one ChatGPT Ads campaign test for the brand, built around its tracked questions, and lists what to test next. | Read only |
+| [`score_content`](/mcp/reads/score-content) | Scores a piece of content for GEO (how likely AI answer engines — ChatGPT, Perplexity, Google AI Overviews — are to CITE it) and returns an explainable, channel-aware breakdown ... | Read only |
+| [`search_prompt_intelligence`](/mcp/reads/search-prompt-intelligence) | Semantic search over the brand's tracked prompts in Citable's Prompt Intelligence system. | Read only |
+| [`suggest_broadcast`](/mcp/reads/suggest-broadcast) | Suggests other platforms where the brand could broadcast a piece of existing content. | Read only |
+| [`approve_ticket`](/mcp/writes/approve-ticket) | Marks a Citable GEO ticket as done. | Read, write and spend |
+| [`archive_prompts`](/mcp/writes/archive-prompts) | Archive (or restore) tracked questions by id. | Read, write and spend |
+| [`cancel_content`](/mcp/writes/cancel-content) | Cancels a content draft: sets its status to cancelled, so it leaves the drafts backlog and the calendar. | Drafts for my approval |
+| [`complete_ae_project_ticket`](/mcp/writes/complete-ae-project-ticket) | Sets the status of a ticket that belongs to an Action Engine project. | Read, write and spend |
+| [`create_content_draft`](/mcp/writes/create-content-draft) | Creates a content draft against an action ticket OR an ingested conversation. | Drafts for my approval |
+| [`decide_pdp_proposal`](/mcp/writes/decide-pdp-proposal) | Approves, rejects, or resets ONE PDP change proposal. | Read, write and spend |
+| [`dismiss_ticket`](/mcp/writes/dismiss-ticket) | Cancels a Citable GEO ticket with a required written reason. | Read, write and spend |
+| [`emit_content`](/mcp/writes/emit-content) | Emit a piece of content for the brand: validates it against the target persona's guardrails, saves a draft at status='queued', and records the action so its citation / share-of-... | Drafts for my approval |
+| [`emit_operational`](/mcp/writes/emit-operational) | Emit an operational recommendation (config / setup change): records the action and adds a recommendation card to the Action Engine for review. | Drafts for my approval |
+| [`emit_outreach`](/mcp/writes/emit-outreach) | Emit an outreach action: validates it against the persona's guardrails, creates/updates the outreach reply, and records the action for later outcome measurement. | Read, write and spend |
+| [`emit_paid`](/mcp/writes/emit-paid) | Emit a paid ad on an AI surface (ChatGPT Ads today; Perplexity / Gemini / Grok / Copilot when those engines become available). | Read, write and spend |
+| [`emit_technical`](/mcp/writes/emit-technical) | Emit a technical recommendation against a specific URL: adds a recommendation card to the brand's Action Engine and records the action for outcome measurement over time. | Drafts for my approval |
+| [`import_prompts`](/mcp/writes/import-prompts) | Import tracked questions into the brand's question bank (additive — never modifies or removes existing questions). | Read, write and spend |
+| [`ingest_conversation`](/mcp/writes/ingest-conversation) | Pushes a conversation summary + extracted facts into the user's Citable brand knowledge base. | Read, write and spend |
+| [`manage_paid_ad`](/mcp/writes/manage-paid-ad) | Create or update a paid ad on an AI surface (ChatGPT Ads today; Perplexity / Gemini / Grok / Copilot when they ship). | Read, write and spend |
+| [`mark_content_posted`](/mcp/writes/mark-content-posted) | Records that a content draft has been posted by stamping the live URL and marking status='published'. | Read, write and spend |
+| [`mark_content_unposted`](/mcp/writes/mark-content-unposted) | Records that posted content has been taken down: sets status='taken_down' and unposted_at, and keeps posted_url and posted_at so the history survives. | Read, write and spend |
+| [`mark_reply_posted`](/mcp/writes/mark-reply-posted) | Marks a social reply as posted with the live URL. | Read, write and spend |
+| [`publish_pdp_changes`](/mcp/writes/publish-pdp-changes) | Publishes ALREADY-APPROVED PDP proposals on a run to the live Shopify storefront. | Read, write and spend |
+| [`revert_pdp_run`](/mcp/writes/revert-pdp-run) | Rolls every successfully written proposal on a PDP run back to its baseline_snapshot on live Shopify. | Read, write and spend |
+| [`schedule_content`](/mcp/writes/schedule-content) | Schedules a content draft onto the content calendar by setting scheduled_for, OR clears the schedule (when scheduled_for is null) to take it off the calendar. | Read, write and spend |
+| [`schedule_reply`](/mcp/writes/schedule-reply) | Schedules a social reply onto the content calendar by setting scheduled_for, OR clears the schedule (when scheduled_for is null) to take it off the calendar. | Read, write and spend |
+| [`start_pdp_optimization`](/mcp/writes/start-pdp-optimization) | Proposes field-level changes to this brand's Shopify product pages (PDPs) for a person to approve. | Drafts for my approval |
+| [`update_reply`](/mcp/writes/update-reply) | Updates a draft social-listening reply (Reddit, Hacker News, future Twitter/LinkedIn). | Read, write and spend |

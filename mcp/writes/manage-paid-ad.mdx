@@ -1,26 +1,35 @@
 ---
 title: "manage_paid_ad"
-description: "Create, update, pause, or archive a paid ad on an AI surface."
+sidebarTitle: "manage_paid_ad"
+description: "Create or update a paid ad on an AI surface (ChatGPT Ads today; Perplexity / Gemini / Grok / Copilot when they ship)."
 ---
 
-Create or update a paid ad on an AI surface (ChatGPT Ads today; Perplexity / Gemini / Grok / Copilot when those engines open advertising).
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
 
-## When to use
+Create or update a paid ad on an AI surface (ChatGPT Ads today; Perplexity / Gemini / Grok / Copilot when they ship).
 
-- "Launch a ChatGPT Ads campaign for prompt cluster X."
-- "Pause ad group Y."
-- "Archive that under-performing ad."
+Use this when the user asks:
+- "Launch a ChatGPT Ads campaign for prompt cluster X"
+- "Pause ad group Y"
+- "Archive that underperforming ad"
 
-## When not to use
+The 'engine' input defaults to 'chatgpt'. Every write is validated against the persona's guardrails before it reaches the ad platform (blocking violations halt; warnings are logged). After write, the action is recorded for later outcome measurement.
 
-- The user wants reporting only — use [`get_paid_ads_insights`](/mcp/reads/get-paid-ads-insights).
-- The user wants strategy proposals — use [`recommend_paid_ad_strategy`](/mcp/writes/recommend-paid-ad-strategy).
+Skip when the user wants reporting only (use get_paid_ads_insights) or strategy proposals (use recommend_paid_ad_strategy).
 
 ## Inputs
 
-The `engine` input defaults to `'chatgpt'`. Every successful write is gated by the persona-intent matrix before the engine API write (block-severity violations halt; warn-severity logs; allowed proceeds). After the external write succeeds, the action is recorded so its 30-day impact can be measured.
-
-## See also
-
-- [Overview](/mcp/overview)
-- [Paid campaigns](/features/paid-campaigns)
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `action` | `'create' \| 'pause' \| 'activate' \| 'archive'` | yes | — | What to do: create a new object, or pause / activate / archive an existing one. |
+| `engine` | `'chatgpt' \| 'perplexity' \| 'gemini' \| 'grok' \| 'copilot'` | no | `"chatgpt"` | AI ad engine. Default chatgpt. |
+| `objectType` | `'campaign' \| 'ad_group' \| 'ad'` | yes | — | Which level of the campaign hierarchy to act on. |
+| `externalId` | `string` | no | — | Required for pause / activate / archive. |
+| `parentExternalId` | `string` | no | — | For ad_group / ad creation: the parent object's external id. |
+| `payload` | `object` | no | — | Engine-shaped payload; required for create. |
+| `citablePromptIds` | `integer[]` | no | — | Tracked-prompt ids this placement is meant to win (scopes outcome measurement). |
+| `citableHubId` | `integer` | no | — | Citable content id of the hub piece this ad amplifies. |
+| `personaId` | `integer` | yes | — | Persona this ad targets — the creative is validated against its guardrails. |
+| `content` | `string` | no | — | Creative body to validate against the persona's guardrails. |
