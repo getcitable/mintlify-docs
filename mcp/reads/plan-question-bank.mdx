@@ -1,0 +1,23 @@
+---
+title: "plan_question_bank"
+sidebarTitle: "plan_question_bank"
+description: "Call this first when the user wants to plan, rebuild, or expand the questions Citable tracks in AI search — or to see how many slots they have left."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Call this first when the user wants to plan, rebuild, or expand the questions Citable tracks in AI search — or to see how many slots they have left.
+
+Returns this brand's live bank: personas (who is covered and who has none), current questions, remaining plan slots, and, when connected, Google search demand (Search Console), not what people ask AI: the keywords people type into Google, with impressions and clicks. They do not show what anyone asks an AI assistant. A question you propose from a keyword is Citable's inference; mark it as inferred from Google search demand when you show it, never as a question people ask AI.
+
+Then converse — do not dump this payload. Ask who buys, which competitors matter, and what prospects ask before buying. Propose a short list of new questions (who would ask each, and whether it is early research, comparing options, ready to buy, or already a customer). Wait for an explicit yes. Then call import_prompts with dryRun true.
+
+If the new list should replace the starter set, propose archive_prompts first (also dryRun), then import.
+
+Read-only. Call again after an import to refresh remaining slots.
+
+## Inputs
+
+_No inputs — call with an empty argument object._

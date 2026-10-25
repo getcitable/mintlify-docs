@@ -1,0 +1,19 @@
+---
+title: "get_pdp_publish_readiness"
+sidebarTitle: "get_pdp_publish_readiness"
+description: "Checks whether this brand can publish PDP changes to live Shopify right now (connection, write scopes, SHOPIFY_LIVE_WRITE_ENABLED)."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Checks whether this brand can publish PDP changes to live Shopify right now (connection, write scopes, SHOPIFY_LIVE_WRITE_ENABLED).
+
+Call before publish_pdp_changes. Read-only — does not write.
+
+Response: \{ canPublish, reason \} where reason is null when ready, else not_connected | missing_write_scope | live_write_disabled.
+
+## Inputs
+
+_No inputs — call with an empty argument object._

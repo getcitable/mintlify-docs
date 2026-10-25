@@ -1,49 +1,35 @@
 ---
 title: "get_content_performance"
-description: "Posted content joined per page to GA4 traffic: sessions, page views and users. Unknown traffic is null, never 0."
+sidebarTitle: "get_content_performance"
+description: "Lists the brand's posted content (anything generated in Citable with a posted_url) with GA4 traffic per page: sessions, pageViews and users (GA4 \"Users\", activeUsers) over the t..."
 ---
 
-Lists the brand's posted content (anything generated in Citable with a `posted_url`) with GA4 traffic per page: `sessions`, `pageViews` and `users` (GA4 "Users", `activeUsers`) over the trailing window. `trafficWindow` gives the exact dates, in the GA4 property's time zone, matching GA4's own "Last N days" range, so the numbers can be checked against GA4's Pages report.
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
 
-## Traffic status
+Lists the brand's posted content (anything generated in Citable with a posted_url) with GA4 traffic per page: sessions, pageViews and users (GA4 "Users", activeUsers) over the trailing window. trafficWindow gives the exact dates, in the GA4 property's time zone, matching GA4's own "Last N days" range.
 
-A number is only ever a GA4 measurement. Each item has a `trafficStatus`:
+A number is only ever a GA4 measurement. Each item has a trafficStatus:
+- "joined": read from GA4. 0 means GA4 recorded nothing for that page in the window.
+- "not_on_site": posted on another site (e.g. LinkedIn), which the brand's GA4 cannot see. Traffic is null: unknown, not zero.
+- "not_joined": GA4 was not read (no connection, or the read failed; the note says which). Traffic is null.
+Never report a null as 0. The top-level trafficStatus is "joined" when GA4 was read. totals are de-duplicated by GA4 across the pages (not the sum of the rows) and are null when nothing was measured. hasGaConnection says whether GA4 is connected; without it the note points to /connectors.
 
-| `trafficStatus` | Meaning |
-|---|---|
-| `joined` | Read from GA4. `0` means GA4 recorded nothing for that page in the window. |
-| `not_on_site` | Posted on another site (e.g. LinkedIn), which the brand's GA4 cannot see. Traffic is `null`: unknown, not zero. |
-| `not_joined` | GA4 was not read: no connection, or the read failed (the `note` says which). Traffic is `null`. |
-
-The top-level `trafficStatus` is `joined` when GA4 was read. `totals` are de-duplicated by GA4 across the pages, so they are not the sum of the rows (a user who read two pages counts once), and they are `null` when nothing was measured. `hasGaConnection` says whether GA4 is connected; without it, the `note` points to the Connectors page.
-
-## When to use
-
+Use this when the user asks:
 - "Which of my blogs is actually driving traffic?"
 - "What content has worked in the last 30 days?"
 - "How many sessions did the posts we published get?"
 
-Skip when the user wants AI visibility (use [`get_brand_visibility`](/mcp/reads/get-brand-visibility)) or the to-do list (use [`get_geo_priorities`](/mcp/reads/get-geo-priorities)).
+Skip when the user wants AI visibility (use get_brand_visibility) or the to-do list (use get_geo_priorities).
 
-## Response
+Response shape: \{ windowDays, items: [\{ contentId, title, platform, postedUrl, postedAt, pagePath, sessions, pageViews, users, trafficStatus \}], totals: \{ totalContent, sessionsAttributed, pageViewsAttributed, usersAttributed \}, hasGaConnection, trafficStatus, trafficWindow: \{ startDate, endDate, timeZone \} | null, note? \}.
 
-```
-{ windowDays,
-  items: [{ contentId, title, platform, postedUrl, postedAt, pagePath,
-            sessions, pageViews, users, trafficStatus }],
-  totals: { totalContent, sessionsAttributed,
-            pageViewsAttributed, usersAttributed },
-  hasGaConnection,
-  trafficStatus,
-  trafficWindow: { startDate, endDate, timeZone } | null,
-  note? }
-```
+Example: calling with \{ windowDays: 30, limit: 10 \} returns the 10 most recently posted URLs with their GA4 traffic over GA4's last 30 days.
 
-## Example
+## Inputs
 
-Calling with `{ windowDays: 30, limit: 10 }` returns the 10 most recently posted URLs with their GA4 traffic over GA4's last 30 days.
-
-## See also
-
-- [Overview](/mcp/overview)
-- [Google Analytics integration](/integrations/google-analytics)
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `windowDays` | `integer` | no | — | How many days back to look for posted content. Defaults to 30. |
+| `limit` | `integer` | no | — | Max number of posted URLs to return. Defaults to 20, max 100. |

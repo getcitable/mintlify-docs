@@ -1,0 +1,26 @@
+---
+title: "revert_pdp_run"
+sidebarTitle: "revert_pdp_run"
+description: "Rolls every successfully written proposal on a PDP run back to its baseline_snapshot on live Shopify."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Rolls every successfully written proposal on a PDP run back to its baseline_snapshot on live Shopify.
+
+Input:
+- run_id (required).
+- confirm (required, must be true).
+
+Same owner/admin + readiness gates as publish. Proposals that never wrote are left alone.
+
+Skip when: nothing has been published yet, or the user only wants to reject pending proposals (use decide_pdp_proposal).
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `run_id` | `integer` | yes | — | Run whose written changes to roll back. |
+| `confirm` | `boolean` | yes | — | Must be true. Required hard confirm for live Shopify writes. |

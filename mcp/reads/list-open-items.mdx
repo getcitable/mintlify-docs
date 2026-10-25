@@ -1,40 +1,25 @@
 ---
 title: "list_open_items"
-description: "Lists what on the brand is waiting on a person: scheduled posts not yet posted, open tickets with a due date, and product-page changes awaiting a decision."
+sidebarTitle: "list_open_items"
+description: "Lists what on the brand is waiting on a person: posts scheduled but not posted, open Action Engine tickets with a due date, and product-page changes waiting for a decision."
 ---
 
-Lists what on the brand is waiting on a person: posts scheduled but not posted, open Action Engine tickets with a due date, and product-page changes waiting for a decision. Read-only.
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
 
-It is computed from the source records on every call: a post marked posted or a ticket closed drops off at once.
+Lists what on the brand is waiting on a person: posts scheduled but not posted, open Action Engine tickets with a due date, and product-page changes waiting for a decision. Each item has its owner (a user id), due date, whether it's overdue, and the link where it gets done.
+
+Use this when:
+- You deliver nudges for the team (one message or one calendar block listing everything overdue, never one per item).
+- The user asks "what's waiting on me?" or "what's overdue?".
+
+Computed from the source records on every call, so a post marked posted or a ticket closed disappears at once. Dismissed items are left out unless include_dismissed is true.
 
 ## Inputs
 
-| Field | Type | Meaning |
-|---|---|---|
-| `overdue_only` | boolean, optional | Only items past their due date. |
-| `owner_user_id` | integer, optional | Only items waiting on this user. |
-| `include_dismissed` | boolean, optional | Include items someone dismissed. Default `false`. |
-
-## What comes back
-
-A one-line count (`3 open items, 1 overdue.`), then one line per item, plus the same data as structured content: `total`, `overdue`, and `items`. Each item has:
-
-- `title` and `link`, the page where the item gets done.
-- `sourceType` (`content`, `ticket` or `pdp_run`) and `sourceId`.
-- `status`: `open` or `overdue`.
-- `dueAt` and `ownerUserId` (null when nobody owns it).
-- `dismissed`.
-
-## When to use
-
-- You send reminders for the team: one message or one calendar block listing everything overdue, never one per item.
-- The user asks "what's waiting on me?" or "what's overdue?".
-
-## When not to use
-
-- The user wants every content row, not only the ones waiting on someone: use [`list_content`](/mcp/reads/list-content).
-- The user wants one ticket with its drafts: use [`get_action_with_children`](/mcp/reads/get-action-with-children).
-
-## See also
-
-- [Overview](/mcp/overview)
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `overdue_only` | `boolean` | no | — | Only items past their due date. |
+| `owner_user_id` | `integer` | no | — | Only items waiting on this user. |
+| `include_dismissed` | `boolean` | no | — | Include items someone dismissed. Default false. |

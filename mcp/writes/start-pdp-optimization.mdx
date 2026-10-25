@@ -1,0 +1,30 @@
+---
+title: "start_pdp_optimization"
+sidebarTitle: "start_pdp_optimization"
+description: "Proposes field-level changes to this brand's Shopify product pages (PDPs) for a person to approve."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Proposes field-level changes to this brand's Shopify product pages (PDPs) for a person to approve. It analyzes each live page, saves an immutable baseline_snapshot, and creates proposals. It never changes the store.
+
+Input (all optional):
+- shopify_product_ids — exact Shopify product IDs to analyze (max 5). Skips ranking.
+- select — when ids omitted: "top" (best sellers, default) or "least_sold" (zero-sale live SKUs — lower risk).
+- limit — how many to rank when ids omitted (default 3, max 5).
+- windowDays — ranking window in days.
+
+Needs a drafts or write key (LLM + database side effects). Nothing reaches the store until a person approves each proposal (decide_pdp_proposal) and someone with a write key publishes them (publish_pdp_changes with confirm:true). After READY results, call get_pdp_run to read the proposals.
+
+Skip when: the user only wants a product list (use get_top_products).
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `shopify_product_ids` | `integer[]` | no | — | Exact Shopify product IDs to analyze (max 5). |
+| `select` | `'top' \| 'least_sold'` | no | — | Ranking mode when shopify_product_ids is omitted. Defaults to top. |
+| `limit` | `integer` | no | — | How many products to rank when ids omitted. Default 3, max 5. |
+| `windowDays` | `integer` | no | — | Trailing days for ranking. Defaults depend on select. |

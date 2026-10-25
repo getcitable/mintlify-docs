@@ -1,0 +1,27 @@
+---
+title: "publish_pdp_changes"
+sidebarTitle: "publish_pdp_changes"
+description: "Publishes ALREADY-APPROVED PDP proposals on a run to the live Shopify storefront."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Publishes ALREADY-APPROVED PDP proposals on a run to the live Shopify storefront. Real store write.
+
+Input:
+- run_id and/or shopify_product_id (latest ready run for that product).
+- confirm (required, must be true) — MCP has no chat transcript; refuse without this.
+
+Gates: API key write scope, brand owner/admin membership, only approved+not_attempted rows, publish readiness. Never auto-approves.
+
+Preview with get_pdp_run + get_pdp_publish_readiness first, then call with confirm:true only after the user asked to publish.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `run_id` | `integer` | no | — | Run to publish. |
+| `shopify_product_id` | `integer` | no | — | Publish the latest run for this product. |
+| `confirm` | `boolean` | yes | — | Must be true. Required hard confirm for live Shopify writes. |

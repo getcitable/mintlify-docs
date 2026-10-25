@@ -1,0 +1,33 @@
+---
+title: "get_ae_projects"
+sidebarTitle: "get_ae_projects"
+description: "Returns the brand's Action Engine PROJECTS (campaigns), grouped by initiative, each with its ticket rollup."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Returns the brand's Action Engine PROJECTS (campaigns), grouped by initiative, each with its ticket rollup.
+
+The model, three levels deep:
+- INITIATIVE — a preset strategy container. Exactly three, the same for every brand: Foundation (brand & market truth), Growth (presence campaigns), Integrity (technical & content truth). Projects are filed under one.
+- PROJECT — a campaign with a business goal, verifiable AI metrics, and evidence. Lifecycle: proposed → approved → launched → measuring → done (or archived). The user's ONE gate is approving a proposal; after that the agent finalises the breakdown and runs it.
+- TICKET — a single unit of work under a project, each with an executor of "agent" or "human". Ticket rows exist from approval but are SERVED only once the project is live (status in: launched, measuring, done). A proposal is reviewed on its goal and evidence, never on a task list.
+
+Use this when the user asks:
+- "What projects / campaigns do I have?" / "What are we running?"
+- "What should we work on?" / "Anything waiting on me?"
+- Any project-level planning, prioritisation, or status question.
+
+Skip when: the user names a specific project (call get_ae_project instead), or wants the LEGACY flat ticket feed — get_geo_priorities returns standalone GEO tickets that are not part of the project layer, and the two lists do not overlap in meaning.
+
+Response shape: \{ brandId, ticketsVisibleStatuses, ticketsEditableStatuses, totals, initiatives: [\{ key, name, tagline, why, metric, projects: [\{ id, name, status, health, progress, goalStatement, metrics, targetDate, ticketRollup: \{ total, done, humanOpen \} \}] \}] \}.
+
+ticketRollup is COUNTS ONLY and is safe on a proposal — a count is not the work. humanOpen is the number of human-executor tickets still open, i.e. what is actually waiting on the user.
+
+Example: a brand with one live Growth campaign and one Foundation proposal returns all three initiative groups (empty ones included, so the spine is stable), with the proposal sorted first because it is the only thing asking for a decision.
+
+## Inputs
+
+_No inputs — call with an empty argument object._

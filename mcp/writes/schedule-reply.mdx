@@ -1,23 +1,27 @@
 ---
 title: "schedule_reply"
-description: "Schedules a social reply onto the content calendar, or clears the schedule."
+sidebarTitle: "schedule_reply"
+description: "Schedules a social reply onto the content calendar by setting scheduled_for, OR clears the schedule (when scheduled_for is null) to take it off the calendar."
 ---
 
-Schedules a social reply onto the content calendar by setting `scheduled_for`, OR clears the schedule (when `scheduled_for` is null) to take it off the calendar. Status auto-advances to `scheduled` when a date is set, and reverts to `draft` when cleared. Brand resolved from auth context.
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
 
-## When to use
+Schedules a social reply onto the content calendar by setting scheduled_for, OR clears the schedule (when scheduled_for is null) to take it off the calendar. Status auto-advances to "scheduled" when a date is set; reverts to "draft" when cleared. Brand resolved from MCP auth context.
 
+Use this when:
 - The user wants the reply to surface on a specific calendar day.
 - The user wants to take a reply off the calendar back to draft state.
 
-## When not to use
+Skip when:
+- The reply has already been posted (status='published') — schedule changes for posted replies are no-ops.
 
-- The reply has already been posted (`status='published'`) — schedule changes for posted replies are no-ops.
+scheduled_for must be a YYYY-MM-DD date string, or null to clear.
 
 ## Inputs
 
-`scheduled_for` must be a `YYYY-MM-DD` date string, or null to clear.
-
-## See also
-
-- [Overview](/mcp/overview)
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `reply_id` | `integer` | yes | — | ID of the reply row. |
+| `scheduled_for` | `any` | yes | — | Calendar date in YYYY-MM-DD, or null to clear and return to draft. |
