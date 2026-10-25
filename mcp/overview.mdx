@@ -68,13 +68,13 @@ Generated from the server's tool registry.
 | [`score_content`](/mcp/reads/score-content) | Scores a piece of content for how well it's set up to be cited in AI answers, and returns an explainable, channel-aware breakdown so you can fix it before shipping. | Read only |
 | [`search_prompt_intelligence`](/mcp/reads/search-prompt-intelligence) | Semantic search over the brand's tracked prompts in Citable's Prompt Intelligence system. | Read only |
 | [`suggest_broadcast`](/mcp/reads/suggest-broadcast) | Suggests other platforms where the brand could broadcast a piece of existing content. | Read only |
-| [`approve_ticket`](/mcp/writes/approve-ticket) | Marks a Citable GEO ticket as done. | Read, write and spend |
+| [`approve_ticket`](/mcp/writes/approve-ticket) | Marks a Citable AI visibility ticket as done. | Read, write and spend |
 | [`archive_prompts`](/mcp/writes/archive-prompts) | Archive (or restore) tracked questions by id. | Read, write and spend |
 | [`cancel_content`](/mcp/writes/cancel-content) | Cancels a content draft: sets its status to cancelled, so it leaves the drafts backlog and the calendar. | Drafts for my approval |
 | [`complete_ae_project_ticket`](/mcp/writes/complete-ae-project-ticket) | Sets the status of a ticket that belongs to an Action Engine project. | Read, write and spend |
 | [`create_content_draft`](/mcp/writes/create-content-draft) | Creates a content draft against an action ticket OR an ingested conversation. | Drafts for my approval |
 | [`decide_pdp_proposal`](/mcp/writes/decide-pdp-proposal) | Approves, rejects, or resets ONE PDP change proposal. | Read, write and spend |
-| [`dismiss_ticket`](/mcp/writes/dismiss-ticket) | Cancels a Citable GEO ticket with a required written reason. | Read, write and spend |
+| [`dismiss_ticket`](/mcp/writes/dismiss-ticket) | Cancels a Citable AI visibility ticket with a required written reason. | Read, write and spend |
 | [`emit_content`](/mcp/writes/emit-content) | Emit a piece of content for the brand: validates it against the target persona's guardrails, saves a draft at status='queued', and records the action so its citation / share-of-... | Drafts for my approval |
 | [`emit_operational`](/mcp/writes/emit-operational) | Emit an operational recommendation (config / setup change): records the action and adds a recommendation card to the Action Engine for review. | Drafts for my approval |
 | [`emit_outreach`](/mcp/writes/emit-outreach) | Emit an outreach action: validates it against the persona's guardrails, creates/updates the outreach reply, and records the action for later outcome measurement. | Read, write and spend |

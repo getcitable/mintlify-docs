@@ -1,91 +1,58 @@
 ---
-title: "Authentication"
-description: "How Citable's MCP server resolves your brand and user context — and how to set it up over stdio or HTTP."
+title: Authentication and access
+description: How a connection to Citable's MCP server is scoped to brands and an access level, and how to turn it off.
 ---
 
-Every MCP session is scoped to one brand and one user. The brand controls what data the session sees and which records it can write to; the key's scopes control whether it may write at all; the user is recorded on every action for audit. None of the three is ever passed as a tool input — all are resolved from the transport layer.
+Every connection to Citable's MCP server is tied to one person and to the brands that person chose. The person is recorded on every action. Brand and person always come from the connection itself, never from a tool's inputs.
 
-## Auth context shape
+## Two ways to connect
 
-When the server accepts your connection, it resolves a context that looks like:
+**Sign in (OAuth).** For assistants that support it, such as Claude and ChatGPT. You sign in to Citable, choose the brands to connect and an access level. You can choose one brand or several, as long as you're a member of each.
 
-```typescript
-interface AuthContext {
-  brandId: number;     // brand this session reads + writes for
-  userId: number;      // user behind the call (audit trail)
-  apiKeyId: number | null;  // the API key id, if HTTP-authenticated
-  scopes: string[];    // ['read'] or ['read', 'write']
-  source: string;      // 'stdio:env' | 'http:api_key'
-}
-```
-
-The `brandId` is the most important field — every read filters by it, every write rejects cross-brand IDs against it.
-
-## Permissions
-
-Every key carries a scope list, chosen when you mint it:
-
-| Scope | What it allows |
-| --- | --- |
-| `read` | Every read tool — visibility, prompts, content, attribution, benchmarks. |
-| `write` | Additionally the write tools: importing and archiving tracked questions, emitting actions, queueing and scheduling content, editing, scheduling and marking social replies as posted, creating, pausing and archiving paid ads, and approving and dismissing tickets. Implies `read`. |
-
-`read` is the default. Calling a write tool with a read-only key returns a **403 with `Insufficient scope`** — the check runs before the tool's own logic, so nothing is written and no lookup happens.
-
-A key cannot do more than the person who created it. Creating a key with `write` needs the member, admin or owner role on the brand. A viewer's key is read-only, and that is checked on every call, so a key loses `write` as soon as its creator becomes a viewer.
-
-Give an integration the narrowest scope that does its job. An agent that reports on visibility does not need `write`, and a read-only key cannot archive your tracked questions, launch paid ads or spend plan capacity if it leaks.
-
-<Note>
-Keys created before permissions were enforced carry `read + write`, because that is the access they have actually had. Check the Permissions column in **Settings → API Keys** and re-mint any that should be read-only.
-</Note>
-
-## Transport options
-
-### stdio (self-hosted development)
-
-Runs the MCP server as a local process against your own Citable database. It needs the same database credentials as the Citable backend, so it is not a way to connect to Citable's hosted service. For that, use Streamable HTTP with an API key, including from Claude Desktop through the `mcp-remote` bridge (see the [overview](/mcp/overview)).
-
-Brand and user come from environment variables:
-
-```bash
-CITABLE_BRAND_ID=123
-CITABLE_USER_ID=456
-```
-
-The process trusts these values. It does not check that the user is a member of the brand, and the session can read and write. Anyone who can start it already has direct access to the database, so a check inside it would not protect anything.
-
-### Streamable HTTP (remote agents)
-
-Used by hosted agents and remote integrations. Auth is an API key in the `Authorization` header:
+**API key.** For assistants and scripts that don't support OAuth. Create a key in Citable under **Citable MCP › API keys** and send it as:
 
 ```
 Authorization: Bearer <api_key>
 ```
 
-The key maps to a stored `(brand, user, api_key)` tuple. The resolved API key id is recorded on the auth context so every write is traceable back to a specific key.
+A key belongs to the person who created it and to one brand.
+
+## Access levels
+
+The same three levels apply to sign-ins and API keys.
+
+| Level | What it allows | Scopes |
+| - | - | - |
+| Read only | Every read tool: visibility, questions, content, attribution. | `read` |
+| Drafts for my approval | Read only, plus creating drafts and proposals in Citable. Nothing goes live until a person approves it in Citable. | `read`, `draft` |
+| Read, write and spend | Everything above, plus actions such as publishing, scheduling and managing ads. | `read`, `write` |
+
+Calling a tool above the connection's level returns **403 `Insufficient scope`**, naming the tool and the scope it needs. The check runs before the tool does anything, so nothing is written.
+
+A Drafts for my approval connection can make 50 draft or proposal calls a day. After that, those calls return **429 `Daily limit reached`** until midnight UTC.
+
+**Read, write and spend works only on platforms we have reviewed.** A sign-in from any other app is limited to Drafts for my approval, whatever was selected. API keys are not affected by this limit, because a person creates each one deliberately.
+
+A connection can never do more than the person behind it. Write access needs the member, admin or owner role on the brand, and it's checked on every call, so access drops as soon as that person's role does.
+
+Give an assistant the lowest level that does its job. An assistant that only reports doesn't need to draft, and one that drafts doesn't need to publish or spend.
 
 ## Brand scoping
 
-Every read query filters by your auth context's `brandId` at the database layer. Every write tool that accepts an ID looks up that ID and rejects with a 403 if it belongs to a different brand. There's no MCP-side workaround — the same guard applies whether the client is Claude Desktop, a hosted agent, or any other caller.
+A connection works only with the brands it was given. Brand and person come from the connection, never from a tool's inputs.
 
-Example: `approve_ticket({ ticket_code: "OTHER-001" })` resolves the ticket, sees it belongs to a different brand, and rejects with a 403. The audit log records the failed attempt.
+## Turning a connection off
 
-## API key lifecycle
+- **Sign-ins:** owners and admins see every app connected to a brand under **Citable MCP › Connected apps**, and members see their own. Choose **Disconnect**. The app loses access within 30 seconds.
+- **API keys:** choose **Revoke** under **Citable MCP › API keys**. A revoked key fails immediately.
+- **Either kind** stops working when its person is removed from the brand or the brand is deleted.
+- **Resetting your password** turns off every API key and connected app made before the reset. Reconnect anything you still use.
 
-Create API keys in the Citable web app under **Settings → API Keys**. Each key:
-
-- Belongs to one user (the creator) and one brand
-- Cannot be used to act on any other brand
-- Can be revoked anytime — revoked keys fail auth immediately
-- Stops working when its creator is removed from the brand or the brand is deleted
-- Records `last_used_at` on every successful call
-
-Rotate by creating a new key, updating your integration, and revoking the old one. Keys are shown once at creation time and never displayed again. Treat them like any other secret.
+API keys are shown once, when created. Treat them like any other secret. To rotate one, create a new key, update your integration, then revoke the old key.
 
 ## Rate limits
 
-Calls are limited to **60 per minute per API key** (requests that arrive before auth resolves are bucketed by client IP instead). The limit is currently flat — it does not vary by plan tier, and it counts reads and writes together. Response headers tell you where you stand:
+60 requests per minute, reads and writes together, counted per API key or per sign-in connection. Every response carries:
 
 ```
 RateLimit-Limit: 60
@@ -94,8 +61,4 @@ RateLimit-Remaining: 47
 RateLimit-Reset: 42
 ```
 
-`RateLimit-Reset` is seconds until the window rolls over. Exceeding the limit returns a JSON-RPC error with `Rate limit exceeded`. If you need a higher limit for a specific integration, get in touch from your account.
-
-<Note>
-Rate limiting is throughput protection, not an authorization control. Use the `read` scope to stop an integration from writing.
-</Note>
+`RateLimit-Reset` is seconds until the window resets. Over the limit, calls return a `Rate limit exceeded` error. Rate limits protect throughput; use access levels to control what a connection can do.
