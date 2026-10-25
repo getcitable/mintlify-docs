@@ -13,7 +13,7 @@ Returns the one brand this call is authorized for. Use this when:
 - You need to verify which brand the key resolved to before acting (e.g. an autonomous agent's preflight check).
 - get_brand_context returned something unexpected (wrong planTier, wrong workspace) and you want the authoritative id/slug.
 
-Read-only. To operate on a different brand, create an API key under that brand in Citable (Settings → API keys), update the MCP config with it, and reconnect — keys never grant access beyond their minted brand.
+Read-only. To operate on a different brand, create an API key under that brand in Citable (Settings → API keys), update the MCP config with it, and reconnect.
 
 Response shape: \{ brands: [\{ id, name, slug, planTier, planName, role, websiteUrl \}], activeBrandId \}. `activeBrandId` echoes the brand resolved by the auth context; an empty brands array means the key owner's membership on that brand has lapsed. `planTier` is the internal plan key; show the user `planName` (e.g. "Optimize") instead. `planName` is null for a workspace billed through a service provider, which is not shown a plan name.
 

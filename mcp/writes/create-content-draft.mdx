@@ -10,7 +10,7 @@ description: "Creates a content draft against an action ticket OR an ingested co
 
 Creates a content draft against an action ticket OR an ingested conversation. The draft lands at status='queued' — never published. Returns the editor URL so the user can review, edit, and approve in the web UI before scheduling.
 
-Provide EXACTLY ONE of source_task_id or from_conversation_id, never both. IDs from another brand are rejected.
+Provide EXACTLY ONE of source_task_id or from_conversation_id, never both.
 
 Who it's for and what it should win (both required): the buyer persona the post is for, given EITHER as persona (its name exactly as get_brand_context lists it, same capitals and spacing) OR as persona_id, never both; and target_prompt_ids are the tracked questions it should win, as plan_question_bank returns them (not search_prompt_intelligence row ids). The post is measured by those questions once it's posted. A draft without them is refused, and nothing is saved.
 
