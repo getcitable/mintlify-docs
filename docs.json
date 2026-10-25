@@ -59,8 +59,7 @@
           {
             "group": "Overview",
             "pages": [
-              "mcp/overview",
-              "mcp/auth"
+              "mcp/overview"
             ]
           },
           {
