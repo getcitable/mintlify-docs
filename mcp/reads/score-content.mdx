@@ -1,14 +1,14 @@
 ---
 title: "score_content"
 sidebarTitle: "score_content"
-description: "Scores a piece of content for GEO (how likely AI answer engines — ChatGPT, Perplexity, Google AI Overviews — are to CITE it) and returns an explainable, channel-aware breakdown ..."
+description: "Scores a piece of content for how well it's set up to be cited in AI answers, and returns an explainable, channel-aware breakdown so you can fix it before shipping."
 ---
 
 {/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
     Do not edit by hand — edit the tool's description in the platform repo
     and re-run `npm run docs:mcp`. */}
 
-Scores a piece of content for GEO (how likely AI answer engines — ChatGPT, Perplexity, Google AI Overviews — are to CITE it) and returns an explainable, channel-aware breakdown so you can fix it before shipping. Read-only — never creates or edits a draft.
+Scores a piece of content for how well it's set up to be cited in AI answers, and returns an explainable, channel-aware breakdown so you can fix it before shipping. Read-only — never creates or edits a draft.
 
 Use this as the JUDGE step of the optimization loop: draft → score_content → revise the specific weak dimensions → re-score → ship via emit_content once the baseline gates pass. Call it as many times as you need; identical content is cached.
 
