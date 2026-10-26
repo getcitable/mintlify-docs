@@ -3,7 +3,7 @@ title: "Authentication"
 description: "How Citable's MCP server resolves your brand and user context — and how to set it up over stdio or HTTP."
 ---
 
-Every MCP session is scoped to one brand and one user. The brand controls what data the session sees and which records it can write to; the key's scopes control whether it may write at all; the user is recorded on every action for audit. None of the three is ever passed as a tool input — all are resolved from the transport layer.
+Every MCP session acts for one person. The key's scopes control whether it may write at all, and the person is recorded on every action for audit. A tool can only choose among the brands this connection was given, and the person always comes from the connection.
 
 ## Auth context shape
 
@@ -18,8 +18,6 @@ interface AuthContext {
   source: string;      // 'stdio:env' | 'http:api_key'
 }
 ```
-
-The `brandId` is the most important field — every read filters by it, every write rejects cross-brand IDs against it.
 
 ## Permissions
 
@@ -65,18 +63,11 @@ Authorization: Bearer <api_key>
 
 The key maps to a stored `(brand, user, api_key)` tuple. The resolved API key id is recorded on the auth context so every write is traceable back to a specific key.
 
-## Brand scoping
-
-Every read query filters by your auth context's `brandId` at the database layer. Every write tool that accepts an ID looks up that ID and rejects with a 403 if it belongs to a different brand. There's no MCP-side workaround — the same guard applies whether the client is Claude Desktop, a hosted agent, or any other caller.
-
-Example: `approve_ticket({ ticket_code: "OTHER-001" })` resolves the ticket, sees it belongs to a different brand, and rejects with a 403. The audit log records the failed attempt.
-
 ## API key lifecycle
 
 Create API keys in the Citable web app under **Settings → API Keys**. Each key:
 
 - Belongs to one user (the creator) and one brand
-- Cannot be used to act on any other brand
 - Can be revoked anytime — revoked keys fail auth immediately
 - Stops working when its creator is removed from the brand or the brand is deleted
 - Records `last_used_at` on every successful call
