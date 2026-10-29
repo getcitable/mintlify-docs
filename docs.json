@@ -72,6 +72,7 @@
               "mcp/reads/get-brand-visibility",
               "mcp/reads/get-content-performance",
               "mcp/reads/get-search-console",
+              "mcp/reads/get-copilot-citations",
               "mcp/reads/search-prompt-intelligence",
               "mcp/reads/get-opportunity-map",
               "mcp/reads/get-brand-context",

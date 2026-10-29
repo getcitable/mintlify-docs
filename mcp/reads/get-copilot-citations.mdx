@@ -1,0 +1,41 @@
+---
+title: "get_copilot_citations"
+sidebarTitle: "get_copilot_citations"
+description: "Returns Microsoft Copilot citation data that the brand exported from Bing Webmaster Tools (AI Performance) and uploaded to Citable."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Returns Microsoft Copilot citation data that the brand exported from Bing Webmaster Tools (AI Performance) and uploaded to Citable. Two reports, each with its own window (windowStart / windowEnd, the dates the uploader gave):
+
+- "cited": grounding queries Copilot cited the brand's site for, with copilotCitations (times Copilot showed the site as a source), copilotCitationSharePct (the site's share of all citations shown for that query) plus Bing's intent and topic labels.
+- "opportunities": grounding queries where Copilot cited other sites and not the brand's, with otherSitesCitationRange (Bing's band of citations to those other sites, e.g. 101-500).
+
+What this is not: grounding queries are the searches Copilot ran to find sources, not what users typed. There are no visits, clicks or impressions, no link from a query to the page cited, and it is not Citable's own scans of AI assistants. Bing labels the numbers preview and approximate. Say "Copilot cited" and "grounding query"; never call a row a visit, a prompt or traffic.
+
+Each row may carry matchedTrackedQuestionId / matchedTrackedQuestionText with matchMethod "inferred_same_question": our inference (a model judged the buyer question behind the query to be the same question) that it relates to one of the brand's tracked questions. buyerQuestion is our reading of the query. Rows nothing matched are filed as candidate questions (candidateQuestionId / candidateQuestionText): not tracked and not scanned until someone adds them. An unmatched row may name its closestTrackedQuestionId / closestTrackedQuestionText: related but not the same question (usually the tracked one adds a condition such as a kind of business), and nothing from this row is counted on it. Rows that name a tracked competitor carry namesCompetitors (Bing warns competitor brand queries show up as opportunities). Rows where Copilot read "GEO" as geography are hidden unless includeNoise is true; hiddenNoiseRows counts them.
+
+Status: "not_connected" means no export has been uploaded (say so; the brand exports AISearchQueriesReport and AITopicsTopOpportunityQueries from Bing Webmaster Tools → AI Performance and uploads them). "no_data_yet" means uploaded but the report holds no rows. "unavailable" means the stored data could not be read right now; never report that as zero. A section's matchStatus "pending" means matching is still running; "unavailable" means it failed and rows are unmatched for now, not unmatched for real.
+
+Use this when the user asks:
+- "Which questions does Copilot cite us for?"
+- "Where are other sites cited by Copilot and we aren't?"
+- "Are there AI questions we should be tracking that we aren't?"
+
+Skip when the user wants Citable's own measured AI visibility (use get_brand_visibility), Google search demand (use get_search_console) or the tracked questions themselves (use search_prompt_intelligence).
+
+Response shape: \{ source: "bing_webmaster_ai_performance", instrument, status, view, cited, opportunities \}, each section \{ report, importId, windowStart, windowEnd, importedAt, matchStatus, totalRows, totalMatchingRows, hiddenNoiseRows, rows: [\{ groundingQuery, topic, intent, copilotCitations, copilotCitationSharePct, otherSitesCitationRange, geographyNoise, namesCompetitors, matchOutcome, buyerQuestion, matchedTrackedQuestionId, matchedTrackedQuestionText, matchMethod, candidateQuestionId, candidateQuestionText, closestTrackedQuestionId, closestTrackedQuestionText \}] \}.
+
+Example: \{ view: "opportunities", limit: 10 \} returns the 10 opportunity queries with the largest citation bands; \{ queryContains: "roi" \} searches both reports' queries and buyer questions.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `view` | `'cited' \| 'opportunities' \| 'both'` | no | — | "both" (default), "cited" (queries Copilot cited the site for) or "opportunities" (queries where it cited other sites). |
+| `queryContains` | `string` | no | — | Only rows whose grounding query or buyer question contains this text (case-insensitive). |
+| `topic` | `string` | no | — | Only rows whose Bing topic label contains this text (case-insensitive). |
+| `limit` | `integer` | no | — | Max rows per report, largest citation counts first. Defaults to 25, max 100. |
+| `includeNoise` | `boolean` | no | — | Include rows where Copilot read "GEO" as geography. Defaults to false. |
