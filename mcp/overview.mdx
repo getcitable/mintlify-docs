@@ -59,6 +59,7 @@ Generated from the server's tool registry.
 | [`get_topical_authority`](/mcp/reads/get-topical-authority) | Returns the brand's topical authority matrix — Citation Rate, Mention Rate, Average Rank, and Sentiment broken down per competitor — filterable by journey stage, persona, and AI... | Read only |
 | [`list_brands`](/mcp/reads/list-brands) | Returns the one brand this call is authorized for. | Read only |
 | [`list_content`](/mcp/reads/list-content) | Lists content rows for the brand with optional filters. | Read only |
+| [`list_custom_tags`](/mcp/reads/list-custom-tags) | Lists the brand's custom tags on tracked questions, with their values, definitions and how many questions hold each. | Read only |
 | [`list_open_items`](/mcp/reads/list-open-items) | Lists what on the brand is waiting on a person: posts scheduled but not posted, open Action Engine tickets with a due date, and product-page changes waiting for a decision. | Read only |
 | [`list_replies`](/mcp/reads/list-replies) | Lists social-listening replies for the current brand. | Read only |
 | [`next_actions`](/mcp/reads/next-actions) | Returns what to work on next for this brand: the open gaps (questions buyers are likely to ask where AI assistants don't name the brand yet, with the questions' ids and text), t... | Read only |
@@ -74,12 +75,14 @@ Generated from the server's tool registry.
 | [`complete_ae_project_ticket`](/mcp/writes/complete-ae-project-ticket) | Sets the status of a ticket that belongs to an Action Engine project. | Read, write and spend |
 | [`create_content_draft`](/mcp/writes/create-content-draft) | Creates a content draft against an action ticket OR an ingested conversation. | Drafts for my approval |
 | [`decide_pdp_proposal`](/mcp/writes/decide-pdp-proposal) | Approves, rejects, or resets ONE PDP change proposal. | Read, write and spend |
+| [`delete_custom_tag`](/mcp/writes/delete-custom-tag) | Deletes a custom tag and every question's value for it, after the user confirms. Needs the brand's owner or admin. | Read, write and spend |
 | [`dismiss_ticket`](/mcp/writes/dismiss-ticket) | Cancels a Citable GEO ticket with a required written reason. | Read, write and spend |
 | [`emit_content`](/mcp/writes/emit-content) | Emit a piece of content for the brand: validates it against the target persona's guardrails, saves a draft at status='queued', and records the action so its citation / share-of-... | Drafts for my approval |
 | [`emit_operational`](/mcp/writes/emit-operational) | Emit an operational recommendation (config / setup change): records the action and adds a recommendation card to the Action Engine for review. | Drafts for my approval |
 | [`emit_outreach`](/mcp/writes/emit-outreach) | Emit an outreach action: validates it against the persona's guardrails, creates/updates the outreach reply, and records the action for later outcome measurement. | Read, write and spend |
 | [`emit_paid`](/mcp/writes/emit-paid) | Emit a paid ad on an AI surface (ChatGPT Ads today; Perplexity / Gemini / Grok / Copilot when those engines become available). | Read, write and spend |
 | [`emit_technical`](/mcp/writes/emit-technical) | Emit a technical recommendation against a specific URL: adds a recommendation card to the brand's Action Engine and records the action for outcome measurement over time. | Drafts for my approval |
+| [`fill_custom_tag_with_ai`](/mcp/writes/fill-custom-tag-with-ai) | Fills one custom tag across the brand's tracked questions from its values' definitions; values a person set are kept. Needs the brand's owner or admin. | Read, write and spend |
 | [`import_prompts`](/mcp/writes/import-prompts) | Import tracked questions into the brand's question bank (additive — never modifies or removes existing questions). | Read, write and spend |
 | [`ingest_conversation`](/mcp/writes/ingest-conversation) | Pushes a conversation summary + extracted facts into the user's Citable brand knowledge base. | Read, write and spend |
 | [`manage_paid_ad`](/mcp/writes/manage-paid-ad) | Create or update a paid ad on an AI surface (ChatGPT Ads today; Perplexity / Gemini / Grok / Copilot when they ship). | Read, write and spend |
@@ -88,7 +91,9 @@ Generated from the server's tool registry.
 | [`mark_reply_posted`](/mcp/writes/mark-reply-posted) | Marks a social reply as posted with the live URL. | Read, write and spend |
 | [`publish_pdp_changes`](/mcp/writes/publish-pdp-changes) | Publishes ALREADY-APPROVED PDP proposals on a run to the live Shopify storefront. | Read, write and spend |
 | [`revert_pdp_run`](/mcp/writes/revert-pdp-run) | Rolls every successfully written proposal on a PDP run back to its baseline_snapshot on live Shopify. | Read, write and spend |
+| [`save_custom_tag`](/mcp/writes/save-custom-tag) | Creates a custom tag on tracked questions, or renames it and adds, defines or removes its values; can fill it with AI right after. Needs the brand's owner or admin. | Read, write and spend |
 | [`schedule_content`](/mcp/writes/schedule-content) | Schedules a content draft onto the content calendar by setting scheduled_for, OR clears the schedule (when scheduled_for is null) to take it off the calendar. | Read, write and spend |
 | [`schedule_reply`](/mcp/writes/schedule-reply) | Schedules a social reply onto the content calendar by setting scheduled_for, OR clears the schedule (when scheduled_for is null) to take it off the calendar. | Read, write and spend |
+| [`set_custom_tag_value`](/mcp/writes/set-custom-tag-value) | Sets one custom tag's value on tracked questions by id, as the person's own choice. Needs the brand's owner or admin. | Read, write and spend |
 | [`start_pdp_optimization`](/mcp/writes/start-pdp-optimization) | Proposes field-level changes to this brand's Shopify product pages (PDPs) for a person to approve. | Drafts for my approval |
 | [`update_reply`](/mcp/writes/update-reply) | Updates a draft social-listening reply (Reddit, Hacker News, future Twitter/LinkedIn). | Read, write and spend |

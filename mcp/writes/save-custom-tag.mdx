@@ -1,0 +1,23 @@
+---
+title: "save_custom_tag"
+sidebarTitle: "save_custom_tag"
+description: "Create a custom tag for grouping the brand's tracked questions (one value per question), or update the tag with this name: rename it, add values, change a…"
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Create a custom tag for grouping the brand's tracked questions (one value per question), or update the tag with this name: rename it, add values, change a value's definition, remove values. Values are matched by name.
+
+Write a one-line definition for every value that says which questions get it, from their wording; the AI fill reads only these. Use fillWithAi to fill the tag across every question right after saving. Show the user the tag and its values first and save only once they agree. Needs the brand's owner or admin. At most 20 values per tag.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `tag` | `string` | yes | — | The custom tag name (case-insensitive), e.g. "Prompt type". |
+| `newName` | `string` | no | — | Rename the tag to this. |
+| `values` | `object[]` | no | — | Values to add, or to update by name. |
+| `removeValues` | `string[]` | no | — | Value names to delete; questions holding them become empty. |
+| `fillWithAi` | `boolean` | no | — | Fill the tag across every question after saving. |
