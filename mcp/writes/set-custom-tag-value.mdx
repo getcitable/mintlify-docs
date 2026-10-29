@@ -1,0 +1,21 @@
+---
+title: "set_custom_tag_value"
+sidebarTitle: "set_custom_tag_value"
+description: "Set one custom tag's value on tracked questions by question id; value null clears it."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Set one custom tag's value on tracked questions by question id; value null clears it. Recorded as the person's own choice, so an AI fill never changes it.
+
+Get question ids from search_prompt_intelligence and tag names and values from list_custom_tags. Max 200 questions per call. Show the user the questions first and get confirmation.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `tag` | `string` | yes | — | The custom tag name (case-insensitive). |
+| `value` | `any` | yes | — | The value name, or null to clear. |
+| `promptIds` | `integer[]` | yes | — | Tracked question ids. |
