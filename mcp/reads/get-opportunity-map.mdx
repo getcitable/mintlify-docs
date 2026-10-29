@@ -1,0 +1,33 @@
+---
+title: "get_opportunity_map"
+sidebarTitle: "get_opportunity_map"
+description: "Returns the brand's Opportunity map: its tracked questions grouped by two dimensions (a lens), with every cell's AI answer metrics and a priority."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Returns the brand's Opportunity map: its tracked questions grouped by two dimensions (a lens), with every cell's AI answer metrics and a priority. It is the same map as the Opportunity page in Citable.
+
+A lens is rows × cols. Dimensions: category (product category), persona, funnel (journey stage: awareness_discovery, consideration_evaluation, purchase_intent, support_usage) or tag:\<id> (a custom tag such as Prompt type). Leave both out to get the brand's first standard lens; the response lists every standard lens in `lenses`.
+
+What the numbers mean (last 30 days of answers; questions with the brand's name in them are left out):
+- named / cited: share of answers that name the brand / cite its site, 0-100.
+- avgRank: the brand's average position when named. sentiment: -100 to +100, on answers that name the brand, null under 5 of them.
+- vs: the same against the brand's tracked competitors. position 1 = ahead of all of them; rival is the one ahead, or the next one behind when the brand leads. firstPlace is the share of answers naming a tracked brand where this brand is named first.
+- mostNamed: the brand named in the most answers, tracked or not.
+- missedAnswers: answers that don't name the brand.
+- priority: missedAnswers × confidence, scaled so the top cell is 100. kind: growth when the brand leads its tracked competitors and is named in at least 20% of answers, otherwise gap.
+- rows[].sales: a product category's real store sales over the last 90 days (null for other rows and without a store). Cells carry no money: sales aren't split by prompt type, stage or persona.
+- questionList: each question's tracked id, answers and named share. Pass the ids to propose_project as target_question_ids.
+- priorities: cells the brand's team marked as a priority, with their reason.
+
+Use this when the user asks where to focus, which category or buyer to work on, or before proposing a campaign. Skip it for a single question's answers (use search_prompt_intelligence).
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `rows` | `string` | no | — | Row dimension: category, persona, funnel or tag:\<id>. Give both rows and cols, or neither. |
+| `cols` | `any` | no | — | Column dimension, different from rows. |
