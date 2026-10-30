@@ -35,7 +35,7 @@ Inputs:
 - description (required): array of step-by-step instructions (each ≤ 500 chars).
 - effort_minutes (optional, default 30): estimated implementer effort.
 - priority (optional, 'low'|'medium'|'high'|'critical', default 'medium').
-- target_prompt_ids (optional): tracked-prompt ids this recommendation expects to win.
+- target_prompt_ids (optional): tracked-prompt ids this recommendation expects to win (from plan_question_bank, not search_prompt_intelligence row ids).
 
 Response: \{ actionId, taskId, deepLinkUrl \}.
 
@@ -49,4 +49,4 @@ Response: \{ actionId, taskId, deepLinkUrl \}.
 | `description` | `string[]` | yes | — | Step-by-step instructions (1-20 steps, each max 500 chars). |
 | `effort_minutes` | `integer` | no | `30` | Estimated implementer effort in minutes. Default 30. |
 | `priority` | `'low' \| 'medium' \| 'high' \| 'critical'` | no | `"medium"` | Priority in the Action Engine queue. Default medium. |
-| `target_prompt_ids` | `integer[]` | no | — | Tracked-prompt ids this fix is meant to win (scopes outcome measurement). |
+| `target_prompt_ids` | `integer[]` | no | — | Tracked-prompt ids this fix is meant to win (from plan_question_bank, not search_prompt_intelligence row ids); scopes outcome measurement. |
