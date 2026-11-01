@@ -80,6 +80,7 @@
               "mcp/reads/list-replies",
               "mcp/reads/list-open-items",
               "mcp/reads/next-actions",
+              "mcp/reads/get-cell-answers",
               "mcp/reads/get-attribution-report",
               "mcp/reads/get-action-with-children",
               "mcp/reads/score-content",
@@ -101,6 +102,8 @@
           {
             "group": "Write tools",
             "pages": [
+              "mcp/writes/plan-campaign",
+              "mcp/writes/revise-campaign-plan",
               "mcp/writes/update-reply",
               "mcp/writes/mark-reply-posted",
               "mcp/writes/schedule-reply",

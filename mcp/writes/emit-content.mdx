@@ -31,7 +31,7 @@ Inputs:
 - platform (required): linkedin / twitter / reddit / blog / instagram / youtube.
 - body (required, 1-8000 chars): the draft. Long-form for blogs; short-form for socials.
 - title (optional): caps 200 chars. Defaults to body[:80].
-- source_task_id OR from_conversation_id OR origin='editorial' (required: one of): what the content answers — an action ticket, a conversation stored with ingest_conversation, or, for a news-led post that answers neither, origin='editorial'. Use a conversation only if it actually took place; never create one just to pass this check. Without an anchor, the draft is refused with ANCHOR_MISSING.
+- source_task_id OR card_id OR from_conversation_id OR origin='editorial' (required: one of): what the content answers — an action ticket (such as a campaign ticket from next_actions), a gap from next_actions (pass the gap's card id as card_id, never as source_task_id), a conversation stored with ingest_conversation, or, for a news-led post that answers none of these, origin='editorial'. Use a conversation only if it actually took place; never create one just to pass this check. Without an anchor, the draft is refused with ANCHOR_MISSING.
 - editorial_reason (required with origin='editorial', ≥ 8 chars): why this post is worth publishing.
 - source_url (with origin='editorial', when there is one): the news or source the post responds to.
 - action_subtype (optional): e.g. 'long_form_hub', 'reddit_spoke', 'linkedin_spoke'.
@@ -53,9 +53,10 @@ Response: \{ actionId, contentId, deepLinkUrl, geoScore, artifactsFlagged, valid
 | `platform` | `'linkedin' \| 'twitter' \| 'reddit' \| 'blog' \| 'instagram' \| 'youtube'` | yes | — | Target platform for the content. |
 | `body` | `string` | yes | — | The draft body (1-8000 chars). Long-form for blog; short-form for socials. |
 | `title` | `string` | no | — | Optional title (max 200 chars). Defaults to the first 80 chars of the body. |
-| `source_task_id` | `integer` | no | — | Anchor: action ticket this responds to. Exactly one of this, from_conversation_id or origin='editorial' is required. |
-| `from_conversation_id` | `integer` | no | — | Anchor: ingested conversation. Exactly one of this, source_task_id or origin='editorial' is required. |
-| `origin` | `string` | no | — | Anchor for a news-led post that answers neither a ticket nor a conversation. Requires editorial_reason and target_prompt_ids. |
+| `source_task_id` | `integer` | no | — | Anchor: action ticket this responds to. Exactly one of this, card_id, from_conversation_id or origin='editorial' is required. |
+| `card_id` | `integer` | no | — | Anchor: the card id of the gap from next_actions this answers (not an action ticket, so never pass it as source_task_id). Exactly one of this, source_task_id, from_conversation_id or origin='editorial' is required. |
+| `from_conversation_id` | `integer` | no | — | Anchor: ingested conversation. Exactly one of this, source_task_id, card_id or origin='editorial' is required. |
+| `origin` | `string` | no | — | Anchor for a news-led post that answers no ticket, gap or conversation. Requires editorial_reason and target_prompt_ids. |
 | `editorial_reason` | `string` | no | — | With origin='editorial': why this post is worth publishing (≥ 8 chars). |
 | `source_url` | `string` | no | — | With origin='editorial': the news or source the post responds to, when there is one. |
 | `action_subtype` | `string` | no | — | Finer subtype, e.g. 'long_form_hub' / 'reddit_spoke'. |

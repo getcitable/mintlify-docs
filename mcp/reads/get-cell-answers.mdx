@@ -1,0 +1,23 @@
+---
+title: "get_cell_answers"
+sidebarTitle: "get_cell_answers"
+description: "Read what a plan is written from: recent AI answers to the questions (with their ids), the sites AI cites in them, the brand's knowledge base (Who We Are…"
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Read what a plan is written from: recent AI answers to the questions (with their ids), the sites AI cites in them, the brand's knowledge base (Who We Are, What We Offer, Where We Are), its team and the accounts it owns, and how to plan each channel. Call it before plan_campaign, and before revise_campaign_plan adds or redrafts a lane.
+
+Name the Opportunity map cell as get_opportunity_map returns it: rows and cols are the lens's dimensions, row and col the cell's keys. Or give project_id instead, to read a project plan's own questions before you change it.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `rows` | `string` | no | — | The lens's row dimension, as get_opportunity_map returns it in lens.rows: category, persona, funnel or tag:\<id>. |
+| `row` | `string` | no | — | The cell's row key, as get_opportunity_map returns it in cells[].row, e.g. "Cat Trees". |
+| `cols` | `string` | no | — | The lens's column dimension (lens.cols), different from rows. |
+| `col` | `string` | no | — | The cell's column key (cells[].col), e.g. "purchase_intent". |
+| `project_id` | `integer` | no | — | A project plan's id, instead of a cell. |

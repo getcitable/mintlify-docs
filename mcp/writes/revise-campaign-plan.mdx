@@ -1,0 +1,26 @@
+---
+title: "revise_campaign_plan"
+sidebarTitle: "revise_campaign_plan"
+description: "Changes a project plan by its project_id (from plan_campaign or get_ae_projects), before or after approval: add lanes (an owned channel by its account_id…"
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Changes a project plan by its project_id (from plan_campaign or get_ae_projects), before or after approval: add lanes (an owned channel by its account_id from get_cell_answers, or any channel kind), redraft a lane by its name, remove lanes, move the goal, or add notes on questions. Once a project has started its goal stays, and an approved plan's tasks follow the change; done tasks are never touched. Lanes you add or redraft need the team's review again. It can also save where the brand is or isn't listed, or something else the user taught you, to the brand's knowledge. This is a WRITE: only call it when the user asked for the change.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `project_id` | `integer` | yes | — | The project plan to change. |
+| `add_channels` | `object[]` | no | — |  |
+| `redraft_channels` | `object[]` | no | — |  |
+| `remove_channels` | `string[]` | no | — | Lane names to remove. |
+| `target_pct` | `number` | no | — |  |
+| `headline` | `string` | no | — |  |
+| `goal_label` | `string` | no | — |  |
+| `question_notes` | `object[]` | no | — | For each target question you read answers for: what the answers look for (2 to 5 short phrases, only what the answers you read say) and what the plan does about it (one sentence). |
+| `where_we_are` | `object[]` | no | — | When the user tells you where the brand is or isn't listed (a review site, a store, a community), save it to the knowledge base so every later plan knows. Then change the lanes that assumed otherwise. |
+| `learning` | `string` | no | — | Something else the user taught you about these buyers or the brand, kept on the plan and read before every later draft. |

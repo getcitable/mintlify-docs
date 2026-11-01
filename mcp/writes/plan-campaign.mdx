@@ -1,0 +1,26 @@
+---
+title: "plan_campaign"
+sidebarTitle: "plan_campaign"
+description: "Saves a project plan for one Opportunity map cell, named as get_opportunity_map returns it (rows, row, cols, col)."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Saves a project plan for one Opportunity map cell, named as get_opportunity_map returns it (rows, row, cols, col). Call get_cell_answers for the same cell first, and write the lanes only from what it returns. A cell has one project at a time: if it already has one, nothing new is made and you get its project_id to change it with revise_campaign_plan. It lands as a proposal: nothing starts until the team reviews every lane and approves it on the plan page. This is a WRITE: only call it when the user asked for a plan or a campaign ("Plan a project for …", "launch a Cyber Monday campaign") or confirmed your offer. The goal, sales, verdict and checkpoints are filled in from the brand's data; you write the lanes and the words. Channels: product_pages (Rewrite the pages AI reads when it answers these questions.); blog (Guides that answer these questions the way buyers ask them.); other_stores (Listings on the other stores that sell your products.); review_sites (Pitches to the review sites AI cites for these questions.); social (Posts on a social account you own.); community (Answers in communities like Reddit, as your team.); site_fixes (Fixes that let AI read your site: schema, speed, crawl rules.); chatgpt_ads (Paid placements in ChatGPT answers, bid on these questions.). A chatgpt_ads lane drafts the ads and stops: a person launches it, because launching spends money. Never write that the agent launches, publishes or sends anything.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `rows` | `string` | yes | — | The lens's row dimension, as get_opportunity_map returns it in lens.rows: category, persona, funnel or tag:\<id>. |
+| `row` | `string` | yes | — | The cell's row key, as get_opportunity_map returns it in cells[].row, e.g. "Cat Trees". |
+| `cols` | `string` | yes | — | The lens's column dimension (lens.cols), different from rows. |
+| `col` | `string` | yes | — | The cell's column key (cells[].col), e.g. "purchase_intent". |
+| `name` | `string` | yes | — | Short project name, e.g. "Win more Cat Tree buying answers". |
+| `headline` | `string` | yes | — | What the brand gets, one line, e.g. "Get named in about half of Cat Tree buying answers". No money. |
+| `goal_label` | `string` | no | — | What the goal counts, e.g. "named in buying answers". |
+| `target_pct` | `number` | no | — | Only if the user asked for a different goal than the default get_cell_answers gives. |
+| `channels` | `object[]` | yes | — | 2 to 4 lanes, each answering what the answers look for. |
+| `question_notes` | `object[]` | no | — | For each target question you read answers for: what the answers look for (2 to 5 short phrases, only what the answers you read say) and what the plan does about it (one sentence). |

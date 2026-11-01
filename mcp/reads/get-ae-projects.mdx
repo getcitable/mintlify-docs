@@ -22,9 +22,9 @@ Use this when the user asks:
 
 Skip when: the user names a specific project (call get_ae_project instead), or wants the LEGACY flat ticket feed — get_geo_priorities returns standalone GEO tickets that are not part of the project layer, and the two lists do not overlap in meaning.
 
-Response shape: \{ brandId, ticketsVisibleStatuses, ticketsEditableStatuses, totals, initiatives: [\{ key, name, tagline, why, metric, projects: [\{ id, name, status, health, progress, goalStatement, metrics, targetDate, ticketRollup: \{ total, done, humanOpen \} \}] \}] \}.
+Response shape: \{ brandId, ticketsVisibleStatuses, ticketsEditableStatuses, totals, initiatives: [\{ key, name, tagline, why, metric, projects: [\{ id, name, status, health, progress, goalStatement, metrics, targetDate, ticketRollup: \{ total, done, humanOpen, agentAwaiting \} \}] \}] \}.
 
-ticketRollup is COUNTS ONLY and is safe on a proposal — a count is not the work. humanOpen is the number of human-executor tickets still open, i.e. what is actually waiting on the user.
+ticketRollup is COUNTS ONLY and is safe on a proposal — a count is not the work. humanOpen is the number of human-executor tickets still open; agentAwaiting is the number of open agent tickets nobody has approved or declined yet. Together they are what is actually waiting on the user.
 
 Example: a brand with one live Growth campaign and one Foundation proposal returns all three initiative groups (empty ones included, so the spine is stable), with the proposal sorted first because it is the only thing asking for a decision.
 

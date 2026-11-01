@@ -18,12 +18,20 @@ What the numbers mean (last 30 days of answers; questions with the brand's name 
 - vs: the same against the brand's tracked competitors. position 1 = ahead of all of them; rival is the one ahead, or the next one behind when the brand leads. firstPlace is the share of answers naming a tracked brand where this brand is named first.
 - mostNamed: the brand named in the most answers, tracked or not.
 - missedAnswers: answers that don't name the brand.
-- priority: missedAnswers × confidence, scaled so the top cell is 100. kind: growth when the brand leads its tracked competitors and is named in at least 20% of answers, otherwise gap.
+- score: where the cell stands. status is ranked (gap, demand and value all known; rank 1 = first), test (a factor is unknown, or the gap is inside its error bar), fix_first (too few questions or answers, or untagged questions: Citable fixes these first) or no_gap (the brand is named most). verdict says it in plain words; needs lists what would let it be ranked. Factors: gap (points behind the brand named most, with its 95% range), demand (Google impressions a month for matching searches, a proxy), value (average order with the cell's products in it), odds (open, contested or locked, plus footholds). Each factor says measured, proxy or unknown. Rank orders ranked cells by gap low end × impressions × order value.
+- priority: the map's colour, the gap's low end, scaled so the top cell is 100. kind: growth when the brand leads its tracked competitors and is named in at least 20% of answers, otherwise gap.
 - rows[].sales: a product category's real store sales over the last 90 days (null for other rows and without a store). Cells carry no money: sales aren't split by prompt type, stage or persona.
-- questionList: each question's tracked id, answers and named share. Pass the ids to propose_project as target_question_ids.
+- questionList: each question's tracked id, answers and named share.
 - priorities: cells the brand's team marked as a priority, with their reason.
 
-Use this when the user asks where to focus, which category or buyer to work on, or before proposing a campaign. Skip it for a single question's answers (use search_prompt_intelligence).
+One cell's evidence: pass rows, cols, cellRow and cellCol (a cell's row and col keys from the map) to get the data behind that cell instead of the map. Each factor carries a confidence: measured (read from an instrument for this cell), proxy (a real number tied to the cell by our matching) or unknown (no instrument, or nothing it could tell). A cell with an unknown factor can be a test, not a recommendation.
+- demand.google: Search Console queries sharing the words of the cell's questions (impressions, clicks, best position), the brand's own name left out.
+- demand.copilot: Copilot grounding queries the Bing import matched to the cell's questions.
+- value: the category's real store sales, orders and average order value over 90 days, on a lens with a category axis only.
+- odds: brands named and the leader, the cited-source mix (own, tracked competitor, other; Google's own links left out) and footholds (own site cited, best Google position).
+- gates: enough_evidence (2+ questions, 30+ answers) and known_category.
+
+Use this when the user asks where to focus, which category or buyer to work on, or before planning a project: plan a cell with get_cell_answers, then plan_campaign. Skip it for a single question's answers (use search_prompt_intelligence).
 
 ## Inputs
 
@@ -31,3 +39,5 @@ Use this when the user asks where to focus, which category or buyer to work on, 
 |---|---|---|---|---|
 | `rows` | `string` | no | — | Row dimension: category, persona, funnel or tag:\<id>. Give both rows and cols, or neither. |
 | `cols` | `any` | no | — | Column dimension, different from rows. |
+| `cellRow` | `string` | no | — | A cell's row key from the map. With cellCol, returns that cell's evidence instead of the map. |
+| `cellCol` | `string` | no | — | A cell's col key from the map. Give with cellRow. |

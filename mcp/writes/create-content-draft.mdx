@@ -1,16 +1,16 @@
 ---
 title: "create_content_draft"
 sidebarTitle: "create_content_draft"
-description: "Creates a content draft against an action ticket OR an ingested conversation."
+description: "Creates a content draft for an action ticket, a gap from next_actions, OR an ingested conversation."
 ---
 
 {/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
     Do not edit by hand — edit the tool's description in the platform repo
     and re-run `npm run docs:mcp`. */}
 
-Creates a content draft against an action ticket OR an ingested conversation. The draft lands at status='queued' — never published. Returns the editor URL so the user can review, edit, and approve in the web UI before scheduling.
+Creates a content draft for an action ticket, a gap from next_actions, OR an ingested conversation. The draft lands at status='queued' — never published. Returns the editor URL so the user can review, edit, and approve in the web UI before scheduling.
 
-Provide EXACTLY ONE of source_task_id or from_conversation_id, never both.
+Say what the draft answers with EXACTLY ONE of: source_task_id (an action ticket, such as a campaign ticket from next_actions), card_id (a gap from next_actions: pass the gap's card id as card_id, never as source_task_id) or from_conversation_id. Never more than one.
 
 Who it's for and what it should win (both required): the buyer persona the post is for, given EITHER as persona (its name exactly as get_brand_context lists it, same capitals and spacing) OR as persona_id, never both; and target_prompt_ids are the tracked questions it should win, as plan_question_bank returns them (not search_prompt_intelligence row ids). The post is measured by those questions once it's posted. A draft without them is refused, and nothing is saved.
 
@@ -21,6 +21,7 @@ Quality signal (returned in structuredContent): geoScore (0-100 — the unified 
 
 Use this when:
 - The user has agreed on what to post next.
+- You're drafting a fix for a gap or a campaign ticket from next_actions.
 - You want to materialize the result of a brand conversation as a draft (pair with from_conversation_id from a prior ingest_conversation call).
 
 Skip when:
@@ -33,8 +34,9 @@ Body limits: 1–8000 chars. For long-form (blog) posts, write the full body her
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `source_task_id` | `integer` | no | — | Anchor: the action ticket id this draft responds to. Provide this OR from_conversation_id. |
-| `from_conversation_id` | `integer` | no | — | Anchor: a conversation id returned by a prior ingest_conversation call. Provide this OR source_task_id. |
+| `source_task_id` | `integer` | no | — | Anchor: the action ticket id this draft responds to. Provide exactly one of this, card_id or from_conversation_id. |
+| `card_id` | `integer` | no | — | Anchor: the card id of the gap from next_actions this draft answers. A gap isn't an action ticket, so never pass its card id as source_task_id. Provide exactly one of this, source_task_id or from_conversation_id. |
+| `from_conversation_id` | `integer` | no | — | Anchor: a conversation id returned by a prior ingest_conversation call. Provide exactly one of this, source_task_id or card_id. |
 | `persona_id` | `integer` | no | — | The buyer persona this post is for, one of the personas get_brand_context lists. Provide this OR persona. |
 | `persona` | `string` | no | — | The buyer persona this post is for, by its name exactly as get_brand_context lists it. Provide this OR persona_id. |
 | `target_prompt_ids` | `integer[]` | no | — | Required (at least one): tracked-question ids from plan_question_bank (not search_prompt_intelligence row ids) this post should win. |
