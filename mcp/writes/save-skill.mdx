@@ -14,7 +14,7 @@ Writing a skill:
 - name: lowercase words joined by hyphens, like "weekly-returns-check". Names starting with "citable" belong to Citable's own skills.
 - description: what the skill does and when to use it, in the words the person would say. It's all list_skills shows, so make it specific.
 - body: the steps, in order, as instructions another AI could follow. For the brand's facts and numbers, call Citable's tools (get_brand_context, search_prompt_intelligence, plan_question_bank) instead of pasting data, so the skill stays current. Write the case you just solved as a general one. Leave out customer data, passwords, keys and one-off details. Keep it under about 500 lines and put long reference material in files.
-- files (optional): text files under scripts/, references/ or assets/. Sending files replaces all of the skill's files; leave it out to keep them.
+- files (optional): text files under scripts/, references/ or assets/. Sending files replaces all of the skill's files; leave it out to keep them. To change only some, use file_edits (find and replace in one file), add_files or remove_files instead.
 
 Changing a skill: fetch it with get_skill first and send its latest version as base_version (0 creates a new skill). If someone saved in between, the save is refused and says which version is latest: fetch that one, redo your change on top of it, and save again. Send the whole new body, or edits (each \{ old, new \}, where old matches the current body exactly once) for small changes. Fields you leave out keep their current value.
 
@@ -29,7 +29,10 @@ Citable checks every save for things that look like keys, email addresses, phone
 | `description` | `string` | no | — | What the skill does and when to use it. Required for a new skill. |
 | `body` | `string` | no | — | The whole body: the steps, in order. Required for a new skill. Not with edits. |
 | `edits` | `object[]` | no | — | Find-and-replace changes to the current body; each old must match exactly once. Not with body. |
-| `files` | `object[]` | no | — | Text files bundled with the skill. Replaces every file; leave out to keep the current ones. |
+| `files` | `object[]` | no | — | Text files bundled with the skill. Replaces every file; leave out to keep the current ones. Not with the three below. |
+| `file_edits` | `object[]` | no | — | Find-and-replace changes to one file each; each old must match exactly once in that file. Other files are kept. |
+| `add_files` | `object[]` | no | — | New files to add. A path the skill already has is refused: change it with file_edits. |
+| `remove_files` | `string[]` | no | — | Paths of files to drop. Other files are kept. |
 | `allowed_tools` | `string[]` | no | — | The tools the skill asks to use. A request, not a grant. |
 | `license` | `string` | no | — |  |
 | `compatibility` | `string` | no | — | What the skill needs to run, like "Needs Citable and Shopify connected". |
