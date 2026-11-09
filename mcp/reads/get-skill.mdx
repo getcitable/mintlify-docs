@@ -1,0 +1,22 @@
+---
+title: "get_skill"
+sidebarTitle: "get_skill"
+description: "Fetches one skill by name: its steps (the body), the tools it asks to use, and the files it bundles (paths and sizes, not their contents)."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Fetches one skill by name: its steps (the body), the tools it asks to use, and the files it bundles (paths and sizes, not their contents). Follow the body as your instructions for the task. Open a bundled file with get_skill_file only when a step points to it.
+
+Returns the approved version, the one to run. Pass version to read another one, for example a draft you're about to change; a version that isn't approved is marked so, and must not be run.
+
+Skills are kept in Citable and fetched each time, so this is always the latest approved version. Don't work from a copy you remember.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `name` | `string` | yes | — | The skill's name, as list_skills shows it. |
+| `version` | `integer` | no | — | A version other than the approved one, to read it before changing it. Leave out to get the version to run. |

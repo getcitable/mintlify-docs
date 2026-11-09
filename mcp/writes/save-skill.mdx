@@ -1,0 +1,38 @@
+---
+title: "save_skill"
+sidebarTitle: "save_skill"
+description: "Saves a skill for this brand in Citable: a new skill, or a new version of one."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Saves a skill for this brand in Citable: a new skill, or a new version of one. Use it when the person asks to save, store or remember a workflow, or to change one of their skills. Every save is a draft: it runs nowhere until an owner or admin approves it in Citable, so give the person the link in the response straight away.
+
+Writing a skill:
+- name: lowercase words joined by hyphens, like "weekly-returns-check". Names starting with "citable" belong to Citable's own skills.
+- description: what the skill does and when to use it, in the words the person would say. It's all list_skills shows, so make it specific.
+- body: the steps, in order, as instructions another AI could follow. For the brand's facts and numbers, call Citable's tools (get_brand_context, search_prompt_intelligence, plan_question_bank) instead of pasting data, so the skill stays current. Write the case you just solved as a general one. Leave out customer data, passwords, keys and one-off details. Keep it under about 500 lines and put long reference material in files.
+- files (optional): text files under scripts/, references/ or assets/. Sending files replaces all of the skill's files; leave it out to keep them.
+
+Changing a skill: fetch it with get_skill first and send its latest version as base_version (0 creates a new skill). If someone saved in between, the save is refused and says which version is latest: fetch that one, redo your change on top of it, and save again. Send the whole new body, or edits (each \{ old, new \}, where old matches the current body exactly once) for small changes. Fields you leave out keep their current value.
+
+Citable checks every save for things that look like keys, email addresses, phone numbers or tool names it doesn't have, and shows them to the person who approves it.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `name` | `string` | yes | — | Lowercase words joined by hyphens, like "weekly-returns-check". |
+| `base_version` | `integer` | yes | — | The latest version you read with get_skill. 0 to create a new skill. |
+| `description` | `string` | no | — | What the skill does and when to use it. Required for a new skill. |
+| `body` | `string` | no | — | The whole body: the steps, in order. Required for a new skill. Not with edits. |
+| `edits` | `object[]` | no | — | Find-and-replace changes to the current body; each old must match exactly once. Not with body. |
+| `files` | `object[]` | no | — | Text files bundled with the skill. Replaces every file; leave out to keep the current ones. |
+| `allowed_tools` | `string[]` | no | — | The tools the skill asks to use. A request, not a grant. |
+| `license` | `string` | no | — |  |
+| `compatibility` | `string` | no | — | What the skill needs to run, like "Needs Citable and Shopify connected". |
+| `metadata` | `object` | no | — |  |
+| `change_note` | `string` | no | — | One line on what changed, for the person approving it. |
+| `from_conversation` | `boolean` | no | — | True when you drafted this from the conversation you just had with the person. |

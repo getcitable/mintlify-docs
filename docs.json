@@ -96,7 +96,10 @@
               "mcp/reads/get-ae-projects",
               "mcp/reads/get-ae-project",
               "mcp/reads/get-pdp-run",
-              "mcp/reads/get-pdp-publish-readiness"
+              "mcp/reads/get-pdp-publish-readiness",
+              "mcp/reads/list-skills",
+              "mcp/reads/get-skill",
+              "mcp/reads/get-skill-file"
             ]
           },
           {
@@ -131,7 +134,8 @@
               "mcp/writes/start-pdp-optimization",
               "mcp/writes/decide-pdp-proposal",
               "mcp/writes/publish-pdp-changes",
-              "mcp/writes/revert-pdp-run"
+              "mcp/writes/revert-pdp-run",
+              "mcp/writes/save-skill"
             ]
           }
         ]

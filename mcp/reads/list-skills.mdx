@@ -1,0 +1,23 @@
+---
+title: "list_skills"
+sidebarTitle: "list_skills"
+description: "Lists the skills this brand keeps in Citable: its own (saved from any AI app and approved in Citable) and Citable's."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Lists the skills this brand keeps in Citable: its own (saved from any AI app and approved in Citable) and Citable's. Returns each skill's name and one-line description only, never its steps.
+
+Use this when:
+- The person asks what skills they have, or asks for a workflow by a name you don't know.
+- A request sounds like a repeatable job (a weekly check, a report, a page review): look for a skill before working from memory.
+
+Then fetch the one that fits with get_skill. When the person names a skill, skip this and call get_skill directly.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `search` | `string` | no | — | Only skills whose name or description contains these words. |

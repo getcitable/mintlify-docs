@@ -1,0 +1,21 @@
+---
+title: "get_skill_file"
+sidebarTitle: "get_skill_file"
+description: "Returns one file bundled with a skill (a reference document, a template, a script), by the path get_skill listed."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Returns one file bundled with a skill (a reference document, a template, a script), by the path get_skill listed. From the approved version unless you pass version.
+
+Citable stores these files and never runs them: if a step says to run a script, your app decides whether it can. Fetch only the files the current step needs.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `name` | `string` | yes | — | The skill's name, as list_skills shows it. |
+| `path` | `string` | yes | — | The file's path, as get_skill listed it, like "references/returns-policy.md". |
+| `version` | `integer` | no | — | The version the file is from. Leave out for the approved version. |
