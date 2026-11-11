@@ -21,6 +21,22 @@ Citable's MCP server lets an AI assistant work with your brand's Citable data. I
 
 With Read only or Drafts for my approval, the connection cannot publish, schedule, spend your ad budget or contact anyone. Give Read, write and spend only to an assistant you trust to take those actions.
 
+## Connect from ChatGPT
+
+You need ChatGPT Business, Enterprise or Edu, on the web. On Business, an admin or owner adds the server. Pro can use read tools only.
+
+1. In ChatGPT on the web, open **Plugins**, select **+**, then **Add custom MCP server**.
+2. Name it "Citable", set the server URL to `https://app.getcitable.com/mcp/v1`, choose **OAuth** for authentication, check "I understand and want to continue", and create it.
+3. Sign in to Citable and choose the brands and an access level.
+
+ChatGPT is a platform we have reviewed, so all three access levels work there, where your ChatGPT plan allows write tools.
+
+## Other MCP clients
+
+Any assistant or tool that supports remote MCP servers, such as Cursor, can connect with the endpoint `https://app.getcitable.com/mcp/v1`. Sign in with OAuth, or send an API key in an `Authorization: Bearer` header (see [Connect with an API key](#connect-with-an-api-key)).
+
+Apps we haven't reviewed are limited to **Drafts for my approval** when they connect with OAuth, whatever is selected at sign-in. In those apps some tools aren't available, including those that return data from your connected accounts, such as Search Console, Google Analytics, Shopify sales and ad accounts.
+
 ## Disconnect
 
 Owners and admins see every app connected to a brand in Citable under **Citable MCP › Connected apps**, and members see their own. Any of them can be disconnected at any time. A disconnected app loses access within 30 seconds.
