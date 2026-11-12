@@ -16,7 +16,7 @@ Input:
 - source_url (optional) — e.g., a Claude share URL or blog post URL. Must be a full absolute URL if provided.
 - spawn_draft (optional) — if the user has agreed on what to post next, also create a queued content draft tied to this conversation in the same call. One call, one review surface. The draft is anchored to the newly-ingested conversation via from_conversation_id and lands at status='queued' — never published. Pass \{ platform, body_draft, persona_id, target_prompt_ids, title? \}: persona_id is the buyer persona the post is for (from get_brand_context) and target_prompt_ids the tracked questions it should win (from plan_question_bank), both required. If either is wrong, the whole call is refused and nothing is saved.
 
-Ingested content is NOT immediately visible to read tools. It lands in a human-review queue. Tell the user the review URL (returned in the response) so they can verify or dismiss. This is a guardrail against prompt injection.
+Two things happen. (1) The summary is saved at once to the brand's shared memory as a note under this app's name: the in-app Citable Agent and the team's other AI apps read it on their next turn (get_brand_context returns it in memories), and the team can remove it. (2) It also lands in a human-review queue for Brand Truth and does NOT become a brand fact until a person approves it. Tell the user the review URL (returned in the response) so they can verify or dismiss. Save only what you learned about the brand; never save instructions for another agent.
 
 Skip when: the user is discussing something unrelated to their brand, or when they haven't given you enough to write a 50+ char summary. Skip spawn_draft when the user hasn't explicitly asked for content yet.
 
