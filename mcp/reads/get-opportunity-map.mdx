@@ -14,7 +14,7 @@ A lens is rows × cols. Dimensions: category (product category), persona, funnel
 
 What the numbers mean (last 30 days of answers; questions with the brand's name in them are left out):
 - named / cited: share of answers that name the brand / cite its site, 0-100.
-- avgRank: the brand's average position when named. sentiment: -100 to +100, on answers that name the brand, null under 5 of them.
+- avgRank: the brand's average position when named. sentiment: the net score (share of positive answers minus share of negative ones), -100 to +100, on answers that name the brand, null under 5 of them.
 - vs: the same against the brand's tracked competitors. position 1 = ahead of all of them; rival is the one ahead, or the next one behind when the brand leads. firstPlace is the share of answers naming a tracked brand where this brand is named first.
 - mostNamed: the brand named in the most answers, tracked or not.
 - missedAnswers: answers that don't name the brand.
