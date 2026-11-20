@@ -1,0 +1,39 @@
+---
+title: "get_ai_signups"
+sidebarTitle: "get_ai_signups"
+description: "Returns visits from AI assistants (ChatGPT, Perplexity, Claude, Gemini, Copilot, …) to the brand's website and the sign-ups that followed, read from the…"
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Returns visits from AI assistants (ChatGPT, Perplexity, Claude, Gemini, Copilot, …) to the brand's website and the sign-ups that followed, read from the brand's own connected PostHog project. Counts are per complete UTC week (Monday to Sunday); window gives the exact dates. Activations appear only when the brand chose an activation event.
+
+Two attribution layers, reported separately and never added together:
+- lastTouch: the visit's own referrer was an AI assistant; a sign-up counts when the person's latest visit before signing up was AI-referred.
+- firstTouch: the person's first-ever referrer was an AI assistant. It has sign-ups only, no visit count.
+
+status:
+- "not_connected": PostHog is not connected. Say so and point to /connectors. Never report 0.
+- "no_data_yet": connected, but no complete week has been read yet.
+- "cannot_link": sign-ups exist but none could be joined to a visit on the site, so AI sign-ups are unknown (null), not zero. Say the site needs posthog.identify() at sign-up.
+- "ok": measured. 0 means none were recorded in the window.
+Counts under 10 are flagged in small: say they are too few to read a trend from. signupRate is PostHog sign-ups over PostHog visits only. visitSource says where the brand's AI-visit headline comes from elsewhere in Citable ("ga4" when GA4 is connected); do not add GA4 and PostHog visits together. Never say a page, fix or campaign caused a sign-up: these are counts, not causes.
+
+Use this when the user asks:
+- "How many sign-ups came from ChatGPT last month?"
+- "Which pages do AI visitors land on before signing up?"
+- "Is AI traffic turning into sign-ups?"
+
+Skip when the user wants AI visibility in answers (use get_brand_visibility) or GA4 traffic per posted page (use get_content_performance).
+
+Response shape: \{ source: "posthog", status, window: \{ startDate, endDate, weeks \}, weeksMissing, signupEvent, activationEvent, visitSource, allSignups: \{ total, linked \} | null, lastTouch: \{ aiVisits, aiVisitors, aiSignups, aiActivations, signupRate, byEngine: [\{ engine, visits, signups, activations \}], topPages: [\{ landingPath, visits, signups, activations \}] \} | null, firstTouch: \{ aiSignups, aiActivations, byEngine \} | null, weekly: [\{ weekStart, aiVisits, aiSignups \}], small: \{ aiVisits, aiSignups, firstTouchSignups \}, note \}.
+
+Example: calling with \{ weeks: 4 \} returns the last 4 complete weeks.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `weeks` | `integer` | no | — | How many complete weeks to read, ending last Sunday. Defaults to 4, max 12. |

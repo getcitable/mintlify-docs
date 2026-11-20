@@ -71,6 +71,7 @@
               "mcp/reads/get-top-products",
               "mcp/reads/get-brand-visibility",
               "mcp/reads/get-content-performance",
+              "mcp/reads/get-ai-signups",
               "mcp/reads/get-search-console",
               "mcp/reads/get-copilot-citations",
               "mcp/reads/search-prompt-intelligence",
