@@ -1,0 +1,18 @@
+---
+title: "publish_content"
+sidebarTitle: "publish_content"
+description: "Publishes one content draft the way setting it Visible in Citable's editor does: it records the person's approval and, for a brand whose website repo is…"
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Publishes one content draft the way setting it Visible in Citable's editor does: it records the person's approval and, for a brand whose website repo is connected through Citable's GitHub App, opens a pull request on a citable/ branch for a person to review and merge on GitHub (Citable never merges and never commits to the default branch); for Citable's own blog it queues the blog publisher. A publish_at date ahead (YYYY-MM-DD) holds it until that day. It works only when the brand's owner or admin has turned on "Allow posting from MCP" in Citable (Customize › Agents), for a member who can edit the brand, on a connection with write access, and each call is recorded as that person's approval. Use it only when the person asks you to publish that specific post in this conversation; never to publish drafts on your own.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `content_id` | `integer` | yes | — | ID of the content draft to publish. |
+| `publish_at` | `string` | no | — | Publish date in YYYY-MM-DD. Leave it out to publish as soon as possible. |

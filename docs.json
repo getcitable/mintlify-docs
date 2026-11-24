@@ -119,6 +119,7 @@
               "mcp/writes/mark-content-posted",
               "mcp/writes/mark-content-unposted",
               "mcp/writes/cancel-content",
+              "mcp/writes/publish-content",
               "mcp/writes/manage-paid-ad",
               "mcp/writes/emit-content",
               "mcp/writes/emit-outreach",
