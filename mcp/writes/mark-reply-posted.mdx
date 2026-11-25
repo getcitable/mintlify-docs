@@ -18,11 +18,11 @@ Skip when:
 - The reply hasn't been posted yet — use update_reply for status changes that don't carry a URL.
 - The user wants to undo "posted" status — call update_reply with status='scheduled' or 'draft'.
 
-The posted_url should be the canonical URL of the live comment, not the source thread URL — Citable uses it for citation attribution.
+The posted_url should be the live comment's own link (https://www.reddit.com/r/\<sub>/comments/\<thread>/comment/\<id>/), not the source thread URL: Check results in the Chrome extension finds the comment by its id. A Reddit share link (https://www.reddit.com/r/\<sub>/s/\<code>, what Share → Copy link often gives) names no comment. It is still saved, and AI-citation tracking still works through the reply's thread, but ask the user to open it and paste the address Reddit opens (it has /comments/ in it).
 
 ## Inputs
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `reply_id` | `integer` | yes | — | ID of the reply row. |
-| `posted_url` | `string` | yes | — | Canonical URL of the live comment (not the source thread URL). |
+| `posted_url` | `string` | yes | — | The live comment's own link (not the source thread URL). A Reddit share link (/r/\<sub>/s/…) is saved, with a note on how to get the comment's own link. |
