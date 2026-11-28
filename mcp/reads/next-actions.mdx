@@ -12,6 +12,8 @@ Returns what to work on next for this brand: the open gaps (questions buyers are
 
 There is no tool to draft a Reddit reply yet: write the reply text in your answer for a person to paste and post.
 
+If first_check is set, the brand has no AI answers yet (its setup or first check is still running, or is waiting on the person): pass it on in plain words, and don't present the empty lists as "nothing to do".
+
 If cards_stale is true, the gaps are out of date or missing: say so, and don't invent gaps or questions. If a ticket has targets_missing, say it has no target questions recorded, and don't invent them.
 
 latest_loop_run is the last weekly loop run, or the last day a person's AI drafted through this connection (when, scheduled or from a chat, ok or failed, what it created, its summary). Say what it made before starting a new one. If it failed, say so and offer to run it now. Don't read out the error.

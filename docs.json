@@ -67,6 +67,7 @@
             "group": "Read tools",
             "pages": [
               "mcp/reads/ping",
+              "mcp/reads/report-problem",
               "mcp/reads/get-geo-priorities",
               "mcp/reads/get-top-products",
               "mcp/reads/get-brand-visibility",

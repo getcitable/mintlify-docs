@@ -1,0 +1,21 @@
+---
+title: "report_problem"
+sidebarTitle: "report_problem"
+description: "Tells the Citable team what went wrong, in your own words: what you were trying to do and what you got back."
+---
+
+{/* AUTO-GENERATED from the Citable MCP tool registry (mcp-docs-gen-v1).
+    Do not edit by hand — edit the tool's description in the platform repo
+    and re-run `npm run docs:mcp`. */}
+
+Tells the Citable team what went wrong, in your own words: what you were trying to do and what you got back. Use it when something concrete stopped you or the person: setup that stays stuck, a tool that errors or answers with nothing useful, a step you can't find a tool for, or instructions that contradict each other. Report it even if you found a way around it, once per distinct problem. Don't include passwords, keys, codes or anyone's personal details. Nobody replies to a report and it changes nothing by itself, so still tell the person what happened. At most 10 a day per connection; if a report isn't accepted, don't retry. The answer includes what Citable's own record says to tell the person.
+
+## Inputs
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `trying_to` | `string` | yes | — | What you were trying to do for the person, in a sentence or two. Kept to 500 characters. |
+| `got_back` | `string` | yes | — | What you got back instead: the tool's message or error text and any "request" reference in it. Kept to 2000 characters. |
+| `app` | `string` | no | — | Which AI app and model you are, e.g. "Claude desktop, Fable 5.2" or "ChatGPT". |
+| `outcome` | `'blocked' \| 'worked_around' \| 'friction'` | no | — | blocked: you could not do it. worked_around: you got there another way. friction: it worked but was confusing or slow. |
+| `tool_name` | `string` | no | — | The Citable tool involved, if one was. |

@@ -8,8 +8,10 @@ description: "Health check — returns the Citable MCP server identity and the r
     Do not edit by hand — edit the tool's description in the platform repo
     and re-run `npm run docs:mcp`. */}
 
-Health check — returns the Citable MCP server identity and the resolved brand/user context. Use this to verify your connection before calling real tools.
+Health check — returns the Citable MCP server identity and the resolved brand/user context. Use this to verify your connection before calling real tools. If you have something to report and your tool list has no report_problem, pass it here as `report`.
 
 ## Inputs
 
-_No inputs — call with an empty argument object._
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `report` | `object` | no | — | Only when something stopped you and report_problem is not in your tool list: the same fields as report_problem. |
