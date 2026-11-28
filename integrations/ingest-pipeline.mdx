@@ -3,7 +3,7 @@ title: "Ingest Pipeline"
 description: "How classified edge traffic reaches ClickHouse — and the two ways to connect (managed proxy vs self-hosted Worker)."
 ---
 
-The **ingest pipeline** is Citable's backend path for high-signal edge traffic: classify at the edge → POST to ingest → queue → ClickHouse → **Agent Analytics**.
+The **ingest pipeline** is Citable's backend path for high-signal edge traffic: classify at the edge → POST to ingest → queue → ClickHouse → **Agent Traffic**.
 
 There are **two ways** to get data into this pipeline:
 
@@ -46,7 +46,7 @@ flowchart LR
     D --> E["Cloudflare Queue"]
     E --> F["Event processor"]
     F --> G["ClickHouse"]
-    H["Agent Analytics"] --> C
+    H["Agent Traffic"] --> C
     H --> G
 ```
 
@@ -110,7 +110,7 @@ You operate the Worker; Citable operates ingest → ClickHouse → dashboard. [C
 
 ## Verify data is flowing
 
-1. **Agent Analytics** → **Edge Traffic** — overview and bot breakdown (Analytics Engine)
+1. **Agent Traffic** → **Edge Traffic** — overview and bot breakdown (Analytics Engine)
 2. High-signal events should reach ClickHouse within about a minute of test traffic
 3. For self-hosted: run the `curl` smoke test in the [Cloudflare Worker guide](/integrations/cloudflare-worker#test-your-implementation)
 

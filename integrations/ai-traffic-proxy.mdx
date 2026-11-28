@@ -24,7 +24,7 @@ Not sure which path fits? [Contact us](https://getcitable.com) — we can recomm
 
 ## What you get
 
-Once the proxy is active, **Agent Analytics** (`/ai-traffic`) shows edge traffic beyond what GA4 captures:
+Once the proxy is active, **Agent Traffic** (`/ai-traffic`) shows edge traffic beyond what GA4 captures:
 
 | Traffic type | What it is | Example |
 | --- | --- | --- |
@@ -42,7 +42,7 @@ flowchart TB
     A["Shopper or AI bot"] --> B["www.yourbrand.com<br/>Your storefront domain"]
     B -->|"DNS CNAME"| C["proxy.getcitable.com"]
     C --> D["Citable-managed edge proxy<br/>Classify · Log · Forward"]
-    D -->|"Telemetry"| E["Agent Analytics<br/>/ai-traffic"]
+    D -->|"Telemetry"| E["Agent Traffic<br/>/ai-traffic"]
     D -->|"Always forwarded"| F["Your origin<br/>Shopify · Pages · EC2"]
 
     style D fill:#0f172a,color:#ffffff,stroke:#3b82f6,stroke-width:2px
@@ -102,7 +102,7 @@ Target: proxy.getcitable.com
 2. Click **Verify DNS** on the AI Traffic Proxy card.
 3. When hostname and SSL are both active, the status changes to **Active**.
 
-Open **Agent Analytics** (`/ai-traffic`) and check the **Edge Traffic** tab. Data typically appears within a few minutes as crawlers and shoppers hit your storefront.
+Open **Agent Traffic** (`/ai-traffic`) and check the **Edge Traffic** tab. Data typically appears within a few minutes as crawlers and shoppers hit your storefront.
 
 ## What Citable manages
 
@@ -130,7 +130,7 @@ Disconnecting removes routing registration and stops new edge telemetry. Your DN
   </Accordion>
 
   <Accordion title="Edge Traffic shows 'not connected' but Connectors says Active">
-    Make sure you are viewing the correct brand in Citable. Refresh Agent Analytics. If the status hasn't updated, contact us or disconnect and reconnect from Connectors.
+    Make sure you are viewing the correct brand in Citable. Refresh Agent Traffic. If the status hasn't updated, contact us or disconnect and reconnect from Connectors.
   </Accordion>
 
   <Accordion title="Will this slow down my store?">

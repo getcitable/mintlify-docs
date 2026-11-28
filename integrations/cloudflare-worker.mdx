@@ -18,7 +18,7 @@ The integration uses a Cloudflare Worker on **your** Cloudflare account. For eac
 3. Classifies traffic (crawler, AI referral, agent, human)
 4. POSTs high-signal events to `https://ingest.getcitable.com`
 
-Events flow through Citable's queue into ClickHouse and appear in **Agent Analytics** alongside managed-proxy traffic.
+Events flow through Citable's queue into ClickHouse and appear in **Agent Traffic** alongside managed-proxy traffic.
 
 ## Before you start — provision credentials in Connectors
 
@@ -29,7 +29,7 @@ You need a **site ID** and **ingest auth token** registered on Citable's side be
 1. Open **Customize › Connectors** in Citable.
 2. Find **AI Traffic Proxy** and click **Connect**.
 3. Choose **Self-hosted Cloudflare Worker** (not the managed CNAME proxy).
-4. Enter your **site ID** — the hostname your Worker will run on (e.g. `www.example.com`). This becomes the partition key for your traffic in Agent Analytics.
+4. Enter your **site ID** — the hostname your Worker will run on (e.g. `www.example.com`). This becomes the partition key for your traffic in Agent Traffic.
 5. Click **Create credentials**.
 
 Citable registers `token:{your-token}` → `siteId` in our infrastructure and shows you:
@@ -209,7 +209,7 @@ npx wrangler deploy
 
 1. Visit your site through the routed hostname (e.g. `https://www.example.com`).
 2. Optionally simulate a crawler: `curl -A "GPTBot/1.0" https://www.example.com/`
-3. Open **Agent Analytics** (`/ai-traffic`) → **Edge Traffic**. Allow a few minutes for data to appear.
+3. Open **Agent Traffic** (`/ai-traffic`) → **Edge Traffic**. Allow a few minutes for data to appear.
 
 Direct ingest smoke test (optional):
 
@@ -234,7 +234,7 @@ Expect `200 OK`.
 | --- | --- |
 | `401` from ingest | Token missing, wrong secret, or revoked — confirm `CITABLE_INGEST_TOKEN` matches Connectors; recreate credentials if needed |
 | `400 Invalid payload` | Missing `siteId`, `timestamp`, or `trafficType` in JSON body |
-| No data in Agent Analytics | `siteId` in Worker must match what Citable registered; confirm brand in Citable UI |
+| No data in Agent Traffic | `siteId` in Worker must match what Citable registered; confirm brand in Citable UI |
 | Worker errors in CF dashboard | Workers → your script → Logs; verify `INGEST_URL` and route pattern |
 | Crawlers blocked before Worker | Cloudflare Bot Fight / Block AI bots may filter requests — add a skip rule for your hostname |
 
